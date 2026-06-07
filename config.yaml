@@ -1,6 +1,6 @@
 baseURL: "https://rishav-banerjee.com"
 languageCode: en-us
-title: Your Name
+title: Rishav Banerjee
 enableRobotsTXT: true
 disableKinds:
   - taxonomy
@@ -28,7 +28,7 @@ markup:
       unsafe: true
 
 params:
-  author: Your Name
+  author: Rishav Banerjee
   description: Personal portfolio
   copyright: powered by [Hugo](https://gohugo.io/)
   theme:
