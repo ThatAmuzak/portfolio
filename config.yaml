@@ -1,0 +1,44 @@
+baseURL: /
+languageCode: en-us
+title: Your Name
+
+disableKinds:
+  - taxonomy
+  - term
+  - RSS
+
+build:
+  writeStats: true
+
+markup:
+  goldmark:
+    extensions:
+      definitionList: true
+      footnote: true
+      linkify: true
+      strikethrough: true
+      table: true
+      taskList: true
+    parser:
+      attribute:
+        block: true
+        title: true
+      autoHeadingIDType: github
+    renderer:
+      unsafe: true
+
+params:
+  author: Your Name
+  description: Personal portfolio
+  copyright: powered by [Hugo](https://gohugo.io/)
+  theme:
+    mainTheme: dark
+    showAttribute: true
+    singlePage: false
+  accordion:
+    - item: about_me
+    - item: experiences
+    - item: education
+    - item: publications
+    - item: skills
+      panel_id: skill-panel

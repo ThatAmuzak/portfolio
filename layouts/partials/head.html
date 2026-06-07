@@ -1,0 +1,226 @@
+<head>
+  {{ if .IsHome }}
+  <title>{{ .Site.Title }}</title>
+  {{ else }}
+  <title>{{ .Title }} - {{ .Site.Title }}</title>
+  {{ end }}
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+  />
+  <meta name="theme-color" content="" />
+  <meta name="description" content="{{ .Site.Params.description }}" />
+  <meta name="author" content="{{ .Site.Params.author }}" />
+  <link rel="icon" href="{{ `resume.ico` | relURL }}" type="image/x-icon" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="//fonts.googleapis.com/css?family=Didact+Gothic%7CRoboto:400%7CRoboto+Mono"
+  />
+
+  {{ $css := resources.Get "main.css" | css.TailwindCSS }} {{ if
+  hugo.IsProduction }} {{ with $css | minify | fingerprint }}
+  <link
+    rel="stylesheet"
+    href="{{ .RelPermalink }}"
+    integrity="{{ .Data.Integrity | safeHTMLAttr }}"
+    crossorigin="anonymous"
+  />
+  {{ end }} {{ else}}
+  <link href="{{ $css.RelPermalink }}" rel="stylesheet" />
+  {{ end }}
+
+  <script>
+    const getAccordionHeaders = () =>
+      Array.from(document.querySelectorAll(".accordion")).filter((acc) =>
+        acc.nextElementSibling?.classList.contains("panel"),
+      );
+
+    const resetSkillBars = () => {
+      if (!document.querySelector("#skill-panel")) return;
+      let skillBars = Array.from(document.querySelectorAll("#skill-percent"));
+      skillBars.forEach((elem) => {
+        elem.style.width = "0";
+      });
+    };
+
+    const fillSkillBars = () => {
+      let skillBars = Array.from(document.querySelectorAll("#skill-percent"));
+      skillBars.forEach((elem) => {
+        elem.style.width = elem.classList[0];
+      });
+    };
+
+    const closeAccordion = (accordion) => {
+      if (!accordion) return;
+      accordion.classList.remove("active");
+      const panel = accordion.nextElementSibling;
+      if (panel?.classList.contains("panel")) {
+        panel.style.maxHeight = null;
+      }
+      if (panel?.id === "skill-panel") {
+        resetSkillBars();
+      }
+    };
+
+    const openAccordion = (accordion) => {
+      if (!accordion) return;
+      const panel = accordion.nextElementSibling;
+      if (!panel?.classList.contains("panel")) return;
+
+      accordion.classList.add("active");
+      panel.style.maxHeight = panel.scrollHeight + "px";
+      if (panel.id === "skill-panel") {
+        fillSkillBars();
+      }
+    };
+
+    const updateAccordionToggleButton = () => {
+      const button = document.querySelector("#accordion-toggle-button");
+      if (!button) return;
+
+      const accordions = getAccordionHeaders();
+      const allExpanded =
+        accordions.length > 0 &&
+        accordions.every((accordion) => accordion.classList.contains("active"));
+      const icon = button.querySelector("i");
+
+      if (icon) {
+        icon.classList.toggle("bi-chevron-double-down", !allExpanded);
+        icon.classList.toggle("bi-chevron-double-up", allExpanded);
+      }
+
+      const label = allExpanded
+        ? "Collapse all sections"
+        : "Expand all sections";
+      button.title = label;
+      button.setAttribute("aria-label", label);
+    };
+
+    const collapseAllAccordions = () => {
+      getAccordionHeaders().forEach((accordion) => closeAccordion(accordion));
+      updateAccordionToggleButton();
+    };
+
+    const expandAllAccordions = () => {
+      getAccordionHeaders().forEach((accordion) => openAccordion(accordion));
+      updateAccordionToggleButton();
+    };
+
+    const toggleAllAccordions = () => {
+      const accordions = getAccordionHeaders();
+      const allExpanded =
+        accordions.length > 0 &&
+        accordions.every((accordion) => accordion.classList.contains("active"));
+
+      if (allExpanded) {
+        collapseAllAccordions();
+      } else {
+        expandAllAccordions();
+      }
+    };
+
+    const expandAccordion = (elem) => {
+      const currentAccordion = elem.closest(".accordion");
+      if (!currentAccordion) return;
+
+      const isActive = currentAccordion.classList.contains("active");
+      if (isActive) {
+        closeAccordion(currentAccordion);
+        updateAccordionToggleButton();
+        return;
+      }
+
+      getAccordionHeaders().forEach((accordion) => {
+        if (accordion !== currentAccordion) {
+          closeAccordion(accordion);
+        }
+      });
+      openAccordion(currentAccordion);
+      updateAccordionToggleButton();
+    };
+  </script>
+
+  <script>
+    let html = document.querySelector("html");
+    let theme = window.localStorage.getItem("theme");
+
+    const setTheme = (theme) => {
+      html.classList.remove("light");
+      if (theme === "dark") {
+        html.classList.add("dark");
+        window.localStorage.setItem("theme", "dark");
+      } else {
+        html.classList.remove("dark");
+        window.localStorage.setItem("theme", "light");
+      }
+      fixThemeToggleIcon(theme);
+    };
+
+    const fixThemeToggleIcon = (theme) => {
+      let themeToggle = document.querySelector(".theme-toggle");
+      if (themeToggle) {
+        if (theme === "dark") {
+          themeToggle.classList.remove("bi-moon");
+          themeToggle.classList.add("bi-brightness-high");
+        } else {
+          themeToggle.classList.remove("bi-brightness-high");
+          themeToggle.classList.add("bi-moon");
+        }
+      }
+    };
+
+    if (theme == null) {
+      if (html.classList.contains("dark")) {
+        theme = "dark";
+      } else if (html.classList.contains("light")) {
+        theme = "light";
+      } else {
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        if (prefersDark) {
+          theme = "dark";
+        } else {
+          theme = "light";
+        }
+      }
+    }
+
+    setTheme(theme);
+
+    const toggleTheme = () => {
+      html.classList.contains("dark") ? setTheme("light") : setTheme("dark");
+    };
+
+    const resizeOpenAccordions = () => {
+      getAccordionHeaders().forEach((accordion) => {
+        if (accordion.classList.contains("active")) {
+          const panel = accordion.nextElementSibling;
+          if (panel?.classList.contains("panel")) {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+          }
+        }
+      });
+    };
+
+    window.onload = () => {
+      fixThemeToggleIcon(theme);
+      resizeOpenAccordions();
+      updateAccordionToggleButton();
+    };
+
+    window.onresize = () => {
+      resizeOpenAccordions();
+      updateAccordionToggleButton();
+    };
+  </script>
+</head>

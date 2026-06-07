@@ -1,0 +1,106 @@
+{{ define "main" }}
+{{ $pages := .RegularPages.ByDate.Reverse }}
+{{ $allTags := slice }}
+{{ range $pages }}
+  {{ with .Params.tags }}
+    {{ range . }}
+      {{ $allTags = $allTags | append . }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ $allTags = sort ($allTags | uniq) }}
+
+<div>
+  <h1 class="standard font-bold">{{- .Title -}}</h1>
+
+  {{ if gt (len $allTags) 0 }}
+  <div class="mb-6">
+    <h3 class="text-lg mb-2">Filter by tag</h3>
+    <div id="blog-tag-filters" class="flex flex-wrap gap-2">
+      <button type="button" class="tags cursor-pointer" data-tag="all">All</button>
+      {{ range $allTags }}
+      <button type="button" class="tags cursor-pointer" data-tag="{{ . | urlize }}">#{{ . }}</button>
+      {{ end }}
+    </div>
+  </div>
+  {{ end }}
+
+  <div id="blog-list" class="space-y-6">
+    {{ range $pages }}
+    <article class="blog-card rounded-sm border border-gray-300 dark:border-gray-700 p-4" data-tags="{{ range $i, $tag := .Params.tags }}{{ if $i }},{{ end }}{{ $tag | urlize }}{{ end }}">
+      <h2 class="text-2xl mb-1"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      <p class="mt-0 mb-2 text-sm">{{ .Date.Format "January 2, 2006" }}</p>
+      {{ with .Params.tags }}
+      <div class="mb-3 flex flex-wrap gap-2">
+        {{ range . }}
+        <button type="button" class="tags cursor-pointer blog-inline-tag" data-tag="{{ . | urlize }}">#{{ . }}</button>
+        {{ end }}
+      </div>
+      {{ end }}
+      {{ with .Params.summary }}
+      <p class="mb-0">{{ . }}</p>
+      {{ else }}
+      <p class="mb-0">{{ .Summary | plainify }}</p>
+      {{ end }}
+    </article>
+    {{ end }}
+  </div>
+
+  <p id="blog-empty-state" class="hidden mt-6">No blog posts match that tag.</p>
+</div>
+
+<script>
+  (() => {
+    const filterBar = document.querySelector('#blog-tag-filters');
+    const cards = Array.from(document.querySelectorAll('.blog-card'));
+    const emptyState = document.querySelector('#blog-empty-state');
+    if (!cards.length) return;
+
+    const setActive = (tag) => {
+      document.querySelectorAll('#blog-tag-filters [data-tag]').forEach((el) => {
+        if (el.dataset.tag === tag || (tag === 'all' && el.dataset.tag === 'all')) {
+          el.classList.add('blog-filter-active');
+        } else {
+          el.classList.remove('blog-filter-active');
+        }
+      });
+    };
+
+    const applyFilter = (tag) => {
+      let visible = 0;
+      cards.forEach((card) => {
+        const tags = (card.dataset.tags || '').split(',').filter(Boolean);
+        const show = tag === 'all' || tags.includes(tag);
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      if (emptyState) emptyState.classList.toggle('hidden', visible !== 0);
+      setActive(tag);
+
+      const url = new URL(window.location.href);
+      if (tag === 'all') {
+        url.searchParams.delete('tag');
+      } else {
+        url.searchParams.set('tag', tag);
+      }
+      window.history.replaceState({}, '', url);
+    };
+
+    filterBar?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-tag]');
+      if (!btn) return;
+      applyFilter(btn.dataset.tag || 'all');
+    });
+
+    document.querySelector('#blog-list')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.blog-inline-tag');
+      if (!btn) return;
+      applyFilter(btn.dataset.tag || 'all');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    const initial = new URLSearchParams(window.location.search).get('tag') || 'all';
+    applyFilter(initial);
+  })();
+</script>
+{{ end }}

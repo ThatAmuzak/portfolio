@@ -1,0 +1,24 @@
+{{ range .Site.Data.education.list }}
+
+<h4 class="flex items-baseline gap-2">
+  <span style="text-decoration: underline;">{{ .degree }}</span>
+  {{ with .cgpa }}
+  <span class="text-base font-normal text-gray-500 dark:text-gray-400 no-underline">{{ . }}</span>
+  {{ end }}
+</h4>
+<p {{ if .thesis_title }}class="mb-0" {{ end }}>
+  {{- .dates | markdownify }} &middot; {{ .college | markdownify -}}
+</p>
+{{ if .thesis_title }}
+{{ if .thesis_url }}
+<p class="ms-2">
+  Thesis:
+  <a href="{{ .thesis_url }}"><i>{{ .thesis_title }}</i></a>
+</p>
+{{ else }}
+<p>
+  Thesis: <i>{{ .thesis_title }}</i>
+</p>
+{{ end }}
+{{ end }}
+{{ end }}

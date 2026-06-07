@@ -1,0 +1,32 @@
+<header
+  class="nav flex flex-row row py-2 mb-6 w-full border-b border-gray-700 dark:border-gray-300 justify-between"
+>
+  <div>
+    <a class="nav-menu-item" href="{{ `/` | relURL }}">Home</a>
+    <a class="nav-menu-item" href="{{ `blogs` | relURL }}">Blog</a>
+    <a class="nav-menu-item" href="{{ `ResumeRishavBanerjee.pdf` | relURL }}" download>Resume</a>
+  </div>
+  <div>
+    {{ if .IsHome }}
+    <button
+      type="button"
+      id="accordion-toggle-button"
+      class="mr-4 cursor-pointer rounded-sm px-2 py-1 border border-blue-500 bg-blue-500 text-stone-50 hover:bg-blue-700 hover:border-blue-700 dark:border-yellow-300 dark:bg-yellow-300 dark:text-gray-900 dark:hover:bg-yellow-500 dark:hover:border-yellow-500 transition-colors"
+      onclick="toggleAllAccordions()"
+      title="Expand all sections"
+      aria-label="Expand all sections"
+    >
+      <i class="bi bi-chevron-double-down"></i>
+    </button>
+    {{ end }}
+    <a class="mr-4 no-underline" href="{{ `search` | relURL }}">
+      <i class="bi bi-search"></i>
+    </a>
+    <i
+      class="bi bi-brightness-high theme-toggle text-blue-500 hover:text-blue-700 dark:text-yellow-300 dark:hover:text-yellow-500 cursor-pointer text-lg mr-9 sm:mr-0"
+      onclick="toggleTheme()"
+    ></i>
+  </div>
+</header>
+
+{{ partial "toggleTheme.html" . }}

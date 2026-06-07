@@ -1,0 +1,22 @@
+[
+  {
+    "icon": "bi bi-github",
+    "url": "https://github.com/thatAmuzak",
+    "title": "GitHub"
+  },
+  {
+    "icon": "bi bi-linkedin",
+    "url": "https://www.linkedin.com/in/gamuzak/",
+    "title": "LinkedIn"
+  },
+  {
+    "icon": "ai ai-google-scholar",
+    "url": "https://scholar.google.ca/citations?user=BCxHXwcAAAAJ",
+    "title": "Google Scholar"
+  },
+  {
+    "icon": "bi bi-envelope",
+    "url": "mailto:rishavbanerjee1710@gmail.com",
+    "title": "Email"
+  }
+]
