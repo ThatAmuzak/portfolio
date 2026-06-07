@@ -1,7 +1,7 @@
 baseURL: "https://rishav-banerjee.com"
 languageCode: en-us
 title: Your Name
-
+enableRobotsTXT: true
 disableKinds:
   - taxonomy
   - term
