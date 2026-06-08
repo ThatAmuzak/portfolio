@@ -29,7 +29,7 @@ markup:
 
 params:
   author: Rishav Banerjee
-  description: Personal portfolio
+  description: Portfolio of Rishav Banerjee — researcher and developer working in HCI, VR, robotics, Unity, and Python.
   copyright: powered by [Hugo](https://gohugo.io/)
   theme:
     mainTheme: dark

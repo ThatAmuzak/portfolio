@@ -1,17 +1,35 @@
 <head>
-  {{ if .IsHome }}
-  <title>{{ .Site.Title }}</title>
-  {{ else }}
-  <title>{{ .Title }} - {{ .Site.Title }}</title>
+  {{ $isSearchPage := eq .Section `search` }}
+  {{ $pageTitle := .Site.Title }}
+  {{ with .Site.Data.profile.tagline }}
+  {{ if $.IsHome }}
+  {{ $pageTitle = printf "%s | %s" $.Site.Title . }}
   {{ end }}
+  {{ end }}
+  {{ if not .IsHome }}
+  {{ $pageTitle = printf "%s - %s" .Title .Site.Title }}
+  {{ end }}
+  {{ $pageDescription := .Site.Params.description }}
+  {{ if .Params.description }}
+  {{ $pageDescription = .Params.description }}
+  {{ else if .Params.summary }}
+  {{ $pageDescription = .Params.summary }}
+  {{ else if and (not .IsHome) .Summary }}
+  {{ $pageDescription = .Summary | plainify | htmlUnescape | truncate 160 }}
+  {{ end }}
+  <title>{{ $pageTitle }}</title>
   <meta charset="UTF-8" />
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
   />
   <meta name="theme-color" content="" />
-  <meta name="description" content="{{ .Site.Params.description }}" />
+  <meta name="description" content="{{ $pageDescription }}" />
   <meta name="author" content="{{ .Site.Params.author }}" />
+  {{ if $isSearchPage }}
+  <meta name="robots" content="noindex,follow" />
+  {{ end }}
+  <link rel="canonical" href="{{ .Permalink }}" />
   <link rel="icon" href="{{ `resume.ico` | relURL }}" type="image/x-icon" />
   <link
     rel="stylesheet"
