@@ -1,3 +1,5 @@
+window.Portfolio = window.Portfolio || {};
+
 // ---- Accordion helpers ----
 const getAccordionHeaders = () =>
   Array.from(document.querySelectorAll(".accordion")).filter((acc) =>
@@ -172,6 +174,13 @@ const resizeOpenAccordions = () => {
     }
   });
 };
+
+// ---- Public API ----
+window.Portfolio.expandAccordion = expandAccordion;
+window.Portfolio.toggleTheme = toggleTheme;
+window.Portfolio.toggleAllAccordions = toggleAllAccordions;
+window.Portfolio.collapseAllAccordions = collapseAllAccordions;
+window.Portfolio.expandAllAccordions = expandAllAccordions;
 
 // ---- Init ----
 window.addEventListener("load", () => {

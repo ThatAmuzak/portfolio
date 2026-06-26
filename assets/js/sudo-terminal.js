@@ -1,3 +1,5 @@
+window.Portfolio = window.Portfolio || {};
+
 const sudoTerminalScript = [
   {
     cmd: "sudo make me a sandwich",
@@ -142,6 +144,9 @@ const closeSudoTerminal = () => {
   sudoGeneration++;
   if (sudoResetTimer) clearTimeout(sudoResetTimer);
 };
+
+window.Portfolio.openSudoTerminal = openSudoTerminal;
+window.Portfolio.closeSudoTerminal = closeSudoTerminal;
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {

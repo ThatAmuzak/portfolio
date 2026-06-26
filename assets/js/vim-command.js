@@ -128,14 +128,14 @@ const executeVimCommand = () => {
       for (const header of headers) {
         if (header.textContent.trim() === targetTitle) {
           const p = header.querySelector("p");
-          if (p && typeof expandAccordion === "function") expandAccordion(p);
+          if (p && window.Portfolio.expandAccordion) window.Portfolio.expandAccordion(p);
           break;
         }
       }
       break;
     }
     case "sudo":
-      if (typeof openSudoTerminal === "function") openSudoTerminal();
+      if (window.Portfolio.openSudoTerminal) window.Portfolio.openSudoTerminal();
       break;
     case "navigate":
       window.location.href = cmd.target;
@@ -151,7 +151,7 @@ const executeVimCommand = () => {
       break;
     }
     case "toggle_theme":
-      if (typeof toggleTheme === "function") toggleTheme();
+      if (window.Portfolio.toggleTheme) window.Portfolio.toggleTheme();
       break;
   }
 };
