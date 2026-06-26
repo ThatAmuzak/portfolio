@@ -1,75 +1,33 @@
-// ---- Command Registry ----
-const vimCommands = [
-  { aliases: ["about_me", "about me", "about"], action: "accordion", target: "about_me" },
-  { aliases: ["experiences", "experience", "exp", "work"], action: "accordion", target: "experiences" },
-  { aliases: ["education", "edu"], action: "accordion", target: "education" },
-  { aliases: ["publications", "publication", "pubs", "pub"], action: "accordion", target: "publications" },
-  { aliases: ["skills", "skill"], action: "accordion", target: "skills" },
-  { aliases: ["sudo"], action: "sudo" },
-  { aliases: ["blogs", "blog"], action: "navigate", target: "/blogs" },
-  { aliases: ["resume", "cv"], action: "resume" },
-  { aliases: ["toggle_dark_mode", "toggle_theme", "theme", "dark_mode"], action: "toggle_theme" },
-  { aliases: ["home"], action: "navigate", target: "/" },
-];
-
-// Accordion title mapping (used to locate the right h2.accordion element)
-const accordionTitles = {
-  about_me: "(Sorta) About Me",
-  experiences: "Experience",
-  education: "Education",
-  publications: "Publications",
-  skills: "Skills",
-};
+// ---- Command Palette ----
+// Triggered by : (vim-style) or Alt+x / M-x (emacs-style).
+// Command registry, matching, and execution live in command-palette.js.
+// This file handles the overlay UI and keyboard input.
 
 // ---- State ----
-let vimActive = false;
-let vimInput = "";
-let vimMatches = []; // { alias, cmdIndex }
-let vimSelectedIndex = 0;
+let paletteActive = false;
+let paletteMode = "vim";   // "vim" or "emacs"
+let paletteInput = "";
+let paletteMatches = [];
+let paletteSelectedIndex = 0;
+
+// ---- prompt prefix per mode ----
+const promptPrefix = { vim: ":", emacs: "M-x" };
 
 // ---- DOM helpers ----
-const getVimOverlay = () => document.getElementById("vim-command-overlay");
-const getVimInput = () => document.getElementById("vim-command-input");
-const getVimSuggestions = () => document.getElementById("vim-command-suggestions");
+const getPaletteOverlay = () => document.getElementById("vim-command-overlay");
+const getPaletteInput = () => document.getElementById("vim-command-input");
+const getPaletteSuggestions = () => document.getElementById("vim-command-suggestions");
+const getPalettePrompt = () => document.getElementById("vim-command-prompt");
 const getSudoOverlay = () => document.getElementById("sudo-terminal-overlay");
 
-const isInputFocused = () => {
-  const el = document.activeElement;
-  return el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
-};
-
-// ---- Matching ----
-const computeVimMatches = () => {
-  const query = vimInput.toLowerCase();
-  if (!query) return [];
-
-  const seen = new Set();
-  const results = [];
-
-  for (let i = 0; i < vimCommands.length; i++) {
-    for (const alias of vimCommands[i].aliases) {
-      if (alias.toLowerCase().includes(query)) {
-        if (!seen.has(i)) {
-          seen.add(i);
-          results.push({ alias, cmdIndex: i });
-        }
-        break; // first matching alias wins for display
-      }
-    }
-  }
-
-  return results;
-};
-
 // ---- Rendering ----
-const renderVimSuggestions = () => {
-  const container = getVimSuggestions();
+const renderPaletteSuggestions = () => {
+  const container = getPaletteSuggestions();
   if (!container) return;
 
-  // Hide only on exact match (case-insensitive)
   const exactMatch =
-    vimMatches.length === 1 &&
-    vimMatches[0].alias.toLowerCase() === vimInput.toLowerCase();
+    paletteMatches.length === 1 &&
+    paletteMatches[0].alias.toLowerCase() === paletteInput.toLowerCase();
 
   if (exactMatch) {
     container.innerHTML = "";
@@ -77,12 +35,11 @@ const renderVimSuggestions = () => {
     return;
   }
 
-  // Always show suggestions bar otherwise
   container.classList.remove("hidden");
   container.innerHTML = "";
 
-  if (vimMatches.length === 0) {
-    if (vimInput.length > 0) {
+  if (paletteMatches.length === 0) {
+    if (paletteInput.length > 0) {
       const span = document.createElement("span");
       span.textContent = "no matches";
       span.className = "px-2 py-1 text-gray-500 text-sm italic";
@@ -91,173 +48,176 @@ const renderVimSuggestions = () => {
     return;
   }
 
-  vimMatches.forEach((match, idx) => {
+  paletteMatches.forEach((match, idx) => {
     const span = document.createElement("span");
     span.textContent = match.alias;
     span.className =
       "px-2 py-1 mx-0.5 rounded cursor-pointer font-mono text-sm " +
-      (idx === vimSelectedIndex
+      (idx === paletteSelectedIndex
         ? "bg-blue-500 text-white"
         : "bg-gray-700 text-gray-300 hover:bg-gray-600");
     span.addEventListener("click", (e) => {
       e.stopPropagation();
-      vimSelectedIndex = idx;
-      executeVimCommand();
+      paletteSelectedIndex = idx;
+      executePaletteCommand();
     });
     container.appendChild(span);
   });
 };
 
-const renderVimInput = () => {
-  const input = getVimInput();
-  if (input) input.textContent = vimInput;
+const renderPaletteInput = () => {
+  const input = getPaletteInput();
+  if (input) input.textContent = paletteInput;
+};
+
+const renderPalettePrompt = () => {
+  const prompt = getPalettePrompt();
+  if (prompt) prompt.textContent = promptPrefix[paletteMode];
 };
 
 // ---- Execution ----
-const executeVimCommand = () => {
-  if (vimMatches.length === 0 || vimSelectedIndex >= vimMatches.length) return;
+const executePaletteCommand = () => {
+  if (paletteMatches.length === 0 || paletteSelectedIndex >= paletteMatches.length) return;
 
-  const cmd = vimCommands[vimMatches[vimSelectedIndex].cmdIndex];
-  closeVimBar();
-
-  switch (cmd.action) {
-    case "accordion": {
-      const targetTitle = accordionTitles[cmd.target];
-      if (!targetTitle) break;
-      const headers = document.querySelectorAll("h2.accordion");
-      for (const header of headers) {
-        if (header.textContent.trim() === targetTitle) {
-          const p = header.querySelector("p");
-          if (p && window.Portfolio.expandAccordion) window.Portfolio.expandAccordion(p);
-          break;
-        }
-      }
-      break;
-    }
-    case "sudo":
-      if (window.Portfolio.openSudoTerminal) window.Portfolio.openSudoTerminal();
-      break;
-    case "navigate":
-      window.location.href = cmd.target;
-      break;
-    case "resume": {
-      const a = document.createElement("a");
-      a.href = "/ResumeRishavBanerjee.pdf";
-      a.download = "";
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      break;
-    }
-    case "toggle_theme":
-      if (window.Portfolio.toggleTheme) window.Portfolio.toggleTheme();
-      break;
-  }
+  const cmd = window.Portfolio.paletteCommands[paletteMatches[paletteSelectedIndex].cmdIndex];
+  closePaletteBar();
+  window.Portfolio.executePaletteCommand(cmd);
 };
 
 // ---- Open / Close ----
-const openVimBar = () => {
-  if (vimActive) return;
-  const overlay = getVimOverlay();
+const openPaletteBar = (mode) => {
+  if (paletteActive) return;
+  const overlay = getPaletteOverlay();
   if (!overlay) return;
 
-  vimActive = true;
-  vimInput = "";
-  vimMatches = [];
-  vimSelectedIndex = 0;
+  paletteActive = true;
+  paletteMode = mode;
+  paletteInput = "";
+  paletteMatches = [];
+  paletteSelectedIndex = 0;
 
   overlay.classList.remove("hidden");
-  renderVimInput();
-  renderVimSuggestions();
+  renderPalettePrompt();
+  renderPaletteInput();
+  renderPaletteSuggestions();
 };
 
-const closeVimBar = () => {
-  vimActive = false;
-  vimInput = "";
-  vimMatches = [];
-  vimSelectedIndex = 0;
+const closePaletteBar = () => {
+  paletteActive = false;
+  paletteMode = "vim";
+  paletteInput = "";
+  paletteMatches = [];
+  paletteSelectedIndex = 0;
 
-  const overlay = getVimOverlay();
+  const overlay = getPaletteOverlay();
   if (overlay) overlay.classList.add("hidden");
 
-  const suggestions = getVimSuggestions();
+  const suggestions = getPaletteSuggestions();
   if (suggestions) {
     suggestions.innerHTML = "";
     suggestions.classList.add("hidden");
   }
 
-  const input = getVimInput();
+  const input = getPaletteInput();
   if (input) input.textContent = "";
 };
 
 // ---- Keyboard handling ----
 document.addEventListener("keydown", (e) => {
-  // Open vim bar on colon
-  if (e.key === ":" && !vimActive && !isInputFocused()) {
+  const isInputFocused = window.Portfolio.paletteIsInputFocused;
+
+  // Open on : (vim) or Alt+x / M-x (emacs)
+  if (!paletteActive && !isInputFocused()) {
     const sudoOverlay = getSudoOverlay();
     if (sudoOverlay && !sudoOverlay.classList.contains("hidden")) return;
-    e.preventDefault();
-    openVimBar();
-    return;
+
+    if (e.key === ":") {
+      e.preventDefault();
+      openPaletteBar("vim");
+      return;
+    }
+
+    // Alt+x (handles both Alt and Meta for macOS Option key)
+    if ((e.altKey || e.metaKey) && e.key.toLowerCase() === "x" && !e.ctrlKey) {
+      e.preventDefault();
+      openPaletteBar("emacs");
+      return;
+    }
   }
 
-  if (!vimActive) return;
+  if (!paletteActive) return;
 
-  const overlay = getVimOverlay();
+  const overlay = getPaletteOverlay();
   if (!overlay || overlay.classList.contains("hidden")) return;
 
-  if (e.key === "Escape") {
+  // Emacs C-g cancels, same as Escape
+  if (e.key === "Escape" || (e.ctrlKey && e.key === "g")) {
     e.preventDefault();
-    closeVimBar();
+    closePaletteBar();
     return;
   }
 
   if (e.key === "Enter") {
     e.preventDefault();
-    if (vimMatches.length > 0 && vimSelectedIndex < vimMatches.length) {
-      executeVimCommand();
+    if (paletteMatches.length > 0 && paletteSelectedIndex < paletteMatches.length) {
+      executePaletteCommand();
     } else {
-      closeVimBar();
+      closePaletteBar();
     }
     return;
   }
 
   if (e.key === "Tab") {
     e.preventDefault();
-    if (vimMatches.length === 0) return;
-    if (vimMatches.length === 1) {
-      // Autocomplete to the alias
-      vimInput = vimMatches[0].alias;
-      renderVimInput();
-      vimMatches = computeVimMatches();
-      vimSelectedIndex = 0;
-      renderVimSuggestions();
+    if (paletteMatches.length === 0) return;
+    if (paletteMatches.length === 1) {
+      paletteInput = paletteMatches[0].alias;
+      renderPaletteInput();
+      paletteMatches = window.Portfolio.computePaletteMatches(paletteInput);
+      paletteSelectedIndex = 0;
+      renderPaletteSuggestions();
     } else {
-      // Cycle through matches
-      vimSelectedIndex = (vimSelectedIndex + 1) % vimMatches.length;
-      renderVimSuggestions();
+      paletteSelectedIndex = (paletteSelectedIndex + 1) % paletteMatches.length;
+      renderPaletteSuggestions();
+    }
+    return;
+  }
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    if (paletteMatches.length > 0) {
+      paletteSelectedIndex = (paletteSelectedIndex + 1) % paletteMatches.length;
+      renderPaletteSuggestions();
+    }
+    return;
+  }
+
+  if (e.key === "ArrowUp") {
+    e.preventDefault();
+    if (paletteMatches.length > 0) {
+      paletteSelectedIndex = (paletteSelectedIndex - 1 + paletteMatches.length) % paletteMatches.length;
+      renderPaletteSuggestions();
     }
     return;
   }
 
   if (e.key === "Backspace") {
     e.preventDefault();
-    vimInput = vimInput.slice(0, -1);
-    renderVimInput();
-    vimMatches = computeVimMatches();
-    vimSelectedIndex = 0;
-    renderVimSuggestions();
+    paletteInput = paletteInput.slice(0, -1);
+    renderPaletteInput();
+    paletteMatches = window.Portfolio.computePaletteMatches(paletteInput);
+    paletteSelectedIndex = 0;
+    renderPaletteSuggestions();
     return;
   }
 
   // Printable characters
-  if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+  if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
     e.preventDefault();
-    vimInput += e.key;
-    renderVimInput();
-    vimMatches = computeVimMatches();
-    vimSelectedIndex = 0;
-    renderVimSuggestions();
+    paletteInput += e.key;
+    renderPaletteInput();
+    paletteMatches = window.Portfolio.computePaletteMatches(paletteInput);
+    paletteSelectedIndex = 0;
+    renderPaletteSuggestions();
   }
 });

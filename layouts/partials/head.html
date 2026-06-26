@@ -57,6 +57,7 @@
   {{ end }}
 
   {{ partial "script.html" (dict "src" "js/main.js") }}
+  {{ partial "script.html" (dict "src" "js/command-palette.js" "defer" true) }}
   {{ partial "script.html" (dict "src" "js/sudo-terminal.js" "defer" true) }}
   {{ partial "script.html" (dict "src" "js/vim-command.js" "defer" true) }}
 </head>
