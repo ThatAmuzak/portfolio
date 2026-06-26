@@ -150,7 +150,10 @@ window.Portfolio.closeSudoTerminal = closeSudoTerminal;
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    closeSudoTerminal();
+    const overlay = document.getElementById("sudo-terminal-overlay");
+    if (overlay && !overlay.classList.contains("hidden")) {
+      closeSudoTerminal();
+    }
     return;
   }
 
