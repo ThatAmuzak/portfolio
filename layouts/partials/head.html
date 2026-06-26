@@ -250,4 +250,13 @@
   {{ else }}
   <script src="{{ $sudoJS.RelPermalink }}" defer></script>
   {{ end }}
+
+  {{ $vimJS := resources.Get "js/vim-command.js" }}
+  {{ if hugo.IsProduction }}
+  {{ with $vimJS | minify | fingerprint }}
+  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity | safeHTMLAttr }}" crossorigin="anonymous" defer></script>
+  {{ end }}
+  {{ else }}
+  <script src="{{ $vimJS.RelPermalink }}" defer></script>
+  {{ end }}
 </head>
