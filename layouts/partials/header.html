@@ -5,6 +5,7 @@
     <a class="nav-menu-item" href="{{ `/` | relURL }}">Home</a>
     <a class="nav-menu-item" href="{{ `blogs` | relURL }}">Blog</a>
     <a class="nav-menu-item" href="{{ `ResumeRishavBanerjee.pdf` | relURL }}" download>Resume</a>
+    <span class="nav-menu-item text-gray-400 dark:text-gray-600 cursor-pointer select-none opacity-40 hover:opacity-70 transition-opacity" onclick="openSudoTerminal()" title="">sudo</span>
   </div>
   <div>
     {{ if .IsHome }}

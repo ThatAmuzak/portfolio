@@ -241,4 +241,13 @@
       updateAccordionToggleButton();
     };
   </script>
+
+  {{ $sudoJS := resources.Get "js/sudo-terminal.js" }}
+  {{ if hugo.IsProduction }}
+  {{ with $sudoJS | minify | fingerprint }}
+  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity | safeHTMLAttr }}" crossorigin="anonymous" defer></script>
+  {{ end }}
+  {{ else }}
+  <script src="{{ $sudoJS.RelPermalink }}" defer></script>
+  {{ end }}
 </head>
