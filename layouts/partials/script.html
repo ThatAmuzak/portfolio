@@ -1,0 +1,10 @@
+{{ $src := .src }}
+{{ $defer := .defer | default false }}
+{{ $js := resources.Get $src }}
+{{ if hugo.IsProduction }}
+{{ with $js | minify | fingerprint }}
+<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity | safeHTMLAttr }}" crossorigin="anonymous"{{ if $defer }} defer{{ end }}></script>
+{{ end }}
+{{ else }}
+<script src="{{ $js.RelPermalink }}"{{ if $defer }} defer{{ end }}></script>
+{{ end }}

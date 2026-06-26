@@ -56,30 +56,7 @@
   <link href="{{ $css.RelPermalink }}" rel="stylesheet" />
   {{ end }}
 
-  {{ $mainJS := resources.Get "js/main.js" }}
-  {{ if hugo.IsProduction }}
-  {{ with $mainJS | minify | fingerprint }}
-  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity | safeHTMLAttr }}" crossorigin="anonymous"></script>
-  {{ end }}
-  {{ else }}
-  <script src="{{ $mainJS.RelPermalink }}"></script>
-  {{ end }}
-
-  {{ $sudoJS := resources.Get "js/sudo-terminal.js" }}
-  {{ if hugo.IsProduction }}
-  {{ with $sudoJS | minify | fingerprint }}
-  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity | safeHTMLAttr }}" crossorigin="anonymous" defer></script>
-  {{ end }}
-  {{ else }}
-  <script src="{{ $sudoJS.RelPermalink }}" defer></script>
-  {{ end }}
-
-  {{ $vimJS := resources.Get "js/vim-command.js" }}
-  {{ if hugo.IsProduction }}
-  {{ with $vimJS | minify | fingerprint }}
-  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity | safeHTMLAttr }}" crossorigin="anonymous" defer></script>
-  {{ end }}
-  {{ else }}
-  <script src="{{ $vimJS.RelPermalink }}" defer></script>
-  {{ end }}
+  {{ partial "script.html" (dict "src" "js/main.js") }}
+  {{ partial "script.html" (dict "src" "js/sudo-terminal.js" "defer" true) }}
+  {{ partial "script.html" (dict "src" "js/vim-command.js" "defer" true) }}
 </head>
