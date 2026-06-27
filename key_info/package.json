@@ -1,0 +1,18 @@
+{
+  "name": "aafu",
+  "version": "2025.11.30",
+  "description": "The aafu theme is a responsive portfolio with blog.",
+  "main": "index.js",
+  "keywords": [
+    "hugo",
+    "portfolio"
+  ],
+  "author": "Darshan Baral",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.4",
+    "@tailwindcss/postcss": "^4.2.4",
+    "@tailwindcss/typography": "^0.5.19",
+    "tailwindcss": "^4.2.4"
+  }
+}

@@ -1,8 +1,5 @@
 node_modules/
-public/
-resources/_gen/
-.hugo_build.lock
-hugo_stats.json
+dist/
+.astro/
 .DS_Store
-.projectile-cache.eld
-portfolio_setup.jsonl
+*.local
