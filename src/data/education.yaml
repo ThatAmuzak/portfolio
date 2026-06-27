@@ -1,15 +1,15 @@
-label: "05 // EDUCATION"
-heading: "Academic Journey"
+label: '05 // EDUCATION'
+heading: 'Academic Journey'
 
 degrees:
-  - degree: "PhD — Computer Science"
-    institution: "University of British Columbia (Okanagan)"
-    url: "https://www.ubc.ca/"
-    dateRange: "Jan 2024 &ndash; May 2027 (expected)"
-    gpa: "CGPA: 3.7 / 4.0"
+  - degree: 'PhD — Computer Science'
+    institution: 'University of British Columbia (Okanagan)'
+    url: 'https://www.ubc.ca/'
+    dateRange: "Jan 2024 \u2013 May 2027 (expected)"
+    gpa: 'CGPA: 3.7 / 4.0'
 
-  - degree: "B.Tech — Computer Science"
-    institution: "SRM Institute of Science and Technology"
-    url: "https://www.srmist.edu.in/"
-    dateRange: "Jun 2019 &ndash; May 2023"
-    gpa: "CGPA: 9.3 / 10.0"
+  - degree: 'B.Tech — Computer Science'
+    institution: 'SRM Institute of Science and Technology'
+    url: 'https://www.srmist.edu.in/'
+    dateRange: "Jun 2019 \u2013 May 2023"
+    gpa: 'CGPA: 9.3 / 10.0'

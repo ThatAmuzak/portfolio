@@ -1,4 +1,6 @@
 ---
+import { load } from '../lib/data';
+import type { Site } from '../lib/types';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
@@ -9,25 +11,20 @@ import Skills from '../components/Skills.astro';
 import Education from '../components/Education.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
-import { load } from '../lib/data';
 
-const site = load('site.yaml');
-const hero = load('hero.yaml');
-const about = load('about.yaml');
-const experience = load('experience.yaml');
-const publications = load('publications.yaml');
-const skills = load('skills.yaml');
-const education = load('education.yaml');
-const contact = load('contact.yaml');
+const site = load<Site>('site.yaml');
 ---
+
 <BaseLayout title={site.title || 'Portfolio'} description={site.description || ''}>
   <Navbar />
-  {(hero.name || hero.subtitle) && <Hero />}
-  {(about.paragraphs || about.stats) && <About />}
-  {experience.jobs?.length && <Experience />}
-  {publications.papers?.length && <Publications />}
-  {skills.categories?.length && <Skills />}
-  {education.degrees?.length && <Education />}
-  {(contact.heading || site.email) && <Contact />}
+  <Hero />
+  <About />
+  <Experience />
+  <Publications />
+  <Skills />
+  <Education />
+  <Contact />
   <Footer />
 </BaseLayout>
+
+<!-- Projects hidden until real content is available: <Projects /> -->

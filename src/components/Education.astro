@@ -1,53 +1,82 @@
 ---
 import { load, LI, liSrc } from '../lib/data';
-const education = load('education.yaml');
-const degrees = education.degrees || [];
+import type { Education, Degree, DegreeHighlight } from '../lib/types';
+import SectionHeader from './SectionHeader.astro';
+
+const education = load<Education>('education.yaml');
+const degrees: Degree[] = education.degrees || [];
 ---
+
 <section id="education" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
-    {(education.label || education.heading) && (
-      <div class="reveal">
-        {education.label && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{education.label}</p>}
-        {education.heading && (
-          <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink mb-10 tracking-[-0.01em]">
-            {education.heading}
-          </h2>
-        )}
-      </div>
-    )}
+    <SectionHeader label={education.label} heading={education.heading} />
 
-    {degrees.length > 0 && (
-      <div class="space-y-6">
-        {degrees.map((deg: any, i: number) => (
-          <div class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-7 md:p-9`}>
-            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-5">
-              <div>
-                {deg.degree && <h3 class="font-display text-[22px] font-bold text-ink m-0">{deg.degree}</h3>}
-                {deg.institution && (
-                  <p class="text-[17px] text-ink-secondary m-0 mt-1">
-                    {deg.url ? <a href={deg.url} target="_blank" rel="noopener" class="text-ink-secondary hover:text-accent transition-colors no-underline">{deg.institution}</a> : deg.institution}
-                  </p>
-                )}
+    {
+      degrees.length > 0 && (
+        <div class="space-y-6">
+          {degrees.map((deg: Degree, i: number) => (
+            <div
+              class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-7 md:p-9`}
+            >
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-5">
+                <div>
+                  {deg.degree && (
+                    <h3 class="font-display text-[22px] font-bold text-ink m-0">{deg.degree}</h3>
+                  )}
+                  {deg.institution && (
+                    <p class="text-[17px] text-ink-secondary m-0 mt-1">
+                      {deg.url ? (
+                        <a
+                          href={deg.url}
+                          target="_blank"
+                          rel="noopener"
+                          class="text-ink-secondary hover:text-accent transition-colors no-underline"
+                        >
+                          {deg.institution}
+                        </a>
+                      ) : (
+                        deg.institution
+                      )}
+                    </p>
+                  )}
+                </div>
+                <div class="text-right shrink-0">
+                  {deg.dateRange && (
+                    <span class="text-[14px] text-ink-tertiary font-mono block">
+                      {deg.dateRange}
+                    </span>
+                  )}
+                  {deg.gpa && (
+                    <span class="text-[13px] font-mono text-accent font-medium block mt-1">
+                      {deg.gpa}
+                    </span>
+                  )}
+                </div>
               </div>
-              <div class="text-right shrink-0">
-                {deg.dateRange && <span class="text-[14px] text-ink-tertiary font-mono block" set:html={deg.dateRange} />}
-                {deg.gpa && <span class="text-[13px] font-mono text-accent font-medium block mt-1">{deg.gpa}</span>}
-              </div>
+
+              {deg.highlights && deg.highlights.length > 0 && (
+                <div class="grid sm:grid-cols-2 gap-3">
+                  {deg.highlights.map((h: DegreeHighlight) => (
+                    <div
+                      class={`flex items-center gap-3 p-3.5 rounded-[6px] ${h.featured ? 'bg-accent-wash' : 'bg-surface-sunken'}`}
+                    >
+                      {h.icon && (
+                        <lord-icon
+                          src={liSrc(h.icon)}
+                          trigger="morph"
+                          colors={LI.dark}
+                          class="li-lg"
+                        />
+                      )}
+                      {h.text && <span class="text-[15px] text-ink font-medium">{h.text}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-
-            {deg.highlights?.length > 0 && (
-              <div class="grid sm:grid-cols-2 gap-3">
-                {deg.highlights.map((h: any) => (
-                  <div class={`flex items-center gap-3 p-3.5 rounded-[6px] ${h.featured ? 'bg-accent-wash' : 'bg-surface-sunken'}`}>
-                    {h.icon && <lord-icon src={liSrc(h.icon)} trigger="morph" colors={LI.dark} class="li-lg"></lord-icon>}
-                    {h.text && <span class="text-[15px] text-ink font-medium">{h.text}</span>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    )}
+          ))}
+        </div>
+      )
+    }
   </div>
 </section>

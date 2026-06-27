@@ -1,60 +1,69 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   /* Colors - light palette (default) */
-  --color-ink: #1A1D23;
-  --color-ink-secondary: #4A5060;
-  --color-ink-tertiary: #8890A0;
-  --color-ink-on-dark: #FFFFFF;
+  --color-ink: #1a1d23;
+  --color-ink-secondary: #4a5060;
+  --color-ink-tertiary: #8890a0;
+  --color-ink-on-dark: #ffffff;
   --color-ink-on-dark-secondary: rgba(255, 255, 255, 0.75);
 
-  --color-surface: #FAFBFC;
-  --color-surface-raised: #FFFFFF;
-  --color-surface-sunken: #F3F4F6;
-  --color-surface-alt: #F0F2F5;
+  --color-surface: #fafbfc;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #f3f4f6;
+  --color-surface-alt: #f0f2f5;
 
-  --color-accent: #0891B2;
-  --color-accent-light: #06B6D4;
-  --color-accent-dark: #0E7490;
-  --color-accent-wash: #ECFEFF;
+  --color-accent: #0891b2;
+  --color-accent-light: #06b6d4;
+  --color-accent-dark: #0e7490;
+  --color-accent-wash: #ecfeff;
 
-  --color-border: #E2E5EB;
-  --color-border-strong: #C8CDD6;
+  --color-border: #e2e5eb;
+  --color-border-strong: #c8cdd6;
 
-  --color-accent-green: #2D8A56;
-  --color-accent-amber: #C4820E;
+  --color-accent-green: #2d8a56;
+  --color-accent-amber: #c4820e;
+
+  /* Accent RGB channels for semi-transparent glow effects */
+  --color-accent-r: 8;
+  --color-accent-g: 145;
+  --color-accent-b: 178;
 
   /* Fonts */
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
-  --font-sans: "IBM Plex Sans", "Source Sans 3", system-ui, sans-serif;
-  --font-display: "Space Grotesk", "JetBrains Mono", system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --font-sans: 'IBM Plex Sans', 'Source Sans 3', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'JetBrains Mono', system-ui, sans-serif;
 }
 
 /* Dark mode overrides */
 .dark {
-  --color-ink: #D8DBE5;
-  --color-ink-secondary: #939BB0;
-  --color-ink-tertiary: #5C6478;
-  --color-ink-on-dark: #FFFFFF;
+  --color-ink: #d8dbe5;
+  --color-ink-secondary: #939bb0;
+  --color-ink-tertiary: #5c6478;
+  --color-ink-on-dark: #ffffff;
   --color-ink-on-dark-secondary: rgba(255, 255, 255, 0.75);
 
   --color-surface: #101218;
-  --color-surface-raised: #181B24;
-  --color-surface-sunken: #0C0E13;
-  --color-surface-alt: #14171F;
+  --color-surface-raised: #181b24;
+  --color-surface-sunken: #0c0e13;
+  --color-surface-alt: #14171f;
 
-  --color-accent: #22D3EE;
-  --color-accent-light: #67E8F9;
-  --color-accent-dark: #06B6D4;
+  --color-accent: #22d3ee;
+  --color-accent-light: #67e8f9;
+  --color-accent-dark: #06b6d4;
   --color-accent-wash: rgba(34, 211, 238, 0.1);
 
   --color-border: #242836;
   --color-border-strong: #343848;
 
-  --color-accent-green: #5EC992;
-  --color-accent-amber: #E8A838;
+  --color-accent-green: #5ec992;
+  --color-accent-amber: #e8a838;
+
+  --color-accent-r: 34;
+  --color-accent-g: 211;
+  --color-accent-b: 238;
 }
 
 @layer base {
@@ -69,7 +78,10 @@
     scroll-behavior: smooth;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     line-height: 1.2;
   }
@@ -94,7 +106,9 @@
 .reveal {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal.visible {
@@ -105,7 +119,9 @@
 .reveal-left {
   opacity: 0;
   transform: translateX(-30px);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal-left.visible {
@@ -116,7 +132,9 @@
 .reveal-right {
   opacity: 0;
   transform: translateX(30px);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal-right.visible {
@@ -127,7 +145,9 @@
 .reveal-scale {
   opacity: 0;
   transform: scale(0.96);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal-scale.visible {
@@ -136,15 +156,30 @@
 }
 
 /* Stagger delays */
-.delay-1 { transition-delay: 120ms; }
-.delay-2 { transition-delay: 240ms; }
-.delay-3 { transition-delay: 360ms; }
-.delay-4 { transition-delay: 480ms; }
-.delay-5 { transition-delay: 600ms; }
-.delay-6 { transition-delay: 720ms; }
+.delay-1 {
+  transition-delay: 120ms;
+}
+.delay-2 {
+  transition-delay: 240ms;
+}
+.delay-3 {
+  transition-delay: 360ms;
+}
+.delay-4 {
+  transition-delay: 480ms;
+}
+.delay-5 {
+  transition-delay: 600ms;
+}
+.delay-6 {
+  transition-delay: 720ms;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal, .reveal-left, .reveal-right, .reveal-scale {
+  .reveal,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale {
     opacity: 1;
     transform: none;
     transition: none;
@@ -153,42 +188,84 @@
 
 /* Floating animation */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
-/* Card hover */
+/* CTA card fill transition (Download Resume etc.) */
+.cta-fill {
+  transition:
+    background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Card hover + tilt (transform fully JS-driven via rAF lerp) */
 .card-glow {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
 }
 
 .card-glow:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(8, 145, 178, 0.08);
-}
-
-.dark .card-glow:hover {
-  box-shadow: 0 12px 40px rgba(34, 211, 238, 0.08);
+  box-shadow:
+    inset 0 0 0 1px var(--color-accent),
+    0 0 18px rgb(var(--color-accent-r) var(--color-accent-g) var(--color-accent-b) / 0.12),
+    0 12px 40px rgb(var(--color-accent-r) var(--color-accent-g) var(--color-accent-b) / 0.08);
 }
 
 /* Lord Icon sizing classes */
-lord-icon.li-sm { width: 20px; height: 20px; }
-lord-icon.li-md { width: 22px; height: 22px; }
-lord-icon.li-base { width: 24px; height: 24px; }
-lord-icon.li-lg { width: 26px; height: 26px; }
-lord-icon.li-xl { width: 32px; height: 32px; }
-lord-icon.li-2xl { width: 36px; height: 36px; }
-lord-icon.li-hero { width: 80px; height: 80px; min-width: 80px; }
+lord-icon.li-sm {
+  width: 20px;
+  height: 20px;
+}
+lord-icon.li-md {
+  width: 22px;
+  height: 22px;
+}
+lord-icon.li-base {
+  width: 24px;
+  height: 24px;
+}
+lord-icon.li-lg {
+  width: 26px;
+  height: 26px;
+}
+lord-icon.li-xl {
+  width: 32px;
+  height: 32px;
+}
+lord-icon.li-2xl {
+  width: 36px;
+  height: 36px;
+}
+lord-icon.li-hero {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+}
 
 /* Lord Icon fade-in pulse when played via JS */
 @keyframes icon-pulse {
-  0% { opacity: 0.5; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.08); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 lord-icon.icon-animate {
@@ -197,8 +274,14 @@ lord-icon.icon-animate {
 
 /* Mobile menu slide */
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .menu-open {
@@ -207,8 +290,14 @@ lord-icon.icon-animate {
 
 /* Theme toggle animation */
 @keyframes theme-spin {
-  from { transform: rotate(0deg) scale(0.8); opacity: 0.5; }
-  to { transform: rotate(360deg) scale(1); opacity: 1; }
+  from {
+    transform: rotate(0deg) scale(0.8);
+    opacity: 0.5;
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+  }
 }
 
 .theme-icon-enter {
@@ -217,10 +306,18 @@ lord-icon.icon-animate {
 
 /* Copy button animation */
 @keyframes copy-bounce {
-  0% { transform: scale(1); }
-  30% { transform: scale(0.8); }
-  60% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.8);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .copy-bounce {

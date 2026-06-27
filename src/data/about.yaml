@@ -1,18 +1,33 @@
-label: "01 // ABOUT"
-heading: "Tinkerer, researcher, builder."
+label: '01 // ABOUT'
+heading: 'Tinkerer, researcher, builder.'
 
 paragraphs:
-  - 'I''m a PhD candidate in Computer Science at <strong class="text-ink">UBC Okanagan</strong>, working in the <a href="https://ovi.ok.ubc.ca/" target="_blank" rel="noopener">Okanagan Visualization & Interaction Lab</a>. My research sits at the intersection of HCI, VR, and wearable computing: designing one-handed gestural input techniques for smart glasses and head-mounted displays.'
-  - 'I love tinkering with technology, getting it to shape and form to my will. Just the slightest bit crazy about custom editors like <a href="https://www.gnu.org/software/emacs/" target="_blank" rel="noopener">Emacs</a> and <a href="https://neovim.io/" target="_blank" rel="noopener">Neovim</a> (yes, I like both).'
-  - 'Primarily a Unity and Python developer, although I am well versed with a number of other languages and frameworks across the stack.'
+  - segments:
+      - text: "I'm a PhD candidate in Computer Science at "
+      - text: 'UBC Okanagan'
+        bold: true
+      - text: ', working in the '
+      - text: 'Okanagan Visualization & Interaction Lab'
+        href: 'https://ovi.ok.ubc.ca/'
+      - text: '. My research sits at the intersection of HCI, VR, and wearable computing: designing one-handed gestural input techniques for smart glasses and head-mounted displays.'
+  - segments:
+      - text: 'I love tinkering with technology, getting it to shape and form to my will. Just the slightest bit crazy about custom editors like '
+      - text: 'Emacs'
+        href: 'https://www.gnu.org/software/emacs/'
+      - text: ' and '
+      - text: 'Neovim'
+        href: 'https://neovim.io/'
+      - text: ' (yes, I like both).'
+  - segments:
+      - text: 'Primarily a Unity and Python developer, although I am well versed with a number of other languages and frameworks across the stack.'
 
 stats:
-  - value: "PhD"
-    label: "Candidate, Computer Science"
-    icon: "kbtmbyzy"
-  - value: "4"
-    label: "Research Publications"
-    icon: "vbmtnozn"
-  - value: "3+"
-    label: "Years Research Experience"
-    icon: "yvjimpju"
+  - value: 'PhD'
+    label: 'Candidate, Computer Science'
+    icon: 'kbtmbyzy'
+  - value: '4'
+    label: 'Research Publications'
+    icon: 'vbmtnozn'
+  - value: '3+'
+    label: 'Years Research Experience'
+    icon: 'yvjimpju'

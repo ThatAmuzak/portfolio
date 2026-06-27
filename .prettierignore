@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+*.local
+.projectile-cache.eld
+key_info/
+pnpm-lock.yaml
+package-lock.json

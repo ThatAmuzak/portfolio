@@ -1,42 +1,41 @@
 # Site-wide metadata
-title: "Rishav Banerjee — Researcher & Developer"
-description: "Portfolio of Rishav Banerjee — HCI researcher and developer working in VR, robotics, Unity, and Python."
-name: "Rishav Banerjee"
-email: "rishavbanerjee1710@gmail.com"
-lang: "en"
-ogImage: "/og.png"
-themeColor: "#0891B2"
+title: 'Rishav Banerjee — Researcher & Developer'
+description: 'Portfolio of Rishav Banerjee — HCI researcher and developer working in VR, robotics, Unity, and Python.'
+name: 'Rishav Banerjee'
+email: 'rishavbanerjee1710@gmail.com'
+lang: 'en'
+ogImage: '/og.png'
+themeColor: '#0891B2'
 
 # Social links
 social:
-  - label: "GitHub"
-    url: "https://github.com/thatAmuzak"
-    icon: "jjxzcivr"
-  - label: "LinkedIn"
-    url: "https://www.linkedin.com/in/gamuzak/"
-    icon: "euybrknk"
-  - label: "Google Scholar"
-    url: "https://scholar.google.ca/citations?user=BCxHXwcAAAAJ"
-  - label: "Email"
-    url: "mailto:rishavbanerjee1710@gmail.com"
+  - label: 'GitHub'
+    url: 'https://github.com/thatAmuzak'
+    icon: 'jjxzcivr'
+  - label: 'LinkedIn'
+    url: 'https://www.linkedin.com/in/gamuzak/'
+    icon: 'euybrknk'
+  - label: 'Google Scholar'
+    url: 'https://scholar.google.ca/citations?user=BCxHXwcAAAAJ'
+    icon: 'rrbmabsx'
 
 # Navigation items
 nav:
-  - label: "About"
-    href: "#about"
-    icon: "kdduutaw"
-  - label: "Experience"
-    href: "#experience"
-    icon: "zhiiqoue"
-  - label: "Publications"
-    href: "#publications"
-    icon: "fikcyfpp"
-  - label: "Skills"
-    href: "#skills"
-    icon: "fwkrbvja"
-  - label: "Education"
-    href: "#education"
-    icon: "vvyxyrur"
-  - label: "Contact"
-    href: "#contact"
-    icon: "ozlkyfxg"
+  - label: 'About'
+    href: '#about'
+    icon: 'kdduutaw'
+  - label: 'Experience'
+    href: '#experience'
+    icon: 'zhiiqoue'
+  - label: 'Publications'
+    href: '#publications'
+    icon: 'fikcyfpp'
+  - label: 'Skills'
+    href: '#skills'
+    icon: 'fwkrbvja'
+  - label: 'Education'
+    href: '#education'
+    icon: 'vvyxyrur'
+  - label: 'Contact'
+    href: '#contact'
+    icon: 'ozlkyfxg'

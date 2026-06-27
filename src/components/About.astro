@@ -1,44 +1,73 @@
 ---
 import { load, LI, liSrc } from '../lib/data';
-const about = load('about.yaml');
+import type { About, AboutParagraph, AboutSegment, AboutStat } from '../lib/types';
+import SectionHeader from './SectionHeader.astro';
+
+const about = load<About>('about.yaml');
 const paragraphs = about.paragraphs || [];
-const stats = about.stats || [];
+const stats: AboutStat[] = about.stats || [];
 ---
+
 <section id="about" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
-    {(about.label || about.heading) && (
-      <div class="reveal">
-        {about.label && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{about.label}</p>}
-        {about.heading && (
-          <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink mb-10 tracking-[-0.01em]">
-            {about.heading}
-          </h2>
-        )}
-      </div>
-    )}
+    <SectionHeader label={about.label} heading={about.heading} />
 
     <div class={`grid ${stats.length ? 'md:grid-cols-[2fr_1fr]' : ''} gap-10 items-start`}>
-      {paragraphs.length > 0 && (
-        <div>
-          {paragraphs.map((p: string, i: number) => (
-            <p class={`reveal ${i > 0 ? `delay-${i}` : ''} text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] ${i < paragraphs.length - 1 ? 'mb-5' : ''}`} set:html={p} />
-          ))}
-        </div>
-      )}
+      {
+        paragraphs.length > 0 && (
+          <div>
+            {paragraphs.map((para: AboutParagraph, i: number) => (
+              <p
+                class={`reveal ${i > 0 ? `delay-${i}` : ''} text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] ${i < paragraphs.length - 1 ? 'mb-5' : ''}`}
+              >
+                {para.segments.map((seg: AboutSegment, j: number) =>
+                  seg.href ? (
+                    <a
+                      href={seg.href}
+                      target="_blank"
+                      rel="noopener"
+                      class="text-accent hover:text-accent-light transition-colors underline-offset-2 hover:underline"
+                    >
+                      {seg.text}
+                    </a>
+                  ) : seg.bold ? (
+                    <strong class="text-ink font-semibold">{seg.text}</strong>
+                  ) : (
+                    <>{seg.text}</>
+                  ),
+                )}
+              </p>
+            ))}
+          </div>
+        )
+      }
 
-      {stats.length > 0 && (
-        <div class="reveal delay-2 space-y-4">
-          {stats.map((stat: any) => (
-            <div class="bg-surface-raised rounded-[8px] p-5 card-glow">
-              <div class="flex items-center gap-3 mb-1.5">
-                {stat.icon && <lord-icon src={liSrc(stat.icon)} trigger="morph" colors={LI.dark} class="li-xl"></lord-icon>}
-                {stat.value && <p class="text-[30px] font-display font-bold text-accent m-0 leading-none">{stat.value}</p>}
+      {
+        stats.length > 0 && (
+          <div class="reveal delay-2 space-y-4">
+            {stats.map((stat: AboutStat) => (
+              <div class="bg-surface-raised rounded-[8px] p-5 card-glow">
+                <div class="flex items-center gap-3 mb-1.5">
+                  {stat.icon && (
+                    <lord-icon
+                      src={liSrc(stat.icon)}
+                      trigger="morph"
+                      colors={LI.dark}
+                      class="li-xl"
+                    />
+                  )}
+                  {stat.value && (
+                    <p class="text-[30px] font-display font-bold text-accent m-0 leading-none">
+                      {stat.value}
+                    </p>
+                  )}
+                </div>
+                {stat.label && <p class="text-[15px] text-ink-tertiary m-0">{stat.label}</p>}
               </div>
-              {stat.label && <p class="text-[15px] text-ink-tertiary m-0">{stat.label}</p>}
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )
+      }
     </div>
   </div>
 </section>

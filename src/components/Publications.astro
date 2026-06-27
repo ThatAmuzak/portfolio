@@ -1,57 +1,54 @@
 ---
 import { load, LI, liSrc } from '../lib/data';
-const pubs = load('publications.yaml');
-const papers = pubs.papers || [];
+import type { Publications, Paper, Author } from '../lib/types';
+import SectionHeader from './SectionHeader.astro';
+
+const pubs = load<Publications>('publications.yaml');
+const papers: Paper[] = pubs.papers || [];
 ---
+
 <section id="publications" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
-    {(pubs.label || pubs.heading) && (
-      <div class="reveal">
-        {pubs.label && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{pubs.label}</p>}
-        {pubs.heading && (
-          <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink mb-10 tracking-[-0.01em]">
-            {pubs.heading}
-          </h2>
-        )}
-      </div>
-    )}
+    <SectionHeader label={pubs.label} heading={pubs.heading} />
 
-    {papers.length > 0 && (
-      <div class="space-y-5">
-        {papers.map((paper: any, i: number) => (
-          <div class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-6 md:p-7`}>
-            <a href={paper.url} target="_blank" rel="noopener" class="no-underline group">
-              <h3 class="font-display text-[18px] md:text-[20px] font-bold text-ink group-hover:text-accent transition-colors m-0 mb-2 leading-[1.35]">
-                {paper.title}
-              </h3>
-            </a>
-            <p class="text-[15px] text-ink-secondary leading-[1.6] m-0 mb-3">
-              {paper.authors?.map((author: any, j: number) => (
-                <span>
-                  {j > 0 && ', '}
-                  {author.bold ? <strong class="text-ink font-semibold">{author.name}</strong> : <span>{author.name}</span>}
-                </span>
-              ))}
-            </p>
-            <div class="flex items-center gap-3 flex-wrap">
-              {paper.venue && (
-                <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent bg-accent-wash px-2.5 py-1 rounded-[4px] font-mono">
-                  {paper.venue}
-                </span>
-              )}
-              {paper.year && (
-                <span class="text-[13px] font-mono text-ink-tertiary">{paper.year}</span>
-              )}
-              {paper.url && (
-                <a href={paper.url} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[13px] font-medium text-ink-tertiary hover:text-accent transition-colors no-underline ml-auto">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  DOI
-                </a>
-              )}
+    {
+      papers.length > 0 && (
+        <div class="space-y-5">
+          {papers.map((paper: Paper, i: number) => (
+            <div
+              class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-6 md:p-7`}
+            >
+              <a href={paper.url} target="_blank" rel="noopener" class="no-underline group">
+                <h3 class="font-display text-[18px] md:text-[20px] font-bold text-ink group-hover:text-accent transition-colors m-0 mb-2 leading-[1.35]">
+                  {paper.title}
+                </h3>
+              </a>
+              <p class="text-[15px] text-ink-secondary leading-[1.6] m-0 mb-3">
+                {paper.authors?.map((author: Author, j: number) => (
+                  <span>
+                    {j > 0 && ', '}
+                    {author.bold ? (
+                      <strong class="text-ink font-semibold">{author.name}</strong>
+                    ) : (
+                      <span>{author.name}</span>
+                    )}
+                  </span>
+                ))}
+              </p>
+              <div class="flex items-center gap-3 flex-wrap">
+                {paper.venue && (
+                  <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent bg-accent-wash px-2.5 py-1 rounded-[4px] font-mono">
+                    {paper.venue}
+                  </span>
+                )}
+                {paper.year && (
+                  <span class="text-[13px] font-mono text-ink-tertiary">{paper.year}</span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    )}
+          ))}
+        </div>
+      )
+    }
   </div>
 </section>

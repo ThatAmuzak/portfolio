@@ -1,0 +1,32 @@
+---
+interface Props {
+  label?: string;
+  heading?: string;
+  headingMb?: string;
+  headingSize?: string;
+}
+
+const {
+  label,
+  heading,
+  headingMb = 'mb-10',
+  headingSize = 'text-[32px] md:text-[44px]',
+} = Astro.props;
+---
+
+{
+  (label || heading) && (
+    <div class="reveal">
+      {label && (
+        <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{label}</p>
+      )}
+      {heading && (
+        <h2
+          class={`font-display ${headingSize} font-bold text-ink tracking-[-0.01em] ${headingMb}`}
+        >
+          {heading}
+        </h2>
+      )}
+    </div>
+  )
+}

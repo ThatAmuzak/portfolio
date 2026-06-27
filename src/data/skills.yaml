@@ -1,9 +1,9 @@
-label: "04 // SKILLS"
-heading: "Technical Taxonomy"
+label: '04 // SKILLS'
+heading: 'Technical Taxonomy'
 
 categories:
-  - name: "VR Development"
-    icon: "gvtjlyjf"
+  - name: 'VR Development'
+    icon: 'gvtjlyjf'
     items:
       - Unity
       - C#
@@ -11,16 +11,16 @@ categories:
       - Meta SDK
       - MRTK
 
-  - name: "Research"
-    icon: "kikjlzqr"
+  - name: 'Research'
+    icon: 'kikjlzqr'
     items:
       - Quant/Qual Analysis
       - Literature Review
       - Human Studies
       - Experiment Design
 
-  - name: "Data & AI"
-    icon: "xqdfobxg"
+  - name: 'Data & AI'
+    icon: 'xqdfobxg'
     items:
       - Python
       - Pandas
@@ -30,16 +30,16 @@ categories:
       - PyTorch
       - Computer Vision
 
-  - name: "Tools & DevOps"
-    icon: "lzgmgrnn"
+  - name: 'Tools & DevOps'
+    icon: 'lzgmgrnn'
     items:
       - Git / Docker
       - Unix / Bash / WSL
       - Vim / Neovim / Emacs
       - ROS
 
-  - name: "Languages"
-    icon: "fikcyfpp"
+  - name: 'Languages'
+    icon: 'fikcyfpp'
     items:
       - C / C++
       - Go
@@ -48,8 +48,8 @@ categories:
       - JS / TypeScript
       - Clojure / ELisp
 
-  - name: "Soft Skills"
-    icon: "wsaaegar"
+  - name: 'Soft Skills'
+    icon: 'wsaaegar'
     items:
       - Leadership
       - Public Speaking

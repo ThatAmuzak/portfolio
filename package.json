@@ -1,43 +1,42 @@
 {
-  "name": "astro-monograph",
+  "name": "rishav-banerjee-portfolio",
   "type": "module",
   "version": "1.0.0",
-  "description": "A clean, YAML-driven single-page portfolio theme for Astro. No CMS, no database — just edit YAML files and deploy.",
-  "author": "Ankur Singh <hello@anks.in> (https://anks.in)",
-  "homepage": "https://github.com/theserverlessdev/astro-monograph",
+  "description": "Personal portfolio of Rishav Banerjee — HCI researcher & developer.",
+  "author": "Rishav Banerjee",
+  "homepage": "https://rishav-banerjee.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/theserverlessdev/astro-monograph.git"
-  },
-  "bugs": {
-    "url": "https://github.com/theserverlessdev/astro-monograph/issues"
+    "url": "git+https://github.com/thatAmuzak/portfolio-v2.git"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check": "astro check",
+    "format": "prettier --write ."
   },
   "keywords": [
     "astro",
-    "astro-theme",
     "portfolio",
     "resume",
     "personal-site",
     "tailwindcss",
     "yaml",
-    "single-page",
-    "developer-portfolio"
+    "single-page"
   ],
   "license": "MIT",
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^7.0.3",
     "js-yaml": "^4.1.1",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
-    "@astrojs/sitemap": "^3.7.3"
+    "prettier": "^3.9.0",
+    "prettier-plugin-astro": "^0.14.1"
   },
   "allowScripts": {
     "esbuild@0.27.4": true,

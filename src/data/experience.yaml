@@ -1,16 +1,16 @@
-label: "02 // EXPERIENCE"
+label: '02 // EXPERIENCE'
 heading: "Where I've Worked"
 
 jobs:
-  - company: "Okanagan Visualization & Interaction Lab"
-    url: "https://ovi.ok.ubc.ca/"
-    role: "HCI Researcher"
-    location: "Kelowna, BC"
-    dateRange: "Jan 2024 &ndash; Present"
+  - company: 'Okanagan Visualization & Interaction Lab'
+    url: 'https://ovi.ok.ubc.ca/'
+    role: 'HCI Researcher'
+    location: 'Kelowna, BC'
+    dateRange: "Jan 2024 \u2013 Present"
     details:
-      - "Conducted HCI research on one-handed gestural input for smart glasses, focusing on hand-tracking interaction design, usability, and input translation pipelines for wearable computing."
-      - "Designed and implemented virtual reality applications in Unity to capture, reconstruct, and evaluate real-time hand gesture interactions for adaptive interface experimentation."
-      - "Built a real-time motion-capture pipeline using Vicon, Python WebSockets, and Unity to stream user hand-pose data into a VR environment on Meta Quest 3 for dynamic, on-hand and around-hand user interfaces."
+      - 'Conducted HCI research on one-handed gestural input for smart glasses, focusing on hand-tracking interaction design, usability, and input translation pipelines for wearable computing.'
+      - 'Designed and implemented virtual reality applications in Unity to capture, reconstruct, and evaluate real-time hand gesture interactions for adaptive interface experimentation.'
+      - 'Built a real-time motion-capture pipeline using Vicon, Python WebSockets, and Unity to stream user hand-pose data into a VR environment on Meta Quest 3 for dynamic, on-hand and around-hand user interfaces.'
     tech:
       - Unity
       - C#
@@ -19,15 +19,15 @@ jobs:
       - Meta SDK
       - Vicon
 
-  - company: "Honda Research Institute"
-    url: "https://www.jp.honda-ri.com/en/"
-    role: "Robotics Engineer"
-    location: "Affiliated — Remote"
-    dateRange: "Feb 2026 &ndash; Present"
+  - company: 'Honda Research Institute'
+    url: 'https://www.jp.honda-ri.com/en/'
+    role: 'Robotics Engineer'
+    location: 'Affiliated — Remote'
+    dateRange: "Feb 2026 \u2013 Present"
     details:
-      - "Engineered AI sensemaking workflows for conversational robots designed for child interaction, supporting context-aware dialogue and multimodal human-robot interaction research."
-      - "Implemented a fully local, privacy-preserving speech-to-text pipeline and conversational agent on consumer-grade hardware, improving deployability and removing reliance on cloud services."
-      - "Deployed in a private middle school for investigating child-robot interactions and conversations with 20+ successful sessions."
+      - 'Engineered AI sensemaking workflows for conversational robots designed for child interaction, supporting context-aware dialogue and multimodal human-robot interaction research.'
+      - 'Implemented a fully local, privacy-preserving speech-to-text pipeline and conversational agent on consumer-grade hardware, improving deployability and removing reliance on cloud services.'
+      - 'Deployed in a private middle school for investigating child-robot interactions and conversations with 20+ successful sessions.'
     tech:
       - Python
       - LLMs
@@ -36,14 +36,14 @@ jobs:
       - Docker
       - PyTorch
 
-  - company: "University of British Columbia"
-    url: "https://www.ubc.ca/"
-    role: "Teaching Assistant"
-    location: "Kelowna, BC"
-    dateRange: "Jan 2024 &ndash; Dec 2025"
+  - company: 'University of British Columbia'
+    url: 'https://www.ubc.ca/'
+    role: 'Teaching Assistant'
+    location: 'Kelowna, BC'
+    dateRange: "Jan 2024 \u2013 Dec 2025"
     details:
-      - "Supported instruction for undergraduate and graduate courses including AR/VR Development for Immersive Storytelling, Introduction to Game Development with Unity, and Immersive Technology Design Studio using the VEMS display environment."
-      - "Taught and mentored cohorts ranging from 15 graduate students across disciplines to 150 undergraduate students, providing technical guidance in immersive technology, Unity development, and interactive system design."
+      - 'Supported instruction for undergraduate and graduate courses including AR/VR Development for Immersive Storytelling, Introduction to Game Development with Unity, and Immersive Technology Design Studio using the VEMS display environment.'
+      - 'Taught and mentored cohorts ranging from 15 graduate students across disciplines to 150 undergraduate students, providing technical guidance in immersive technology, Unity development, and interactive system design.'
     tech:
       - Unity
       - C#
