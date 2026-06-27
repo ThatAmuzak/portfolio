@@ -1,18 +1,18 @@
 label: "01 // ABOUT"
-heading: "Building things for the web"
+heading: "Tinkerer, researcher, builder."
 
 paragraphs:
-  - 'I''m a software engineer based in <strong class="text-ink">San Francisco, CA</strong> with 5+ years of experience building web applications. I enjoy working across the stack &mdash; from pixel-perfect frontends to robust backend services.'
-  - 'Previously, I worked at <strong class="text-ink">Acme Corp</strong> leading their frontend platform team, and before that at <strong class="text-ink">StartupXYZ</strong> building their core product from scratch.'
-  - 'I write about web development on my <a href="https://blog.example.com" target="_blank" rel="noopener" class="font-medium">blog</a> and contribute to open-source projects in the React and Node.js ecosystems.'
+  - 'I''m a PhD candidate in Computer Science at <strong class="text-ink">UBC Okanagan</strong>, working in the <a href="https://ovi.ok.ubc.ca/" target="_blank" rel="noopener">Okanagan Visualization & Interaction Lab</a>. My research sits at the intersection of HCI, VR, and wearable computing: designing one-handed gestural input techniques for smart glasses and head-mounted displays.'
+  - 'I love tinkering with technology, getting it to shape and form to my will. Just the slightest bit crazy about custom editors like <a href="https://www.gnu.org/software/emacs/" target="_blank" rel="noopener">Emacs</a> and <a href="https://neovim.io/" target="_blank" rel="noopener">Neovim</a> (yes, I like both).'
+  - 'Primarily a Unity and Python developer, although I am well versed with a number of other languages and frameworks across the stack.'
 
 stats:
-  - value: "5+"
-    label: "Years of Experience"
+  - value: "PhD"
+    label: "Candidate, Computer Science"
     icon: "kbtmbyzy"
-  - value: "20+"
-    label: "Projects Shipped"
+  - value: "4"
+    label: "Research Publications"
     icon: "vbmtnozn"
-  - value: "OSS"
-    label: "Open Source Contributor"
+  - value: "3+"
+    label: "Years Research Experience"
     icon: "yvjimpju"

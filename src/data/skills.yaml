@@ -2,46 +2,56 @@ label: "04 // SKILLS"
 heading: "Technical Taxonomy"
 
 categories:
-  - name: "Languages"
-    icon: "lzgmgrnn"
-    items:
-      - JavaScript
-      - TypeScript
-      - Python
-      - SQL
-      - HTML
-      - CSS
-      - Bash
-
-  - name: "Frameworks & Libraries"
+  - name: "VR Development"
     icon: "gvtjlyjf"
     items:
-      - React
-      - Next.js
-      - Astro
-      - Svelte
-      - Node.js
-      - Express
-      - Django
-      - Tailwind CSS
+      - Unity
+      - C#
+      - OpenXR
+      - Meta SDK
+      - MRTK
 
-  - name: "DevOps & Cloud"
+  - name: "Research"
     icon: "kikjlzqr"
     items:
-      - Docker
-      - AWS
-      - Vercel
-      - Cloudflare
-      - GitHub Actions
-      - Terraform
-      - Linux
+      - Quant/Qual Analysis
+      - Literature Review
+      - Human Studies
+      - Experiment Design
 
-  - name: "Databases & Tools"
+  - name: "Data & AI"
     icon: "xqdfobxg"
     items:
-      - PostgreSQL
-      - Redis
-      - MongoDB
-      - SQLite
-      - Git
-      - Figma
+      - Python
+      - Pandas
+      - Seaborn
+      - Statistics (R)
+      - Deep Learning / LLMs
+      - PyTorch
+      - Computer Vision
+
+  - name: "Tools & DevOps"
+    icon: "lzgmgrnn"
+    items:
+      - Git / Docker
+      - Unix / Bash / WSL
+      - Vim / Neovim / Emacs
+      - ROS
+
+  - name: "Languages"
+    icon: "fikcyfpp"
+    items:
+      - C / C++
+      - Go
+      - Lua
+      - Java
+      - JS / TypeScript
+      - Clojure / ELisp
+
+  - name: "Soft Skills"
+    icon: "wsaaegar"
+    items:
+      - Leadership
+      - Public Speaking
+      - Project Management
+      - Team Collaboration

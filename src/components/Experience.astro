@@ -19,7 +19,7 @@ const jobs = experience.jobs || [];
     {jobs.length > 0 && (
       <div class="border-l-2 border-accent/20">
         {jobs.map((job: any, i: number) => (
-          <div class={`reveal flex ${i < jobs.length - 1 ? 'pb-14' : ''}`}>
+          <div class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} flex ${i < jobs.length - 1 ? 'pb-14' : ''}`}>
             <div class="w-3 h-3 rounded-full bg-accent ring-[4px] ring-surface -ml-[7px] mt-[10px] shrink-0"></div>
             <div class="pl-6 min-w-0 flex-1">
               <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-2">
@@ -30,7 +30,21 @@ const jobs = experience.jobs || [];
                 {job.dateRange && <span class="text-[14px] text-ink-tertiary font-mono" set:html={job.dateRange} />}
               </div>
               {job.location && <p class="text-[14px] text-ink-tertiary mt-0 mb-3">{job.location}</p>}
-              {job.description && <p class="text-[17px] text-ink-secondary leading-[1.7] mt-0 mb-4">{job.description}</p>}
+
+              {job.description && !job.details && (
+                <p class="text-[17px] text-ink-secondary leading-[1.7] mt-0 mb-4">{job.description}</p>
+              )}
+              {job.details?.length > 0 && (
+                <ul class="list-none m-0 mb-4 space-y-2 pl-0">
+                  {job.details.map((d: string) => (
+                    <li class="text-[16px] text-ink-secondary leading-[1.7] flex items-start gap-2.5">
+                      <span class="text-accent mt-[5px] shrink-0 select-none">▹</span>
+                      <span>{d}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
               {job.tech?.length > 0 && (
                 <div class="flex flex-wrap gap-1.5">
                   {job.tech.map((t: string) => (

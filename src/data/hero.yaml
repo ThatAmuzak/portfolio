@@ -1,14 +1,14 @@
-subtitle: "SOFTWARE ENGINEER"
-name: "JANE SMITH"
+subtitle: "Researcher / Developer"
+name: "Rishav Banerjee"
 icon: "srupsmbe"
-description: "I build modern web applications, design scalable APIs, and ship products users love. 5+ years across frontend, backend, and cloud infrastructure."
+description: "PhD candidate blending HCI research, virtual reality, and robotics to build the next generation of wearable and immersive interfaces. I design, prototype, and evaluate interactive systems at the intersection of human capability and machine intelligence."
 
 cta:
   viewWork:
-    label: "View Work"
+    label: "Experience"
     href: "#experience"
     icon: "zhiiqoue"
   getInTouch:
-    label: "Get in Touch"
-    href: "#contact"
+    label: "Download Resume"
+    href: "/ResumeRishavBanerjee.pdf"
     icon: "vcdutftw"

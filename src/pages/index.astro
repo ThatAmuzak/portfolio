@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
 import Experience from '../components/Experience.astro';
-import Projects from '../components/Projects.astro';
+import Publications from '../components/Publications.astro';
 import Skills from '../components/Skills.astro';
 import Education from '../components/Education.astro';
 import Contact from '../components/Contact.astro';
@@ -15,7 +15,7 @@ const site = load('site.yaml');
 const hero = load('hero.yaml');
 const about = load('about.yaml');
 const experience = load('experience.yaml');
-const projects = load('projects.yaml');
+const publications = load('publications.yaml');
 const skills = load('skills.yaml');
 const education = load('education.yaml');
 const contact = load('contact.yaml');
@@ -25,9 +25,9 @@ const contact = load('contact.yaml');
   {(hero.name || hero.subtitle) && <Hero />}
   {(about.paragraphs || about.stats) && <About />}
   {experience.jobs?.length && <Experience />}
-  {projects.items?.length && <Projects />}
+  {publications.papers?.length && <Publications />}
   {skills.categories?.length && <Skills />}
-  {(education.degree || education.highlights?.length) && <Education />}
+  {education.degrees?.length && <Education />}
   {(contact.heading || site.email) && <Contact />}
   <Footer />
 </BaseLayout>

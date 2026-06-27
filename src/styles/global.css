@@ -15,10 +15,10 @@
   --color-surface-sunken: #F3F4F6;
   --color-surface-alt: #F0F2F5;
 
-  --color-accent: #2E5090;
-  --color-accent-light: #3A6BC5;
-  --color-accent-dark: #103877;
-  --color-accent-wash: #EBF0F9;
+  --color-accent: #0891B2;
+  --color-accent-light: #06B6D4;
+  --color-accent-dark: #0E7490;
+  --color-accent-wash: #ECFEFF;
 
   --color-border: #E2E5EB;
   --color-border-strong: #C8CDD6;
@@ -45,10 +45,10 @@
   --color-surface-sunken: #0C0E13;
   --color-surface-alt: #14171F;
 
-  --color-accent: #7BA4E0;
-  --color-accent-light: #9BBAEA;
-  --color-accent-dark: #5A86C8;
-  --color-accent-wash: rgba(123, 164, 224, 0.1);
+  --color-accent: #22D3EE;
+  --color-accent-light: #67E8F9;
+  --color-accent-dark: #06B6D4;
+  --color-accent-wash: rgba(34, 211, 238, 0.1);
 
   --color-border: #242836;
   --color-border-strong: #343848;
@@ -168,11 +168,11 @@
 
 .card-glow:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(46, 80, 144, 0.08);
+  box-shadow: 0 12px 40px rgba(8, 145, 178, 0.08);
 }
 
 .dark .card-glow:hover {
-  box-shadow: 0 12px 40px rgba(123, 164, 224, 0.08);
+  box-shadow: 0 12px 40px rgba(34, 211, 238, 0.08);
 }
 
 /* Lord Icon sizing classes */

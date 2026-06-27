@@ -32,12 +32,12 @@
   "license": "MIT",
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
-    "astro": "^6.0.8",
+    "astro": "^7.0.3",
     "js-yaml": "^4.1.1",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
-    "@astrojs/sitemap": "^3.7.1"
+    "@astrojs/sitemap": "^3.7.3"
   },
   "allowScripts": {
     "esbuild@0.27.4": true,

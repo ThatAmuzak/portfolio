@@ -1,0 +1,51 @@
+label: "03 // PUBLICATIONS"
+heading: "Research Contributions"
+
+papers:
+  - title: "ThumbSwype: Thumb-to-Finger Gesture Based Text-Entry for Head Mounted Displays"
+    authors:
+      - name: "Rishav Banerjee"
+        bold: true
+      - name: "Shariff Faleel"
+      - name: "Omang Baheti"
+      - name: "Khalad Hasan"
+      - name: "Pourang Irani"
+    venue: "ACM MobileHCI"
+    year: "2025"
+    url: "https://dl.acm.org/doi/full/10.1145/3769872.3769893"
+
+  - title: "Exploring One-Handed Thumb-to-Finger Text Composition Systems for Head Mounted Displays"
+    authors:
+      - name: "Rishav Banerjee"
+        bold: true
+      - name: "Shariff Faleel"
+      - name: "Pourang Irani"
+    venue: "ACM Designing Interactive Systems (DIS)"
+    year: "2026"
+    url: "https://dl.acm.org/doi/full/10.1145/3800645.3812913"
+
+  - title: "What's the Thumb Doing? Improving Precision for Thumb-to-Finger Interactions on Hand Proximate User Interfaces"
+    authors:
+      - name: "Shariff Faleel"
+      - name: "Rishav Banerjee"
+        bold: true
+      - name: "Omang Baheti"
+      - name: "Khalad Hasan"
+      - name: "Pourang Irani"
+    venue: "Graphics Interface (GI)"
+    year: "2025"
+    url: "https://dl.acm.org/doi/full/10.1145/3769872.3769893"
+
+  - title: "'Substitute' Knowledge of Results Provided Through Virtual Reality Enhances Motor Imagery-Based Learning"
+    authors:
+      - name: "Celine Balay"
+      - name: "Rishav Banerjee"
+        bold: true
+      - name: "Ghazaleh Shahin"
+      - name: "Dingfu Lu"
+      - name: "Pourang Irani"
+      - name: "Cornelia Frank"
+      - name: "Sarah Kraeutner"
+    venue: "Psychological Research"
+    year: "2026"
+    url: "https://www.researchsquare.com/article/rs-8605629/v1"
