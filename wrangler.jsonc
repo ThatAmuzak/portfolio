@@ -2,5 +2,7 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"compatibility_date": "2026-06-28",
 	"name": "portfolio",
-	"pages_build_output_dir": "./dist"
+	"assets": {
+		"directory": "./dist"
+	}
 }
