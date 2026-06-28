@@ -210,8 +210,20 @@
 
 /* Card hover + tilt (transform fully JS-driven via rAF lerp) */
 .card-glow {
+  position: relative;
   transition: box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   transform-style: preserve-3d;
+}
+
+/* Invisible hover buffer above the card — extends the hit area upward
+   so the translateY(-4px) lift can't move the card out from under the cursor */
+.card-glow::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
 }
 
 .card-glow:hover {

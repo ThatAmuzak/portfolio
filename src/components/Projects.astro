@@ -51,7 +51,7 @@ const defaultColor = '#6B7280';
           const extraLinks: ProjectLink[] = allLinks.slice(1);
           return (
             <div
-              class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-7 flex flex-col overflow-hidden ${primaryUrl ? 'cursor-pointer' : ''}`}
+              class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-7 flex flex-col ${primaryUrl ? 'cursor-pointer' : ''}`}
               data-status={project.status || ''}
               data-featured={project.featured ? 'true' : 'false'}
               data-href={primaryUrl || undefined}

@@ -8,7 +8,9 @@ categories:
       - Unity
       - C#
       - OpenXR
-      - Meta SDK
+      - Meta Quest
+      - Microsoft Hololens
+      - Meta XR SDK
       - MRTK
 
   - name: 'Research'
@@ -26,27 +28,36 @@ categories:
       - Pandas
       - Seaborn
       - Statistics (R)
-      - Deep Learning / LLMs
+      - Deep Learning
+      - LLMs
       - PyTorch
-      - Computer Vision
+      - CV
 
   - name: 'Tools & DevOps'
     icon: 'lzgmgrnn'
     items:
-      - Git / Docker
-      - Unix / Bash / WSL
-      - Vim / Neovim / Emacs
+      - Git
+      - Docker
+      - Unix
+      - Bash
+      - WSL
+      - Vim
+      - Neovim
+      - Emacs
       - ROS
 
   - name: 'Languages'
     icon: 'fikcyfpp'
     items:
-      - C / C++
+      - C
+      - C++
       - Go
       - Lua
       - Java
-      - JS / TypeScript
-      - Clojure / ELisp
+      - JavaScript
+      - TypeScript
+      - Clojure
+      - ELisp
 
   - name: 'Soft Skills'
     icon: 'wsaaegar'

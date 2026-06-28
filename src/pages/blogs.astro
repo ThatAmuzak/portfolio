@@ -1,0 +1,107 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const allPosts = await getCollection('blogs', ({ data }) => !data.draft);
+const posts = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const title = 'Blogs — Rishav Banerjee';
+const description = 'Articles on HCI, VR, robotics, and software development by Rishav Banerjee.';
+---
+
+<BaseLayout {title} {description}>
+  <Navbar />
+
+  <main class="pt-[64px]">
+    <section class="py-20 md:py-28 px-5 md:px-6">
+      <div class="max-w-[800px] mx-auto">
+        <!-- Header -->
+        <div class="reveal mb-16">
+          <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">Articles</p>
+          <h1
+            class="font-display text-[36px] md:text-[48px] font-bold text-ink tracking-[-0.01em] leading-[1.15]"
+          >
+            Blogs
+          </h1>
+          <p class="mt-4 text-[17px] text-ink-secondary leading-[1.75] max-w-[600px]">
+            Thoughts on HCI, VR, robotics, and software development.
+          </p>
+        </div>
+
+        <!-- Post list -->
+        {
+          posts.length === 0 ? (
+            <div class="reveal delay-1 text-center py-16">
+              <p class="text-ink-tertiary text-[17px]">No posts yet. Check back soon!</p>
+            </div>
+          ) : (
+            <div class="space-y-8">
+              {posts.map((post, i) => {
+                const delay = Math.min(i, 5) + 1;
+                return (
+                  <article class={`reveal delay-${delay}`}>
+                    <a
+                      href={`/blogs/${post.id}`}
+                      class="block group p-6 -mx-6 rounded-xl hover:bg-surface-raised transition-colors duration-200 no-underline"
+                    >
+                      <div class="flex items-center gap-3 mb-2">
+                        <time
+                          datetime={post.data.date.toISOString().split('T')[0]}
+                          class="text-[13px] font-mono text-ink-tertiary"
+                        >
+                          {post.data.date.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </time>
+                        {post.data.tags && post.data.tags.length > 0 && (
+                          <span class="flex items-center gap-1.5">
+                            {post.data.tags.slice(0, 3).map((tag: string) => (
+                              <span class="text-[12px] font-mono px-2 py-0.5 rounded-full bg-surface-sunken text-ink-tertiary border border-border">
+                                {tag}
+                              </span>
+                            ))}
+                          </span>
+                        )}
+                      </div>
+                      <h2 class="font-display text-[22px] md:text-[26px] font-semibold text-ink group-hover:text-accent transition-colors tracking-[-0.01em] leading-[1.3]">
+                        {post.data.title}
+                      </h2>
+                      {post.data.description && (
+                        <p class="mt-2 text-[16px] text-ink-secondary leading-[1.65]">
+                          {post.data.description}
+                        </p>
+                      )}
+                      <span class="inline-flex items-center gap-1.5 mt-4 text-[14px] font-mono text-accent group-hover:text-accent-light transition-colors">
+                        Read more
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="group-hover:translate-x-0.5 transition-transform"
+                        >
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                          <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                      </span>
+                    </a>
+                  </article>
+                );
+              })}
+            </div>
+          )
+        }
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

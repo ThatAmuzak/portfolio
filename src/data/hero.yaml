@@ -7,6 +7,9 @@ cta:
   resume:
     label: 'Download Resume'
     href: '/ResumeRishavBanerjee.pdf'
+  blogs:
+    label: 'Read Blogs'
+    href: '/blogs'
   connect:
     label: 'Want to Connect?'
     href: '#contact'
