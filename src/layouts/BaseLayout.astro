@@ -17,8 +17,8 @@ const education = load<Education>('education.yaml');
 
 const ogImageUrl = site.ogImage ? new URL(site.ogImage, Astro.site).toString() : undefined;
 
-// Normalize BASE_URL so favicon resolves correctly (e.g. '/' → '/favicon.svg')
-const faviconUrl = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '') + '/favicon.svg';
+// Normalize BASE_URL so favicons resolve correctly (e.g. '/' → '/favicon.svg')
+const baseUrl = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '');
 ---
 
 <!doctype html>
@@ -93,7 +93,7 @@ const faviconUrl = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '') + '/fav
       })}
     />
 
-    <link rel="icon" type="image/svg+xml" href={faviconUrl} />
+    <link rel="icon" sizes="any" href={`${baseUrl}/favicon.ico?v=1`} />
   </head>
   <body class="bg-surface text-ink min-h-screen transition-colors duration-300">
     <slot />

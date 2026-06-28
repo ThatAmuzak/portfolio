@@ -30,12 +30,12 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
     {
       site.email && (
         <div
-          class="reveal delay-2 mb-8 md:mb-10 flex items-center justify-center gap-2 max-w-full"
+          class="reveal delay-2 mb-8 md:mb-10 flex flex-wrap items-center justify-center gap-2 max-w-full"
           id="email-row"
         >
           <a
             href={`mailto:${emailObfuscated}`}
-            class="inline-flex items-center gap-2 text-[18px] sm:text-[26px] md:text-[32px] font-mono font-bold text-accent hover:text-accent-light transition-colors min-w-0"
+            class="inline-flex items-center gap-2 text-[clamp(11px,5vw,18px)] sm:text-[clamp(18px,4vw,26px)] md:text-[32px] font-mono font-bold text-accent hover:text-accent-light transition-colors min-w-0"
             id="email-link"
           >
             {contact.emailIcon && (
