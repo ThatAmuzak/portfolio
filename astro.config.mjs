@@ -8,11 +8,13 @@ export default defineConfig({
   site: 'https://rishav-banerjee.com',
   output: 'static',
   integrations: [sitemap()],
+
   markdown: {
     unified: unified({
       remarkPlugins: [remarkGfm],
     }),
   },
+
   vite: {
     plugins: [tailwindcss()],
   },

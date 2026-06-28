@@ -1,9 +1,0 @@
-{
-	"title": "(Sorta) About Me",
-	"icon": "bi bi-person",
-	"description": [
-		"`> alias cat='tac'`",
-		"I love tinkering with technology, getting it to shape and form to my will. Just the slightest bit crazy about custom editors like [Emacs](https://www.gnu.org/software/emacs/) and [Neovim](https://neovim.io/) (yes, I like both).",
-		"Primarily a Unity and Python developer, although I am comfortable with a reasonable number of other languages and frameworks (see Skills)"
-	]
-}
