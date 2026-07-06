@@ -10,6 +10,7 @@ cta:
   blogs:
     label: 'Read Blogs'
     href: '/blogs'
+    icon: 'hmpomorl'
   connect:
     label: 'Want to Connect?'
     href: '#contact'

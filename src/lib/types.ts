@@ -43,7 +43,7 @@ export interface Hero {
   description?: string;
   cta?: {
     resume?: CTA;
-    blogs?: CTA;
+    blogs?: CTA & { icon?: string };
     connect?: CTA;
   };
 }

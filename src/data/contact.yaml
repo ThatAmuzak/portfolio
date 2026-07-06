@@ -4,7 +4,7 @@ description: "I'm always open to discussing research collaborations, VR/HCI proj
 emailIcon: 'ozlkyfxg'
 
 footer:
-  copyrightPrefix: '2026 Rishav Banerjee. Built with '
+  copyrightPrefix: 'Rishav Banerjee. Built with '
   copyrightLinkLabel: 'Astro'
   copyrightLinkUrl: 'https://astro.build'
   copyrightSuffix: '.'

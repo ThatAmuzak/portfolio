@@ -21,10 +21,8 @@ export function load<T>(file: string): T {
     cache.set(file, result);
     return result;
   } catch (err) {
-    console.error(`[data] Failed to parse ${file}:`, err instanceof Error ? err.message : err);
-    const fallback = {} as T;
-    cache.set(file, fallback);
-    return fallback;
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`[data] Failed to parse ${file}: ${message}`);
   }
 }
 

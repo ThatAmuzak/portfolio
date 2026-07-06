@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://rishav-banerjee.com/sitemap-index.xml
