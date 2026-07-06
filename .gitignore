@@ -5,3 +5,8 @@ dist/
 *.local
 .projectile-cache.eld
 .wrangler
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
