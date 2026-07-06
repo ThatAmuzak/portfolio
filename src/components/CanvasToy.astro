@@ -1,0 +1,197 @@
+---
+/**
+ * CanvasToy.astro — Generic panel for canvas-based interactive toys.
+ *
+ * Accepts an array of CanvasToy definitions (see src/lib/types.ts).
+ * Picks one to display; the rotation strategy is handled by the inline
+ * script (see rotation logic below).
+ *
+ * Hidden on mobile; on desktop the toggle button is injected into the
+ * hero CTA row. The panel slides in from the right taking ~50vw.
+ */
+import { boidsToy } from '../scripts/toys/boids.js';
+import { LORD_ICON_COLORS, liSrc } from '../lib/data';
+import type { CanvasToy } from '../lib/types';
+
+interface Props {
+  toys?: CanvasToy[];
+}
+
+const toys: CanvasToy[] = Astro.props.toys ?? [boidsToy];
+
+// For SSR, pick the first toy as default. The inline script handles
+// randomisation / rotation on the client.
+const defaultToy = toys[0];
+---
+
+<!-- Toggle button (injected into hero CTA row by inline script) -->
+<button
+  id="canvas-toy-toggle"
+  class="hidden md:inline-flex card-glow items-center gap-3 px-7 py-4 bg-surface-raised text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent cursor-pointer"
+  aria-label="Open interactive toy"
+  data-toy-id={defaultToy.id}
+>
+  <lord-icon
+    src={liSrc(defaultToy.buttonIcon)}
+    trigger="loop"
+    colors={LORD_ICON_COLORS.default}
+    class="li-lg"
+  >
+  </lord-icon>
+  {defaultToy.buttonLabel}
+</button>
+
+<!-- Backdrop overlay — dims the left half, click to close -->
+<div
+  id="canvas-toy-backdrop"
+  class="fixed top-0 left-0 bottom-0 z-40 pointer-events-none opacity-0 bg-black/30 transition-opacity duration-500"
+  style="right: 50vw"
+  aria-hidden="true"
+></div>
+
+<!-- Simulation panel — fixed overlay on right half -->
+<div
+  id="canvas-toy-panel"
+  class="fixed top-0 right-0 h-full w-[50vw] z-50 translate-x-full bg-surface border-l border-border flex flex-col"
+  aria-hidden="true"
+>
+  <!-- Header bar -->
+  <div class="flex items-center justify-between px-5 py-3 border-b border-border shrink-0">
+    <span
+      id="canvas-toy-header"
+      class="text-[13px] text-ink-tertiary font-mono select-none"
+    >
+      {defaultToy.headerHtml}
+    </span>
+    <button
+      id="canvas-toy-close"
+      class="text-ink-tertiary hover:text-ink text-2xl leading-none p-1 cursor-pointer transition-colors bg-transparent border-0"
+      aria-label="Close toy"
+    >
+      &times;
+    </button>
+  </div>
+
+  <!-- Canvas fills remaining space -->
+  <div id="canvas-toy-wrapper" class="flex-1 relative min-h-0">
+    <canvas id="canvas-toy-canvas" class="absolute inset-0 w-full h-full"></canvas>
+  </div>
+
+  <!-- Footer bar -->
+  <div class="px-5 py-3 border-t border-border shrink-0">
+    <p
+      id="canvas-toy-footer"
+      class="text-[12px] text-ink-tertiary font-mono leading-relaxed select-none m-0"
+    >
+      {defaultToy.footerHtml}
+    </p>
+  </div>
+</div>
+
+<script>
+  // @ts-nocheck -- vanilla JS, DOM element refs verified at runtime
+  import { boidsToy } from '../scripts/toys/boids.js';
+
+  /** All available toys (mirrors the Astro prop). Add new imports here. */
+  const TOYS = [boidsToy];
+
+  function initCanvasToy() {
+    const toggleBtn = document.getElementById('canvas-toy-toggle');
+    const panel = document.getElementById('canvas-toy-panel');
+    const closeBtn = document.getElementById('canvas-toy-close');
+    const backdrop = document.getElementById('canvas-toy-backdrop');
+    const headerEl = document.getElementById('canvas-toy-header');
+    const footerEl = document.getElementById('canvas-toy-footer');
+    const heroCTAs = document.getElementById('hero-ctas');
+
+    if (!toggleBtn || !panel || !closeBtn || !backdrop || !headerEl || !footerEl) return;
+
+    // Move the toggle button into the hero CTA row so it sits beside the other buttons
+    if (heroCTAs && toggleBtn.parentElement) {
+      heroCTAs.appendChild(toggleBtn);
+    }
+
+    let isOpen = false;
+    let simCleanup = null;
+    let lastToyId = null;
+
+    /** Pick a toy — avoids repeating the previous one if there's more than one. */
+    function pickToy() {
+      if (TOYS.length <= 1) return TOYS[0];
+      const candidates = TOYS.filter((t) => t.id !== lastToyId);
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    function open() {
+      if (isOpen) return;
+      isOpen = true;
+
+      const toy = pickToy();
+      lastToyId = toy.id;
+
+      // Update UI for this toy
+      headerEl.innerHTML = toy.headerHtml;
+      footerEl.innerHTML = toy.footerHtml;
+      const iconEl = toggleBtn.querySelector('lord-icon');
+      if (iconEl) iconEl.setAttribute('src', `https://cdn.lordicon.com/${toy.buttonIcon}.json`);
+      // Update button text (leave the icon alone)
+      const textNode = [...toggleBtn.childNodes].find(
+        (n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim()
+      );
+      if (textNode) textNode.textContent = toy.buttonLabel;
+      toggleBtn.setAttribute('data-toy-id', toy.id);
+
+      panel.style.translate = '0 0';
+      panel.setAttribute('aria-hidden', 'false');
+      backdrop.style.opacity = '1';
+      backdrop.style.pointerEvents = 'auto';
+      backdrop.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('canvas-toy-open');
+      toggleBtn.style.display = 'none';
+
+      // Start the simulation
+      const canvas = document.getElementById('canvas-toy-canvas');
+      if (canvas && !simCleanup) {
+        simCleanup = toy.start(canvas);
+      }
+    }
+
+    function close() {
+      if (!isOpen) return;
+      isOpen = false;
+      panel.style.translate = '';
+      panel.setAttribute('aria-hidden', 'true');
+      backdrop.style.opacity = '';
+      backdrop.style.pointerEvents = '';
+      backdrop.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('canvas-toy-open');
+      toggleBtn.style.display = '';
+
+      // Stop simulation
+      if (simCleanup) {
+        simCleanup();
+        simCleanup = null;
+      }
+    }
+
+    toggleBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+
+    // Click outside the panel (on backdrop or content) closes it
+    document.addEventListener('click', (e) => {
+      if (isOpen && !panel.contains(e.target) && e.target !== toggleBtn) {
+        close();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) close();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCanvasToy);
+  } else {
+    initCanvasToy();
+  }
+</script>

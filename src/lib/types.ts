@@ -206,3 +206,29 @@ export interface Projects {
   statuses: ProjectStatus[];
   items: Project[];
 }
+
+// --- canvas toys (boids, particles, etc.) ---
+
+/**
+ * A self-describing canvas toy that can be plugged into the CanvasToy panel.
+ * Each toy provides its own metadata (button label, icon, instructions,
+ * footer explanation) and a `start` function that wires up the canvas and
+ * returns a cleanup function to tear it down.
+ */
+export interface CanvasToy {
+  /** Unique id, e.g. "boids", "particles", "life" */
+  id: string;
+  /** Label on the toggle button, e.g. "Bored?", "Distracted?" */
+  buttonLabel: string;
+  /** Lord-icon src hash for the toggle button */
+  buttonIcon: string;
+  /** HTML string for the header bar (instructions, controls hint) */
+  headerHtml: string;
+  /** HTML string for the footer bar (title + explanation) */
+  footerHtml: string;
+  /**
+   * Attach the simulation to a <canvas> element.
+   * Returns a cleanup function (call to stop & detach).
+   */
+  start: (canvas: HTMLCanvasElement) => () => void;
+}

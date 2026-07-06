@@ -1,5 +1,6 @@
-// ── Boids Simulation Engine ──────────────────────────────────────────────
+// ── Boids Toy ─────────────────────────────────────────────────────────────
 // Canvas 2D flocking simulation with trails, mouse attraction/repulsion.
+// Conforms to the CanvasToy interface (see src/lib/types.ts).
 // Respects site accent colours and dark/light mode via CSS custom properties.
 
 const CFG = {
@@ -16,11 +17,22 @@ const CFG = {
   borderForce: 0.4,
 };
 
+export const boidsToy = {
+  id: 'boids',
+  buttonLabel: 'Bored?',
+  buttonIcon: 'bazecvhf',
+  headerHtml:
+    '&#x1f5b1;&#xfe0f; left-click to attract &nbsp;&middot;&nbsp; right-click to repel',
+  footerHtml:
+    '<strong class="text-ink-secondary">Boids</strong> &mdash; each triangle follows three simple rules: steer toward neighbours, match their direction, and keep their distance. Together they form lifelike flocks.',
+  start,
+};
+
 /**
- * Attach a boids simulation to a <canvas> element.
+ * Attach the boids simulation to a <canvas> element.
  * Returns a cleanup function (call to stop & detach).
  */
-export function startBoids(canvas) {
+function start(canvas) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas 2D context unavailable');
 
@@ -99,7 +111,6 @@ export function startBoids(canvas) {
 
   function buildGrid() {
     const cellSize = CFG.perceptionRadius;
-    const cols = Math.ceil(W / cellSize) || 1;
     const grid = new Map();
 
     for (let i = 0; i < boids.length; i++) {
@@ -111,7 +122,7 @@ export function startBoids(canvas) {
       if (!cell) { cell = []; grid.set(key, cell); }
       cell.push(i);
     }
-    return { grid, cols, cellSize };
+    return { grid, cellSize };
   }
 
   function update() {

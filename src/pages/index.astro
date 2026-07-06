@@ -4,7 +4,7 @@ import type { Site } from '../lib/types';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
-import Boids from '../components/Boids.astro';
+import CanvasToy from '../components/CanvasToy.astro';
 import About from '../components/About.astro';
 import Experience from '../components/Experience.astro';
 import Publications from '../components/Publications.astro';
@@ -20,7 +20,7 @@ const site = load<Site>('site.yaml');
   <Navbar />
   <main>
     <Hero />
-    <Boids />
+    <CanvasToy />
     <About />
     <Experience />
     <Publications />
