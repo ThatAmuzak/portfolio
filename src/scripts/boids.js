@@ -34,6 +34,9 @@ export function startBoids(canvas) {
   const mouse = { x: null, y: null, button: 0 }; // 0=none 1=left 2=right
   let animId = null;
   let running = true;
+  let lastTime = 0;
+  let accumulator = 0;
+  const FIXED_DT = 1 / 60;
 
   // ── colours ──────────────────────────────────────────────────────────────
 
@@ -282,11 +285,24 @@ export function startBoids(canvas) {
     }
   }
 
-  // ── loop ─────────────────────────────────────────────────────────────────
+  // ── loop (fixed timestep) ────────────────────────────────────────
 
-  function loop() {
+  function loop(timestamp) {
     if (!running) return;
-    update();
+
+    // Delta time in seconds, capped to avoid spiral-of-death
+    const dt = lastTime ? Math.min((timestamp - lastTime) / 1000, 0.1) : FIXED_DT;
+    lastTime = timestamp;
+    accumulator += dt;
+
+    // Run fixed-step updates (max 3 per frame)
+    let steps = 0;
+    while (accumulator >= FIXED_DT && steps < 3) {
+      update();
+      accumulator -= FIXED_DT;
+      steps++;
+    }
+
     render();
     animId = requestAnimationFrame(loop);
   }
