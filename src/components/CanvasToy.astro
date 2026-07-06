@@ -3,14 +3,14 @@
  * CanvasToy.astro — Generic panel for canvas-based interactive toys.
  *
  * Accepts an array of CanvasToy definitions (see src/lib/types.ts).
- * Picks one to display; the rotation strategy is handled by the inline
- * script (see rotation logic below).
+ * On open, picks a random toy. Once open, prev/next buttons (between
+ * canvas and footer) let the user cycle through available toys.
  *
  * Hidden on mobile; on desktop the toggle button is injected into the
  * hero CTA row. The panel slides in from the right taking ~50vw.
  */
-import { boidsToy } from '../scripts/toys/boids.js';
-import { gameOfLifeToy } from '../scripts/toys/game-of-life.js';
+import { boidsToy } from '../scripts/toys/boids.ts';
+import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
 import { LORD_ICON_COLORS, liSrc } from '../lib/data';
 import type { CanvasToy } from '../lib/types';
 
@@ -34,7 +34,7 @@ const defaultToy = toys[0];
 >
   <lord-icon
     src={liSrc(defaultToy.buttonIcon)}
-    trigger="loop"
+    trigger="morph"
     colors={LORD_ICON_COLORS.default}
     class="li-lg"
   >
@@ -57,16 +57,18 @@ const defaultToy = toys[0];
   aria-hidden="true"
 >
   <!-- Header bar -->
-  <div class="flex items-center justify-between px-5 py-3 border-b border-border shrink-0">
+  <div class="flex items-center gap-3 px-5 py-3 border-b border-border shrink-0">
     <span
       id="canvas-toy-header"
-      class="text-[13px] text-ink-tertiary font-mono select-none"
+      class="text-[13px] text-ink-tertiary font-mono select-none flex-1 min-w-0"
     >
       {defaultToy.headerHtml}
     </span>
+    <!-- Slot for toy-specific header controls (e.g. Game of Life pause toggle) -->
+    <div id="canvas-toy-header-controls" class="flex items-center shrink-0"></div>
     <button
       id="canvas-toy-close"
-      class="text-ink-tertiary hover:text-ink text-2xl leading-none p-1 cursor-pointer transition-colors bg-transparent border-0"
+      class="text-ink-tertiary hover:text-ink text-2xl leading-none p-1 cursor-pointer transition-colors bg-transparent border-0 shrink-0"
       aria-label="Close toy"
     >
       &times;
@@ -79,7 +81,38 @@ const defaultToy = toys[0];
   </div>
 
   <!-- Footer bar -->
-  <div class="px-5 py-3 border-t border-border shrink-0">
+  <div class="px-5 py-3 border-t border-border shrink-0 relative z-10 bg-surface">
+    <!-- Prev/next navigation row (hidden when only 1 toy) -->
+    <div
+      id="canvas-toy-nav"
+      class="flex items-center justify-between mb-2 hidden"
+    >
+      <span class="text-[12px] text-ink-tertiary font-mono select-none">Try something else?</span>
+      <div class="flex items-center gap-1">
+        <button
+          id="canvas-toy-nav-prev"
+          class="inline-flex items-center justify-center w-7 h-7 rounded-[6px] text-ink-tertiary hover:text-accent hover:bg-accent-wash transition-colors cursor-pointer bg-transparent border-0"
+          aria-label="Previous toy"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <span
+          id="canvas-toy-nav-indicator"
+          class="text-[12px] text-ink-tertiary font-mono select-none min-w-[28px] text-center"
+        ></span>
+        <button
+          id="canvas-toy-nav-next"
+          class="inline-flex items-center justify-center w-7 h-7 rounded-[6px] text-ink-tertiary hover:text-accent hover:bg-accent-wash transition-colors cursor-pointer bg-transparent border-0"
+          aria-label="Next toy"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+      </div>
+    </div>
     <p
       id="canvas-toy-footer"
       class="text-[12px] text-ink-tertiary font-mono leading-relaxed select-none m-0"
@@ -90,12 +123,12 @@ const defaultToy = toys[0];
 </div>
 
 <script>
-  // @ts-nocheck -- vanilla JS, DOM element refs verified at runtime
-  import { boidsToy } from '../scripts/toys/boids.js';
-  import { gameOfLifeToy } from '../scripts/toys/game-of-life.js';
+  import { boidsToy } from '../scripts/toys/boids.ts';
+  import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
+  import type { CanvasToy } from '../lib/types';
 
   /** All available toys (mirrors the Astro prop). Add new imports here. */
-  const TOYS = [boidsToy, gameOfLifeToy];
+  const TOYS: CanvasToy[] = [boidsToy, gameOfLifeToy];
 
   function initCanvasToy() {
     const toggleBtn = document.getElementById('canvas-toy-toggle');
@@ -104,9 +137,14 @@ const defaultToy = toys[0];
     const backdrop = document.getElementById('canvas-toy-backdrop');
     const headerEl = document.getElementById('canvas-toy-header');
     const footerEl = document.getElementById('canvas-toy-footer');
+    const controlsEl = document.getElementById('canvas-toy-header-controls');
+    const navRow = document.getElementById('canvas-toy-nav');
+    const navPrev = document.getElementById('canvas-toy-nav-prev');
+    const navNext = document.getElementById('canvas-toy-nav-next');
+    const navIndicator = document.getElementById('canvas-toy-nav-indicator');
     const heroCTAs = document.getElementById('hero-ctas');
 
-    if (!toggleBtn || !panel || !closeBtn || !backdrop || !headerEl || !footerEl) return;
+    if (!toggleBtn || !panel || !closeBtn || !backdrop || !headerEl || !footerEl || !controlsEl) return;
 
     // Move the toggle button into the hero CTA row so it sits beside the other buttons
     if (heroCTAs && toggleBtn.parentElement) {
@@ -114,74 +152,154 @@ const defaultToy = toys[0];
     }
 
     let isOpen = false;
-    let simCleanup = null;
-    let lastToyId = null;
+    let simCleanup: (() => void) | null = null;
+    let headerControlsCleanup: (() => void) | null = null;
+    let lastToyId: string | null = null;
+    let toyIndex = -1;
 
-    /** Pick a toy — avoids repeating the previous one if there's more than one. */
-    function pickToy() {
-      if (TOYS.length <= 1) return TOYS[0];
-      const candidates = TOYS.filter((t) => t.id !== lastToyId);
-      return candidates[Math.floor(Math.random() * candidates.length)];
+    /** Show/hide the prev/next nav row based on toy count. */
+    function updateNavVisibility() {
+      if (!navRow || !navIndicator) return;
+      if (TOYS.length <= 1) {
+        navRow.classList.add('hidden');
+        return;
+      }
+      navRow.classList.remove('hidden');
+      navIndicator.textContent = `${toyIndex + 1}/${TOYS.length}`;
+    }
+
+    /** Switch to the toy at the given index. Cleans up previous toy, starts new one. */
+    function switchToToy(index: number) {
+      if (!controlsEl || !headerEl || !footerEl) return;
+
+      // Clean up previous simulation and header controls
+      if (simCleanup) {
+        simCleanup();
+        simCleanup = null;
+      }
+      if (headerControlsCleanup) {
+        headerControlsCleanup();
+        headerControlsCleanup = null;
+      }
+
+      const toy = TOYS[index];
+      toyIndex = index;
+      lastToyId = toy.id;
+
+      // Update header and footer
+      headerEl.innerHTML = toy.headerHtml;
+      footerEl.innerHTML = toy.footerHtml;
+
+      // Update toggle button icon and label
+      const iconEl = toggleBtn?.querySelector('lord-icon');
+      if (iconEl) iconEl.setAttribute('src', `https://cdn.lordicon.com/${toy.buttonIcon}.json`);
+      const textNode = toggleBtn ? [...toggleBtn.childNodes].find(
+        (n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim()
+      ) : undefined;
+      if (textNode) textNode.textContent = toy.buttonLabel;
+      toggleBtn?.setAttribute('data-toy-id', toy.id);
+
+      // Render toy-specific header controls (e.g. Game of Life pause toggle)
+      if (toy.renderHeaderControls) {
+        const result = toy.renderHeaderControls(controlsEl);
+        if (typeof result === 'function') {
+          headerControlsCleanup = result;
+        }
+      }
+
+      // Start the simulation
+      const canvas = document.getElementById('canvas-toy-canvas') as HTMLCanvasElement | null;
+      if (canvas) {
+        try {
+          simCleanup = toy.start(canvas);
+        } catch (err) {
+          console.error(`[CanvasToy] Failed to start "${toy.id}":`, err);
+          simCleanup = null;
+          // Show error in canvas area
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = 'var(--color-ink-tertiary)';
+            ctx.font = '14px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('This toy failed to start — try another.', canvas.width / 2, canvas.height / 2);
+          }
+        }
+      }
+
+      updateNavVisibility();
     }
 
     function open() {
       if (isOpen) return;
       isOpen = true;
 
-      const toy = pickToy();
-      lastToyId = toy.id;
-
-      // Update UI for this toy
-      headerEl.innerHTML = toy.headerHtml;
-      footerEl.innerHTML = toy.footerHtml;
-      const iconEl = toggleBtn.querySelector('lord-icon');
-      if (iconEl) iconEl.setAttribute('src', `https://cdn.lordicon.com/${toy.buttonIcon}.json`);
-      // Update button text (leave the icon alone)
-      const textNode = [...toggleBtn.childNodes].find(
-        (n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim()
-      );
-      if (textNode) textNode.textContent = toy.buttonLabel;
-      toggleBtn.setAttribute('data-toy-id', toy.id);
-
-      panel.style.translate = '0 0';
-      panel.setAttribute('aria-hidden', 'false');
-      backdrop.style.opacity = '1';
-      backdrop.style.pointerEvents = 'auto';
-      backdrop.setAttribute('aria-hidden', 'false');
-      document.body.classList.add('canvas-toy-open');
-      toggleBtn.style.display = 'none';
-
-      // Start the simulation
-      const canvas = document.getElementById('canvas-toy-canvas');
-      if (canvas && !simCleanup) {
-        simCleanup = toy.start(canvas);
+      // Pick a random toy (avoid repeating if >1)
+      let idx: number;
+      if (TOYS.length <= 1) {
+        idx = 0;
+      } else {
+        const candidates = TOYS.reduce<number[]>((acc, t, i) => {
+          if (t.id !== lastToyId) acc.push(i);
+          return acc;
+        }, []);
+        idx = candidates[Math.floor(Math.random() * candidates.length)];
       }
+
+      panel!.style.translate = '0 0';
+      panel!.setAttribute('aria-hidden', 'false');
+      backdrop!.style.opacity = '1';
+      backdrop!.style.pointerEvents = 'auto';
+      backdrop!.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('canvas-toy-open');
+      toggleBtn!.style.display = 'none';
+
+      switchToToy(idx);
     }
 
     function close() {
       if (!isOpen) return;
       isOpen = false;
-      panel.style.translate = '';
-      panel.setAttribute('aria-hidden', 'true');
-      backdrop.style.opacity = '';
-      backdrop.style.pointerEvents = '';
-      backdrop.setAttribute('aria-hidden', 'true');
+      panel!.style.translate = '';
+      panel!.setAttribute('aria-hidden', 'true');
+      backdrop!.style.opacity = '';
+      backdrop!.style.pointerEvents = '';
+      backdrop!.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('canvas-toy-open');
-      toggleBtn.style.display = '';
+      toggleBtn!.style.display = '';
 
-      // Stop simulation
+      // Stop simulation and header controls
       if (simCleanup) {
         simCleanup();
         simCleanup = null;
       }
+      if (headerControlsCleanup) {
+        headerControlsCleanup();
+        headerControlsCleanup = null;
+      }
+
+      toyIndex = -1;
+      updateNavVisibility();
     }
 
     toggleBtn.addEventListener('click', open);
     closeBtn.addEventListener('click', close);
 
+    // Prev/next navigation
+    navPrev?.addEventListener('click', () => {
+      if (!isOpen || TOYS.length <= 1) return;
+      const newIdx = (toyIndex - 1 + TOYS.length) % TOYS.length;
+      switchToToy(newIdx);
+    });
+
+    navNext?.addEventListener('click', () => {
+      if (!isOpen || TOYS.length <= 1) return;
+      const newIdx = (toyIndex + 1) % TOYS.length;
+      switchToToy(newIdx);
+    });
+
     // Click outside the panel (on backdrop or content) closes it
     document.addEventListener('click', (e) => {
-      if (isOpen && !panel.contains(e.target) && e.target !== toggleBtn) {
+      if (isOpen && !panel.contains(e.target as Node) && e.target !== toggleBtn) {
         close();
       }
     });

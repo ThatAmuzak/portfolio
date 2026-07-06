@@ -231,4 +231,10 @@ export interface CanvasToy {
    * Returns a cleanup function (call to stop & detach).
    */
   start: (canvas: HTMLCanvasElement) => () => void;
+  /**
+   * Optional: render custom controls into the header bar.
+   * Called with a container element; should append controls inside it.
+   * Returns an optional cleanup function called when the toy is switched or closed.
+   */
+  renderHeaderControls?: (container: HTMLElement) => (() => void) | void;
 }

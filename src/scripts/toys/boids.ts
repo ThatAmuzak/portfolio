@@ -3,6 +3,27 @@
 // Conforms to the CanvasToy interface (see src/lib/types.ts).
 // Respects site accent colours and dark/light mode via CSS custom properties.
 
+import type { CanvasToy } from '../../lib/types';
+
+interface Boid {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  history: { x: number; y: number }[];
+  /** Frames since spawn — drives scale-in + fade-in animation. */
+  spawnAge: number;
+}
+
+interface Ripple {
+  x: number;
+  y: number;
+  radius: number;
+  opacity: number;
+  /** 1 = expanding outward (repel), -1 = contracting inward (attract). */
+  direction: 1 | -1;
+}
+
 const CFG = {
   count: 250,
   maxSpeed: 2.5,
@@ -15,9 +36,23 @@ const CFG = {
   boidSize: 12,
   borderMargin: 60,
   borderForce: 0.4,
+  /** Boids spawned per update tick during the intro sequence. */
+  spawnPerBatch: 8,
+  /** Frames over which a new boid scales + fades in. */
+  spawnAnimFrames: 20,
+  /** Milliseconds between ripple spawns while mouse button is held. */
+  rippleInterval: 140,
+  /** Pixels per update-tick that a ripple expands/contracts. */
+  rippleSpeed: 3.5,
+  /** Starting radius for expanding ripples (repel) / ending radius for contracting (attract). */
+  rippleStartRadius: 6,
+  /** Opacity lost per frame. */
+  rippleFadeRate: 0.018,
+  /** Maximum ring thickness in pixels. */
+  rippleLineWidth: 2.5,
 };
 
-export const boidsToy = {
+export const boidsToy: CanvasToy = {
   id: 'boids',
   buttonLabel: 'Bored?',
   buttonIcon: 'bazecvhf',
@@ -32,19 +67,24 @@ export const boidsToy = {
  * Attach the boids simulation to a <canvas> element.
  * Returns a cleanup function (call to stop & detach).
  */
-function start(canvas) {
-  const ctx = canvas.getContext('2d');
+function start(canvas: HTMLCanvasElement): () => void {
+  // Non-null: we throw if getContext returns null, so ctx is always valid below
+  const ctx = canvas.getContext('2d')!;
   if (!ctx) throw new Error('Canvas 2D context unavailable');
 
   // ── state ────────────────────────────────────────────────────────────────
 
-  let boids = [];
+  let boids: Boid[] = [];
+  /** Target total boid count. Set by respawn(); boids appear in batches. */
+  let totalSpawnTarget = 0;
   let W = 0; // logical width
   let H = 0; // logical height
   let dpr = 1;
 
-  const mouse = { x: null, y: null, button: 0 }; // 0=none 1=left 2=right
-  let animId = null;
+  const mouse: { x: number | null; y: number | null; button: number } = { x: null, y: null, button: 0 };
+  let ripples: Ripple[] = [];
+  let lastRippleTime = 0;
+  let animId: number | null = null;
   let running = true;
   let lastTime = 0;
   let accumulator = 0;
@@ -81,7 +121,15 @@ function start(canvas) {
 
   function respawn() {
     boids = [];
-    for (let i = 0; i < CFG.count; i++) {
+    totalSpawnTarget = CFG.count;
+  }
+
+  /** Create one batch of boids. Called from update() while still spawning. */
+  function spawnBatch() {
+    const remaining = totalSpawnTarget - boids.length;
+    if (remaining <= 0) return;
+    const batch = Math.min(CFG.spawnPerBatch, remaining);
+    for (let i = 0; i < batch; i++) {
       const a = Math.random() * Math.PI * 2;
       const s = 1 + Math.random() * 2;
       boids.push({
@@ -90,13 +138,14 @@ function start(canvas) {
         vx: Math.cos(a) * s,
         vy: Math.sin(a) * s,
         history: [],
+        spawnAge: 0,
       });
     }
   }
 
   // ── boid logic ───────────────────────────────────────────────────────────
 
-  function steer(b, targetX, targetY, weight) {
+  function steer(b: Boid, targetX: number, targetY: number, weight: number) {
     let dx = targetX - b.vx;
     let dy = targetY - b.vy;
     const mag = Math.sqrt(dx * dx + dy * dy);
@@ -111,7 +160,7 @@ function start(canvas) {
 
   function buildGrid() {
     const cellSize = CFG.perceptionRadius;
-    const grid = new Map();
+    const grid = new Map<string, number[]>();
 
     for (let i = 0; i < boids.length; i++) {
       const b = boids[i];
@@ -128,14 +177,53 @@ function start(canvas) {
   function update() {
     col = readColors();
 
+    // Spawn boids in batches until we reach the target count.
+    if (boids.length < totalSpawnTarget) {
+      spawnBatch();
+    }
+
+    // Age spawn animation (increments whether or not we're still spawning).
+    for (const b of boids) {
+      if (b.spawnAge < CFG.spawnAnimFrames) b.spawnAge++;
+    }
+
+    // ── cursor ripples (spawn + animate, once per tick, not per boid) ──
+
+    if (mouse.x !== null && mouse.y !== null && mouse.button) {
+      const now = performance.now();
+      if (now - lastRippleTime >= CFG.rippleInterval) {
+        lastRippleTime = now;
+        const dir: 1 | -1 = mouse.button === 1 ? -1 : 1;
+        // Attract: rings contract inward → start at mouseRadius.
+        // Repel: rings expand outward → start at small radius.
+        const startR = dir === 1 ? CFG.rippleStartRadius : CFG.mouseRadius;
+        ripples.push({ x: mouse.x, y: mouse.y, radius: startR, opacity: 0.55, direction: dir });
+      }
+    }
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const rip = ripples[i];
+      rip.radius += rip.direction * CFG.rippleSpeed;
+      rip.opacity -= CFG.rippleFadeRate;
+      if (
+        rip.opacity <= 0 ||
+        (rip.direction === 1 && rip.radius > CFG.mouseRadius) ||
+        (rip.direction === -1 && rip.radius < 2)
+      ) {
+        ripples.splice(i, 1);
+      }
+    }
+
     const { grid, cellSize } = buildGrid();
 
     for (let i = 0; i < boids.length; i++) {
       const b = boids[i];
 
-      // Trail
-      b.history.push({ x: b.x, y: b.y });
-      if (b.history.length > CFG.trailLength) b.history.shift();
+      // Trail (only for fully spawned-in boids — looks weird during intro)
+      if (b.spawnAge >= CFG.spawnAnimFrames) {
+        b.history.push({ x: b.x, y: b.y });
+        if (b.history.length > CFG.trailLength) b.history.shift();
+      }
 
       // Accumulators
       let sepX = 0, sepY = 0, sepN = 0;
@@ -252,10 +340,17 @@ function start(canvas) {
 
   // ── rendering ────────────────────────────────────────────────────────────
 
-  function drawBoid(b) {
+  function drawBoid(b: Boid) {
     const angle = Math.atan2(b.vy, b.vx);
     const sz = CFG.boidSize;
     const { r, g: gn, b: bl } = col;
+
+    // Scale-in + fade-in animation for newly spawned boids.
+    const t = b.spawnAge < CFG.spawnAnimFrames
+      ? b.spawnAge / CFG.spawnAnimFrames
+      : 1.0;
+    const scale = 0.3 + 0.7 * t;
+    const alpha = 0.3 + 0.7 * t;
 
     ctx.save();
     ctx.translate(b.x, b.y);
@@ -263,11 +358,11 @@ function start(canvas) {
 
     // Isosceles triangle pointing right
     ctx.beginPath();
-    ctx.moveTo(sz, 0);
-    ctx.lineTo(-sz * 0.7, -sz * 0.5);
-    ctx.lineTo(-sz * 0.7, sz * 0.5);
+    ctx.moveTo(sz * scale, 0);
+    ctx.lineTo(-sz * 0.7 * scale, -sz * 0.5 * scale);
+    ctx.lineTo(-sz * 0.7 * scale, sz * 0.5 * scale);
     ctx.closePath();
-    ctx.fillStyle = `rgb(${r},${gn},${bl})`;
+    ctx.fillStyle = `rgba(${r},${gn},${bl},${alpha})`;
     ctx.fill();
 
     ctx.restore();
@@ -290,6 +385,15 @@ function start(canvas) {
       }
     }
 
+    // Cursor ripples (rings behind boids)
+    for (const rip of ripples) {
+      ctx.beginPath();
+      ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${r},${gn},${bl},${rip.opacity.toFixed(3)})`;
+      ctx.lineWidth = CFG.rippleLineWidth;
+      ctx.stroke();
+    }
+
     // Boids on top
     for (const b of boids) {
       drawBoid(b);
@@ -298,7 +402,7 @@ function start(canvas) {
 
   // ── loop (fixed timestep) ────────────────────────────────────────
 
-  function loop(timestamp) {
+  function loop(timestamp: number) {
     if (!running) return;
 
     // Delta time in seconds, capped to avoid spiral-of-death
@@ -320,7 +424,7 @@ function start(canvas) {
 
   // ── event handlers ───────────────────────────────────────────────────────
 
-  function onMouseMove(e) {
+  function onMouseMove(e: MouseEvent) {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
@@ -331,16 +435,17 @@ function start(canvas) {
     mouse.y = null;
   }
 
-  function onMouseDown(e) {
+  function onMouseDown(e: MouseEvent) {
     e.preventDefault();
     mouse.button = e.buttons; // bitmask: 1=left, 2=right, 3=both
   }
 
   function onMouseUp() {
     mouse.button = 0;
+    ripples = [];
   }
 
-  function onContextMenu(e) {
+  function onContextMenu(e: MouseEvent) {
     e.preventDefault();
   }
 
