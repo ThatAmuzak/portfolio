@@ -145,9 +145,10 @@ function start(canvas: HTMLCanvasElement): () => void {
 
   // ── boid logic ───────────────────────────────────────────────────────────
 
-  function steer(b: Boid, targetX: number, targetY: number, weight: number) {
-    let dx = targetX - b.vx;
-    let dy = targetY - b.vy;
+  /** Compute steering force toward a desired velocity (not a position). */
+  function steer(b: Boid, desiredVX: number, desiredVY: number, weight: number) {
+    let dx = desiredVX - b.vx;
+    let dy = desiredVY - b.vy;
     const mag = Math.sqrt(dx * dx + dy * dy);
     if (mag > CFG.maxForce * weight) {
       dx = (dx / mag) * CFG.maxForce * weight;

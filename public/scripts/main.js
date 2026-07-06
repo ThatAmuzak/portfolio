@@ -280,8 +280,6 @@ function scrollToTarget(target) {
     }
   }
 
-  window.initCardTilt = initCardTilt;
-
   //────────────────────────────────────────────────────────────────────────────
   // Navbar — scroll class, mobile menu, smooth scroll, active-section underline
   //────────────────────────────────────────────────────────────────────────────
@@ -523,17 +521,13 @@ function scrollToTarget(target) {
         expandWrap.style.display = matchCount > MAX_VISIBLE ? '' : 'none';
       }
       if (expandBtn) {
-        var style = getComputedStyle(document.documentElement);
-        var inkColor = style.getPropertyValue('--color-ink').trim();
-        var accentColor = style.getPropertyValue('--color-accent').trim();
-        var colors = 'primary:' + inkColor + ',secondary:' + accentColor;
-        expandBtn.innerHTML = expanded
-          ? 'Less projects <lord-icon src="https://cdn.lordicon.com/gupcdncx.json" trigger="morph" colors="' +
-            colors +
-            '" class="li-md" style="transform:rotate(180deg)"></lord-icon>'
-          : 'More projects <lord-icon src="https://cdn.lordicon.com/gupcdncx.json" trigger="morph" colors="' +
-            colors +
-            '" class="li-md"></lord-icon>';
+        // Update text only — leave the existing lord-icon DOM alone.
+        var textNode = Array.from(expandBtn.childNodes).find(function (n) {
+          return n.nodeType === Node.TEXT_NODE && n.textContent.trim();
+        });
+        if (textNode) textNode.textContent = expanded ? ' Less projects ' : ' More projects ';
+        var icon = expandBtn.querySelector('lord-icon');
+        if (icon) icon.style.transform = expanded ? 'rotate(180deg)' : '';
       }
 
       setTimeout(function () {
@@ -544,7 +538,6 @@ function scrollToTarget(target) {
           }
         });
         initDescToggles();
-        if (typeof window.initCardTilt === 'function') window.initCardTilt();
       }, 150);
     }
 

@@ -185,7 +185,7 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
     });
   }
 
-  // Back to top — uses shared scrollToTarget from main.js
+  // Back to top — uses shared scrollToTarget from main.js for consistent easing
   const backBtn = document.getElementById('back-to-top');
   if (backBtn) {
     backBtn.addEventListener('click', () => scrollToTarget(0));

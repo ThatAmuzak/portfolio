@@ -9,6 +9,10 @@
  * Hidden on mobile; on desktop the toggle button is injected into the
  * hero CTA row. The panel slides in from the right taking ~50vw.
  */
+// NOTE: Toy imports are duplicated in the <script> block below.
+// This is intentional — the frontmatter runs at build time for SSR
+// (rendering the default toggle button), while the <script> runs on
+// the client for rotation. Both are needed; keep them in sync.
 import { boidsToy } from '../scripts/toys/boids.ts';
 import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
 import { LORD_ICON_COLORS, liSrc } from '../lib/data';
@@ -123,11 +127,12 @@ const defaultToy = toys[0];
 </div>
 
 <script>
+  // Keep in sync with the frontmatter imports above when adding new toys.
   import { boidsToy } from '../scripts/toys/boids.ts';
   import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
   import type { CanvasToy } from '../lib/types';
 
-  /** All available toys (mirrors the Astro prop). Add new imports here. */
+  /** All available toys (must match the frontmatter array above). */
   const TOYS: CanvasToy[] = [boidsToy, gameOfLifeToy];
 
   function initCanvasToy() {
