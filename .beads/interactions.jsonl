@@ -24,3 +24,5 @@
 {"id":"int-4b828a23","kind":"field_change","created_at":"2026-07-06T03:22:35.1064588Z","actor":"ThatAmuzak","issue_id":"portfolio-v2-l0p","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
 {"id":"int-c85df9ec","kind":"field_change","created_at":"2026-07-06T03:23:41.5184691Z","actor":"ThatAmuzak","issue_id":"portfolio-v2-19z","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
 {"id":"int-4525d1cb","kind":"field_change","created_at":"2026-07-06T03:23:41.6776165Z","actor":"ThatAmuzak","issue_id":"portfolio-v2-5mv","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"Closed"}}
+{"id":"int-d4915974","kind":"field_change","created_at":"2026-07-06T05:33:24.8584572Z","actor":"ThatAmuzak","issue_id":"portfolio-v2-2ps","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}
+{"id":"int-71fb4e74","kind":"field_change","created_at":"2026-07-06T05:33:26.1156057Z","actor":"ThatAmuzak","issue_id":"portfolio-v2-2gt","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Closed"}}

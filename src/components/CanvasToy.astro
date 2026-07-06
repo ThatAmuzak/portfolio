@@ -10,6 +10,7 @@
  * hero CTA row. The panel slides in from the right taking ~50vw.
  */
 import { boidsToy } from '../scripts/toys/boids.js';
+import { gameOfLifeToy } from '../scripts/toys/game-of-life.js';
 import { LORD_ICON_COLORS, liSrc } from '../lib/data';
 import type { CanvasToy } from '../lib/types';
 
@@ -17,7 +18,7 @@ interface Props {
   toys?: CanvasToy[];
 }
 
-const toys: CanvasToy[] = Astro.props.toys ?? [boidsToy];
+const toys: CanvasToy[] = Astro.props.toys ?? [boidsToy, gameOfLifeToy];
 
 // For SSR, pick the first toy as default. The inline script handles
 // randomisation / rotation on the client.
@@ -91,9 +92,10 @@ const defaultToy = toys[0];
 <script>
   // @ts-nocheck -- vanilla JS, DOM element refs verified at runtime
   import { boidsToy } from '../scripts/toys/boids.js';
+  import { gameOfLifeToy } from '../scripts/toys/game-of-life.js';
 
   /** All available toys (mirrors the Astro prop). Add new imports here. */
-  const TOYS = [boidsToy];
+  const TOYS = [boidsToy, gameOfLifeToy];
 
   function initCanvasToy() {
     const toggleBtn = document.getElementById('canvas-toy-toggle');
