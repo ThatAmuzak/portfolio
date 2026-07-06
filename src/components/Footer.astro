@@ -1,8 +1,7 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-import type { Site, Contact, FooterData } from '../lib/types';
+import { load } from '../lib/data';
+import type { Contact, FooterData } from '../lib/types';
 
-const site = load<Site>('site.yaml');
 const contact = load<Contact>('contact.yaml');
 const footer: FooterData = contact.footer || {};
 ---

@@ -1,11 +1,17 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 
-const allPosts = await getCollection('blogs', ({ data }) => !data.draft);
-const posts = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const allPosts = await getCollection('blogs', ({ data }: CollectionEntry<'blogs'>) => !data.draft);
+const posts = allPosts.sort((a: CollectionEntry<'blogs'>, b: CollectionEntry<'blogs'>) => b.data.date.getTime() - a.data.date.getTime());
+
+interface PostWithMeta {
+  post: CollectionEntry<'blogs'>;
+  delay: number;
+}
+const postsWithMeta: PostWithMeta[] = posts.map((post: CollectionEntry<'blogs'>, i: number) => ({ post, delay: Math.min(i, 5) + 1 }));
 
 const title = 'Blogs — Rishav Banerjee';
 const description = 'Articles on HCI, VR, robotics, and software development by Rishav Banerjee.';
@@ -38,28 +44,26 @@ const description = 'Articles on HCI, VR, robotics, and software development by 
             </div>
           ) : (
             <div class="space-y-8">
-              {posts.map((post, i) => {
-                const delay = Math.min(i, 5) + 1;
-                return (
-                  <article class={`reveal delay-${delay}`}>
+              {postsWithMeta.map((item) => (
+                  <article class={`reveal delay-${item.delay}`}>
                     <a
-                      href={`/blogs/${post.id}`}
+                      href={`/blogs/${item.post.id}`}
                       class="block group p-6 -mx-6 rounded-xl hover:bg-surface-raised transition-colors duration-200 no-underline"
                     >
                       <div class="flex items-center gap-3 mb-2">
                         <time
-                          datetime={post.data.date.toISOString().split('T')[0]}
+                          datetime={item.post.data.date.toISOString().split('T')[0]}
                           class="text-[13px] font-mono text-ink-tertiary"
                         >
-                          {post.data.date.toLocaleDateString('en-US', {
+                          {item.post.data.date.toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',
                           })}
                         </time>
-                        {post.data.tags && post.data.tags.length > 0 && (
+                        {item.post.data.tags && item.post.data.tags.length > 0 && (
                           <span class="flex items-center gap-1.5">
-                            {post.data.tags.slice(0, 3).map((tag: string) => (
+                            {item.post.data.tags.slice(0, 3).map((tag: string) => (
                               <span class="text-[12px] font-mono px-2 py-0.5 rounded-full bg-surface-sunken text-ink-tertiary border border-border">
                                 {tag}
                               </span>
@@ -68,11 +72,11 @@ const description = 'Articles on HCI, VR, robotics, and software development by 
                         )}
                       </div>
                       <h2 class="font-display text-[22px] md:text-[26px] font-semibold text-ink group-hover:text-accent transition-colors tracking-[-0.01em] leading-[1.3]">
-                        {post.data.title}
+                        {item.post.data.title}
                       </h2>
-                      {post.data.description && (
+                      {item.post.data.description && (
                         <p class="mt-2 text-[16px] text-ink-secondary leading-[1.65]">
-                          {post.data.description}
+                          {item.post.data.description}
                         </p>
                       )}
                       <span class="inline-flex items-center gap-1.5 mt-4 text-[14px] font-mono text-accent group-hover:text-accent-light transition-colors">
@@ -94,8 +98,7 @@ const description = 'Articles on HCI, VR, robotics, and software development by 
                       </span>
                     </a>
                   </article>
-                );
-              })}
+              ))}
             </div>
           )
         }

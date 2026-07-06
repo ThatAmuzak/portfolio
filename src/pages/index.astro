@@ -17,13 +17,15 @@ const site = load<Site>('site.yaml');
 
 <BaseLayout title={site.title || 'Portfolio'} description={site.description || ''}>
   <Navbar />
-  <Hero />
-  <About />
-  <Experience />
-  <Publications />
-  <Skills />
-  <Education />
-  <Contact />
+  <main>
+    <Hero />
+    <About />
+    <Experience />
+    <Publications />
+    <Skills />
+    <Education />
+    <Contact />
+  </main>
   <Footer />
 </BaseLayout>
 

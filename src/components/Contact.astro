@@ -1,5 +1,5 @@
 ---
-import { load, LI, liSrc, obfuscateEmail } from '../lib/data';
+import { load, LORD_ICON_COLORS, liSrc, obfuscateEmail } from '../lib/data';
 import type { Site, SocialLink, Contact, ContactCTA } from '../lib/types';
 import SectionHeader from './SectionHeader.astro';
 
@@ -42,7 +42,7 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
               <lord-icon
                 src={liSrc(contact.emailIcon)}
                 trigger="morph"
-                colors={LI.dark}
+                colors={LORD_ICON_COLORS.default}
                 class="li-xl shrink-0"
                 id="email-icon"
               />
@@ -102,7 +102,7 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
               class="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-ink-on-dark text-[15px] font-medium rounded-[6px] hover:bg-accent-light transition-all duration-200 no-underline"
             >
               {item.icon && (
-                <lord-icon src={liSrc(item.icon)} trigger="morph" colors={LI.light} class="li-md" />
+                <lord-icon src={liSrc(item.icon)} trigger="morph" colors={LORD_ICON_COLORS.onDark} class="li-md" />
               )}
               {item.label}
             </a>
@@ -123,7 +123,7 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
               aria-label={s.label}
             >
               {s.icon && (
-                <lord-icon src={liSrc(s.icon)} trigger="morph" colors={LI.dark} class="li-base" />
+                <lord-icon src={liSrc(s.icon)} trigger="morph" colors={LORD_ICON_COLORS.default} class="li-base" />
               )}
               {s.label}
             </a>
@@ -185,23 +185,9 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
     });
   }
 
-  // Back to top (snappy ease-out)
+  // Back to top — uses shared scrollToTarget from main.js
   const backBtn = document.getElementById('back-to-top');
   if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      const startY = window.scrollY;
-      const duration = 480;
-      const startTime = performance.now();
-
-      function step(now: number) {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        window.scrollTo(0, startY * (1 - eased));
-        if (progress < 1) requestAnimationFrame(step);
-      }
-
-      requestAnimationFrame(step);
-    });
+    backBtn.addEventListener('click', () => scrollToTarget(0));
   }
 </script>

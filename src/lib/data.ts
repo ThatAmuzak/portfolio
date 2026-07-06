@@ -35,13 +35,6 @@ export const LORD_ICON_COLORS = {
   accent: 'primary:#0891B2,secondary:#0891B2',
 } as const;
 
-/** @deprecated Use LORD_ICON_COLORS instead */
-export const LI = {
-  dark: LORD_ICON_COLORS.default,
-  light: LORD_ICON_COLORS.onDark,
-  blue: LORD_ICON_COLORS.accent,
-};
-
 // Lord Icon CDN URL from hash
 export const liSrc = (hash: string) => `https://cdn.lordicon.com/${hash}.json`;
 

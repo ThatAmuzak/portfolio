@@ -1,5 +1,5 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
+import { load, LORD_ICON_COLORS, liSrc } from '../lib/data';
 import type { Projects, ProjectLink } from '../lib/types';
 import SectionHeader from './SectionHeader.astro';
 
@@ -60,7 +60,7 @@ const defaultColor = '#6B7280';
                 <lord-icon
                   src={liSrc(project.icon || 'gsjfryhc')}
                   trigger="morph"
-                  colors={LI.dark}
+                  colors={LORD_ICON_COLORS.default}
                   class="li-2xl"
                 />
                 {project.status && (
@@ -113,7 +113,7 @@ const defaultColor = '#6B7280';
                         <lord-icon
                           src={liSrc(link.icon)}
                           trigger="morph"
-                          colors={LI.dark}
+                          colors={LORD_ICON_COLORS.default}
                           class="li-sm"
                         />
                         {link.label}
@@ -137,143 +137,10 @@ const defaultColor = '#6B7280';
         <lord-icon
           src={liSrc('gupcdncx')}
           trigger="morph"
-          colors={LI.dark}
+          colors={LORD_ICON_COLORS.default}
           class="li-md"
           id="expand-arrow"></lord-icon>
       </button>
     </div>
   </div>
 </section>
-
-<script>
-  // Description expand/collapse — bind once, check truncation after visible
-  const boundToggles = new WeakSet();
-
-  function initDescToggles() {
-    document.querySelectorAll('.project-desc').forEach((desc) => {
-      const toggle = desc.parentElement?.querySelector(
-        '.project-expand-toggle',
-      ) as HTMLButtonElement | null;
-      if (!toggle) return;
-
-      const el = desc as HTMLElement;
-      const card = el.closest('[data-status]') as HTMLElement | null;
-
-      // Skip cards that are hidden (scrollHeight is 0)
-      if (card && card.style.display === 'none') return;
-
-      // Check if text is actually truncated
-      if (el.scrollHeight > el.clientHeight + 2) {
-        toggle.classList.remove('hidden');
-      } else {
-        toggle.classList.add('hidden');
-      }
-
-      // Only bind click once per toggle
-      if (boundToggles.has(toggle)) return;
-      boundToggles.add(toggle);
-
-      toggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const isExpanded = el.classList.contains('expanded');
-        el.classList.toggle('expanded');
-        toggle.textContent = isExpanded ? 'Read more' : 'Show less';
-      });
-    });
-  }
-
-  const filterBtns = document.querySelectorAll('#project-filter-tabs button');
-  const projectCards = Array.from(
-    document.querySelectorAll('#projects-grid > div'),
-  ) as HTMLElement[];
-
-  // Make cards with data-href clickable
-  projectCards.forEach((card) => {
-    const href = card.getAttribute('data-href');
-    if (!href) return;
-    card.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      if (target.closest('a, button, .project-extra-link, .project-expand-toggle')) return;
-      window.open(href, '_blank', 'noopener');
-    });
-  });
-
-  const expandBtn = document.getElementById('projects-expand-btn');
-  const expandWrap = document.getElementById('projects-expand-wrap');
-  let expanded = false;
-  let activeFilter = 'All';
-  const MAX_VISIBLE = 4;
-
-  function applyVisibility() {
-    let matchCount = 0;
-    projectCards.forEach(function (card) {
-      var el = card;
-      var matches = activeFilter === 'All' || el.getAttribute('data-status') === activeFilter;
-      if (!matches) {
-        el.style.display = 'none';
-        return;
-      }
-      matchCount++;
-      if (!expanded && matchCount > MAX_VISIBLE) {
-        el.style.display = 'none';
-      } else {
-        el.style.display = '';
-        el.classList.remove('visible');
-        void el.offsetWidth;
-        el.classList.add('visible');
-      }
-    });
-    if (expandWrap) {
-      (expandWrap as HTMLElement).style.display = matchCount > MAX_VISIBLE ? '' : 'none';
-    }
-    if (expandBtn) {
-      var style = getComputedStyle(document.documentElement);
-      var inkColor = style.getPropertyValue('--color-ink').trim();
-      var accentColor = style.getPropertyValue('--color-accent').trim();
-      var colors = 'primary:' + inkColor + ',secondary:' + accentColor;
-      expandBtn.innerHTML = expanded
-        ? 'Less projects <lord-icon src="https://cdn.lordicon.com/gupcdncx.json" trigger="morph" colors="' +
-          colors +
-          '" class="li-md" style="transform:rotate(180deg)"></lord-icon>'
-        : 'More projects <lord-icon src="https://cdn.lordicon.com/gupcdncx.json" trigger="morph" colors="' +
-          colors +
-          '" class="li-md"></lord-icon>';
-    }
-
-    // Re-animate icons + re-check desc toggles after cards are visible
-    setTimeout(() => {
-      document.querySelectorAll('#projects-grid lord-icon').forEach(function (icon: any) {
-        var card = icon.closest('[data-status]');
-        if (card && (card as HTMLElement).style.display !== 'none' && icon.playerInstance) {
-          icon.playerInstance.playFromBeginning();
-        }
-      });
-      initDescToggles();
-      if (typeof window.initCardTilt === 'function') window.initCardTilt();
-    }, 150);
-  }
-
-  filterBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      activeFilter = btn.getAttribute('data-filter') || 'All';
-      expanded = false;
-      filterBtns.forEach((b) => {
-        b.classList.remove('bg-accent', 'text-ink-on-dark', 'border-accent');
-        b.classList.add('bg-transparent', 'text-ink-secondary', 'border-border');
-      });
-      btn.classList.remove('bg-transparent', 'text-ink-secondary', 'border-border');
-      btn.classList.add('bg-accent', 'text-ink-on-dark', 'border-accent');
-      applyVisibility();
-    });
-  });
-
-  if (expandBtn) {
-    expandBtn.addEventListener('click', () => {
-      expanded = !expanded;
-      applyVisibility();
-    });
-  }
-
-  applyVisibility();
-</script>

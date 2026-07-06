@@ -1,5 +1,5 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
+import { load, LORD_ICON_COLORS, liSrc } from '../lib/data';
 import type { About, AboutParagraph, AboutSegment, AboutStat } from '../lib/types';
 import SectionHeader from './SectionHeader.astro';
 
@@ -20,7 +20,7 @@ const stats: AboutStat[] = about.stats || [];
               <p
                 class={`reveal ${i > 0 ? `delay-${i}` : ''} text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] ${i < paragraphs.length - 1 ? 'mb-5' : ''}`}
               >
-                {para.segments.map((seg: AboutSegment, j: number) =>
+                {para.segments.map((seg: AboutSegment, _j: number) =>
                   seg.href ? (
                     <a
                       href={seg.href}
@@ -52,7 +52,7 @@ const stats: AboutStat[] = about.stats || [];
                     <lord-icon
                       src={liSrc(stat.icon)}
                       trigger="morph"
-                      colors={LI.dark}
+                      colors={LORD_ICON_COLORS.default}
                       class="li-xl"
                     />
                   )}

@@ -1,10 +1,38 @@
 /**
  * Portfolio v2 — Client-side runtime
  *
- * Handles: scroll reveals, dark mode toggle, Lord Icon system, card tilt.
+ * Handles: scroll reveals, dark mode toggle, Lord Icon system, card tilt,
+ * smooth scrolling.
  * Loaded via <script defer> from BaseLayout — DOM is already parsed by the
  * time this runs, so we can kick off immediately.
  */
+
+//────────────────────────────────────────────────────────────────────────────
+// Shared smooth scroll — cubic ease-out, accounts for fixed navbar
+// Accepts an HTMLElement (scrolls to it) or a number (scrolls to that Y pos)
+//────────────────────────────────────────────────────────────────────────────
+function scrollToTarget(target) {
+  var navbarH = 64;
+  var targetY =
+    typeof target === 'number'
+      ? target
+      : target.getBoundingClientRect().top + window.scrollY - navbarH - 12;
+  var startY = window.scrollY;
+  var distance = targetY - startY;
+  var duration = 480;
+  var startTime = performance.now();
+
+  function step(now) {
+    var elapsed = now - startTime;
+    var progress = Math.min(elapsed / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    window.scrollTo(0, startY + distance * eased);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
 (function () {
   //────────────────────────────────────────────────────────────────────────────
   // Scroll reveal observer — runs immediately (DOM is ready when defer fires)
@@ -162,6 +190,7 @@
     var cards = document.querySelectorAll('.card-glow:not([data-tilt-bound])');
     var MAX_TILT = 8;
     var LERP = 0.16;
+    var BUFFER = 10; // px beyond card edge before tilt resets
 
     for (var c = 0; c < cards.length; c++) {
       (function (card) {
@@ -174,6 +203,7 @@
           currentY = 0;
         var active = false;
         var rafId = null;
+        var docMoveBound = null;
 
         function loop() {
           currentX += (targetX - currentX) * LERP;
@@ -196,6 +226,26 @@
           }
         }
 
+        function deactivate() {
+          active = false;
+          targetX = 0;
+          targetY = 0;
+          if (docMoveBound) {
+            document.removeEventListener('mousemove', docMoveBound);
+            docMoveBound = null;
+          }
+        }
+
+        function isInsideBuffer(e) {
+          var rect = el.getBoundingClientRect();
+          return (
+            e.clientX >= rect.left - BUFFER &&
+            e.clientX <= rect.right + BUFFER &&
+            e.clientY >= rect.top - BUFFER &&
+            e.clientY <= rect.bottom + BUFFER
+          );
+        }
+
         function setTarget(e) {
           var rect = el.getBoundingClientRect();
           targetX = ((rect.height / 2 - (e.clientY - rect.top)) / (rect.height / 2)) * MAX_TILT;
@@ -206,20 +256,321 @@
           active = true;
           setTarget(e);
           if (!rafId) rafId = requestAnimationFrame(loop);
+
+          // Track mouse globally so we can detect when it leaves the buffer zone
+          if (!docMoveBound) {
+            docMoveBound = function (e) {
+              if (!isInsideBuffer(e)) {
+                deactivate();
+              }
+            };
+            document.addEventListener('mousemove', docMoveBound);
+          }
         });
 
         el.addEventListener('mousemove', setTarget);
 
+        // Fallback: if the card is removed from DOM or scrolled away,
+        // the document listener will still catch the exit
         el.addEventListener('mouseleave', function () {
-          active = false;
-          targetX = 0;
-          targetY = 0;
+          // Don't reset immediately — let the buffer check handle it.
+          // If the mouse truly left the area, docMoveBound will deactivate.
         });
       })(cards[c]);
     }
   }
 
   window.initCardTilt = initCardTilt;
+
+  //────────────────────────────────────────────────────────────────────────────
+  // Navbar — scroll class, mobile menu, smooth scroll, active-section underline
+  //────────────────────────────────────────────────────────────────────────────
+  var navbar = document.getElementById('navbar');
+  if (navbar) {
+    var scrollClasses = [
+      'bg-surface/90',
+      'backdrop-blur-lg',
+      'border-b',
+      'border-border/50',
+      'shadow-[0_1px_3px_rgba(0,0,0,0.05)]',
+    ];
+    function updateNavbar() {
+      if (window.scrollY > 50) {
+        navbar.classList.add.apply(navbar.classList, scrollClasses);
+      } else {
+        navbar.classList.remove.apply(navbar.classList, scrollClasses);
+      }
+    }
+    updateNavbar();
+    window.addEventListener('scroll', updateNavbar);
+  }
+
+  var btn = document.getElementById('mobile-menu-btn');
+  var menu = document.getElementById('mobile-menu');
+  var bar1 = document.getElementById('bar1');
+  var bar2 = document.getElementById('bar2');
+  var bar3 = document.getElementById('bar3');
+
+  if (btn && menu) {
+    btn.addEventListener('click', function () {
+      var isOpen = !menu.classList.contains('hidden');
+      menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(!isOpen));
+      if (!isOpen) {
+        if (bar1) bar1.classList.add('rotate-45', 'translate-y-[8px]');
+        if (bar2) bar2.classList.add('opacity-0');
+        if (bar3) bar3.classList.add('-rotate-45', '-translate-y-[8px]');
+      } else {
+        if (bar1) bar1.classList.remove('rotate-45', 'translate-y-[8px]');
+        if (bar2) bar2.classList.remove('opacity-0');
+        if (bar3) bar3.classList.remove('-rotate-45', '-translate-y-[8px]');
+      }
+    });
+
+    menu.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+        if (bar1) bar1.classList.remove('rotate-45', 'translate-y-[8px]');
+        if (bar2) bar2.classList.remove('opacity-0');
+        if (bar3) bar3.classList.remove('-rotate-45', '-translate-y-[8px]');
+      });
+    });
+  }
+
+  var isHome = window.location.pathname === '/' || window.location.pathname === '';
+
+  document.querySelectorAll('.nav-link[data-section]').forEach(function (anchor) {
+    anchor.addEventListener('click', function (e) {
+      var el = this;
+      var hash = '#' + el.dataset.section;
+      if (isHome) {
+        e.preventDefault();
+        var target = document.querySelector(hash);
+        if (target) scrollToTarget(target);
+      }
+    });
+  });
+
+  document.querySelectorAll('#mobile-menu a[href*="#"]').forEach(function (anchor) {
+    anchor.addEventListener('click', function (e) {
+      var el = this;
+      var href = el.getAttribute('href');
+      var hash = href.indexOf('#') !== -1 ? '#' + href.split('#')[1] : '';
+      if (isHome && hash) {
+        e.preventDefault();
+        var target = document.querySelector(hash);
+        if (target) scrollToTarget(target);
+      }
+    });
+  });
+
+  if (isHome) {
+    var underline = document.getElementById('nav-underline');
+    var navLinksContainer = document.getElementById('nav-links');
+    if (underline && navLinksContainer) {
+      var sectionLinks = navLinksContainer.querySelectorAll('.nav-link[data-section]');
+      var sectionIds = Array.from(sectionLinks).map(function (l) {
+        return l.dataset.section;
+      });
+      var sections = sectionIds
+        .map(function (id) {
+          return document.getElementById(id);
+        })
+        .filter(Boolean);
+
+      if (sections.length > 0) {
+        var activeId = null;
+        var ratios = new Map();
+
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              ratios.set(entry.target.id, entry.intersectionRatio);
+            });
+            var best = null;
+            var bestRatio = 0;
+            ratios.forEach(function (ratio, id) {
+              if (ratio > bestRatio) {
+                best = id;
+                bestRatio = ratio;
+              }
+            });
+            if (bestRatio === 0) best = null;
+            activeId = best;
+          },
+          { rootMargin: '-80px 0px -70% 0px', threshold: [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1] },
+        );
+
+        sections.forEach(function (section) {
+          observer.observe(section);
+        });
+
+        var curLeft = 0;
+        var curWidth = 0;
+        var curOpacity = 0;
+
+        function lerp() {
+          var link = activeId
+            ? navLinksContainer.querySelector('.nav-link[data-section="' + activeId + '"]')
+            : null;
+
+          var targetLeft = 0;
+          var targetWidth = 0;
+          var targetOpacity = 0;
+
+          if (link) {
+            var ulRect = navLinksContainer.getBoundingClientRect();
+            var linkRect = link.getBoundingClientRect();
+            targetLeft = linkRect.left - ulRect.left;
+            targetWidth = linkRect.width;
+            targetOpacity = 1;
+          }
+
+          var speed = 0.18;
+          curLeft += (targetLeft - curLeft) * speed;
+          curWidth += (targetWidth - curWidth) * speed;
+          curOpacity += (targetOpacity - curOpacity) * speed;
+
+          underline.style.transform = 'translateX(' + curLeft + 'px)';
+          underline.style.width = curWidth + 'px';
+          underline.style.opacity = String(curOpacity);
+
+          requestAnimationFrame(lerp);
+        }
+
+        requestAnimationFrame(lerp);
+      }
+    }
+  }
+
+  //────────────────────────────────────────────────────────────────────────────
+  // Projects — filtering, expand, card clicks, description toggles
+  //────────────────────────────────────────────────────────────────────────────
+  var filterBtns = document.querySelectorAll('#project-filter-tabs button');
+  if (filterBtns.length) {
+    var boundToggles = new WeakSet();
+
+    function initDescToggles() {
+      document.querySelectorAll('.project-desc').forEach(function (desc) {
+        var toggle = desc.parentElement
+          ? desc.parentElement.querySelector('.project-expand-toggle')
+          : null;
+        if (!toggle) return;
+
+        var el = desc;
+        var card = el.closest('[data-status]');
+
+        if (card && card.style.display === 'none') return;
+
+        if (el.scrollHeight > el.clientHeight + 2) {
+          toggle.classList.remove('hidden');
+        } else {
+          toggle.classList.add('hidden');
+        }
+
+        if (boundToggles.has(toggle)) return;
+        boundToggles.add(toggle);
+
+        toggle.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var isExpanded = el.classList.contains('expanded');
+          el.classList.toggle('expanded');
+          toggle.textContent = isExpanded ? 'Read more' : 'Show less';
+        });
+      });
+    }
+
+    var projectCards = Array.from(document.querySelectorAll('#projects-grid > div'));
+
+    projectCards.forEach(function (card) {
+      var href = card.getAttribute('data-href');
+      if (!href) return;
+      card.addEventListener('click', function (e) {
+        var target = e.target;
+        if (target.closest('a, button, .project-extra-link, .project-expand-toggle')) return;
+        window.open(href, '_blank', 'noopener');
+      });
+    });
+
+    var expandBtn = document.getElementById('projects-expand-btn');
+    var expandWrap = document.getElementById('projects-expand-wrap');
+    var expanded = false;
+    var activeFilter = 'All';
+    var MAX_VISIBLE = 4;
+
+    function applyVisibility() {
+      var matchCount = 0;
+      projectCards.forEach(function (card) {
+        var el = card;
+        var matches = activeFilter === 'All' || el.getAttribute('data-status') === activeFilter;
+        if (!matches) {
+          el.style.display = 'none';
+          return;
+        }
+        matchCount++;
+        if (!expanded && matchCount > MAX_VISIBLE) {
+          el.style.display = 'none';
+        } else {
+          el.style.display = '';
+          el.classList.remove('visible');
+          void el.offsetWidth;
+          el.classList.add('visible');
+        }
+      });
+      if (expandWrap) {
+        expandWrap.style.display = matchCount > MAX_VISIBLE ? '' : 'none';
+      }
+      if (expandBtn) {
+        var style = getComputedStyle(document.documentElement);
+        var inkColor = style.getPropertyValue('--color-ink').trim();
+        var accentColor = style.getPropertyValue('--color-accent').trim();
+        var colors = 'primary:' + inkColor + ',secondary:' + accentColor;
+        expandBtn.innerHTML = expanded
+          ? 'Less projects <lord-icon src="https://cdn.lordicon.com/gupcdncx.json" trigger="morph" colors="' +
+            colors +
+            '" class="li-md" style="transform:rotate(180deg)"></lord-icon>'
+          : 'More projects <lord-icon src="https://cdn.lordicon.com/gupcdncx.json" trigger="morph" colors="' +
+            colors +
+            '" class="li-md"></lord-icon>';
+      }
+
+      setTimeout(function () {
+        document.querySelectorAll('#projects-grid lord-icon').forEach(function (icon) {
+          var card = icon.closest('[data-status]');
+          if (card && card.style.display !== 'none' && icon.playerInstance) {
+            icon.playerInstance.playFromBeginning();
+          }
+        });
+        initDescToggles();
+        if (typeof window.initCardTilt === 'function') window.initCardTilt();
+      }, 150);
+    }
+
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activeFilter = btn.getAttribute('data-filter') || 'All';
+        expanded = false;
+        filterBtns.forEach(function (b) {
+          b.classList.remove('bg-accent', 'text-ink-on-dark', 'border-accent');
+          b.classList.add('bg-transparent', 'text-ink-secondary', 'border-border');
+        });
+        btn.classList.remove('bg-transparent', 'text-ink-secondary', 'border-border');
+        btn.classList.add('bg-accent', 'text-ink-on-dark', 'border-accent');
+        applyVisibility();
+      });
+    });
+
+    if (expandBtn) {
+      expandBtn.addEventListener('click', function () {
+        expanded = !expanded;
+        applyVisibility();
+      });
+    }
+
+    applyVisibility();
+  }
 
   //────────────────────────────────────────────────────────────────────────────
   // Bootstrap — run immediately (DOM is ready), icons wait for <lord-icon>

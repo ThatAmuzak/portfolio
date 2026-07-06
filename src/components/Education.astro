@@ -1,5 +1,5 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
+import { load, LORD_ICON_COLORS, liSrc } from '../lib/data';
 import type { Education, Degree, DegreeHighlight } from '../lib/types';
 import SectionHeader from './SectionHeader.astro';
 
@@ -64,7 +64,7 @@ const degrees: Degree[] = education.degrees || [];
                         <lord-icon
                           src={liSrc(h.icon)}
                           trigger="morph"
-                          colors={LI.dark}
+                          colors={LORD_ICON_COLORS.default}
                           class="li-lg"
                         />
                       )}
