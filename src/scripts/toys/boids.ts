@@ -92,12 +92,20 @@ function start(canvas: HTMLCanvasElement): () => void {
 
   // ── colours ──────────────────────────────────────────────────────────────
 
+  let _cachedColors: { r: number; g: number; b: number } | null = null;
+  let _wasDark: boolean | null = null;
+
   function readColors() {
+    const isDark = document.documentElement.classList.contains('dark');
+    if (_cachedColors && _wasDark === isDark) return _cachedColors;
+    _wasDark = isDark;
     const s = getComputedStyle(document.documentElement);
-    const r = s.getPropertyValue('--color-accent-r').trim() || '8';
-    const g = s.getPropertyValue('--color-accent-g').trim() || '145';
-    const b = s.getPropertyValue('--color-accent-b').trim() || '178';
-    return { r: +r, g: +g, b: +b };
+    _cachedColors = {
+      r: +s.getPropertyValue('--color-accent-r').trim() || 8,
+      g: +s.getPropertyValue('--color-accent-g').trim() || 145,
+      b: +s.getPropertyValue('--color-accent-b').trim() || 178,
+    };
+    return _cachedColors;
   }
 
   let col = readColors();
@@ -330,12 +338,13 @@ function start(canvas: HTMLCanvasElement): () => void {
       b.x += b.vx;
       b.y += b.vy;
 
-      // Border repulsion — steer away from edges when close
+      // Border repulsion — steer away from edges when close.
+      // Penetration is capped at margin width to prevent velocity spikes.
       const bm = CFG.borderMargin;
-      if (b.x < bm) b.vx += (bm - b.x) / bm * CFG.borderForce;
-      if (b.x > W - bm) b.vx -= (b.x - (W - bm)) / bm * CFG.borderForce;
-      if (b.y < bm) b.vy += (bm - b.y) / bm * CFG.borderForce;
-      if (b.y > H - bm) b.vy -= (b.y - (H - bm)) / bm * CFG.borderForce;
+      if (b.x < bm) b.vx += Math.min(bm - b.x, bm) / bm * CFG.borderForce;
+      if (b.x > W - bm) b.vx -= Math.min(b.x - (W - bm), bm) / bm * CFG.borderForce;
+      if (b.y < bm) b.vy += Math.min(bm - b.y, bm) / bm * CFG.borderForce;
+      if (b.y > H - bm) b.vy -= Math.min(b.y - (H - bm), bm) / bm * CFG.borderForce;
     }
   }
 

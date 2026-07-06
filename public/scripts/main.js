@@ -67,8 +67,8 @@ function scrollToTarget(target) {
     return 'primary:' + primary + ',secondary:' + secondary;
   }
 
-  function updateIconColors() {
-    var colors = getIconColors();
+  function updateIconColors(colorsOverride) {
+    var colors = colorsOverride || getIconColors();
     var icons = document.querySelectorAll('lord-icon');
     for (var i = 0; i < icons.length; i++) {
       var current = icons[i].getAttribute('colors') || '';
@@ -91,12 +91,12 @@ function scrollToTarget(target) {
   function setTheme(dark) {
     document.documentElement.classList.toggle('dark', dark);
     localStorage.setItem('theme', dark ? 'dark' : 'light');
-    updateIconColors();
+    var colors = getIconColors();
+    updateIconColors(colors);
     animateToggleIcons();
 
     var expandBtn = document.getElementById('projects-expand-btn');
     if (expandBtn) {
-      var colors = getIconColors();
       var btnIcons = expandBtn.querySelectorAll('lord-icon');
       for (var i = 0; i < btnIcons.length; i++) {
         btnIcons[i].setAttribute('colors', colors);
@@ -442,6 +442,7 @@ function scrollToTarget(target) {
     }
   }
 
+  /* ── Projects JS (disabled while <Projects /> is commented out in index.astro) ──
   //────────────────────────────────────────────────────────────────────────────
   // Projects — filtering, expand, card clicks, description toggles
   //────────────────────────────────────────────────────────────────────────────
@@ -564,6 +565,7 @@ function scrollToTarget(target) {
 
     applyVisibility();
   }
+  */
 
   //────────────────────────────────────────────────────────────────────────────
   // Bootstrap — run immediately (DOM is ready), icons wait for <lord-icon>
