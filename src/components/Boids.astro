@@ -1,0 +1,147 @@
+---
+import { LORD_ICON_COLORS, liSrc } from '../lib/data';
+---
+
+<!--
+  Boids.astro — "Bored?" button + expandable boids simulation panel.
+  Hidden on mobile; on desktop the button is injected into the hero CTA row.
+  The panel slides in from the right taking ~50vw.
+-->
+
+<!-- Toggle button (injected into hero CTA row by inline script) -->
+<button
+  id="bored-toggle"
+  class="hidden md:inline-flex card-glow items-center gap-3 px-7 py-4 bg-surface-raised text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent cursor-pointer"
+  aria-label="Open boids simulation"
+>
+  <lord-icon
+    src={liSrc('bazecvhf')}
+    trigger="loop"
+    colors={LORD_ICON_COLORS.default}
+    class="li-lg"
+  >
+  </lord-icon>
+  Bored?
+</button>
+
+<!-- Backdrop overlay — dims the left half, click to close -->
+<div
+  id="boids-backdrop"
+  class="fixed top-0 left-0 bottom-0 z-40 pointer-events-none opacity-0 bg-black/30 transition-opacity duration-500"
+  style="right: 50vw"
+  aria-hidden="true"
+></div>
+
+<!-- Simulation panel — fixed overlay on right half -->
+<div
+  id="boids-panel"
+  class="fixed top-0 right-0 h-full w-[50vw] z-50 translate-x-full bg-surface border-l border-border flex flex-col"
+  aria-hidden="true"
+>
+  <!-- Header bar -->
+  <div class="flex items-center justify-between px-5 py-3 border-b border-border shrink-0">
+    <span class="text-[13px] text-ink-tertiary font-mono select-none">
+      &#x1f5b1;&#xfe0f; left-click to attract &nbsp;&middot;&nbsp; right-click to repel
+    </span>
+    <button
+      id="boids-close"
+      class="text-ink-tertiary hover:text-ink text-2xl leading-none p-1 cursor-pointer transition-colors bg-transparent border-0"
+      aria-label="Close boids simulation"
+    >
+      &times;
+    </button>
+  </div>
+
+  <!-- Canvas fills remaining space -->
+  <div id="boids-canvas-wrapper" class="flex-1 relative min-h-0">
+    <canvas id="boids-canvas" class="absolute inset-0 w-full h-full"></canvas>
+  </div>
+
+  <!-- Footer bar -->
+  <div class="px-5 py-3 border-t border-border shrink-0">
+    <p class="text-[12px] text-ink-tertiary font-mono leading-relaxed select-none m-0">
+      <strong class="text-ink-secondary">Boids</strong> &mdash; each triangle follows
+      three simple rules: steer toward neighbours, match their direction, and keep
+      their distance. Together they form lifelike flocks.
+    </p>
+  </div>
+</div>
+
+<script>
+  // @ts-nocheck -- vanilla JS, DOM element refs verified at runtime
+  import { startBoids } from '../scripts/boids.js';
+
+  function initBoids() {
+    const toggleBtn = document.getElementById('bored-toggle');
+    const panel = document.getElementById('boids-panel');
+    const closeBtn = document.getElementById('boids-close');
+    const backdrop = document.getElementById('boids-backdrop');
+    const heroCTAs = document.getElementById('hero-ctas');
+
+    if (!toggleBtn || !panel || !closeBtn || !backdrop) return;
+
+    // Move the toggle button into the hero CTA row so it sits beside the other buttons
+    if (heroCTAs && toggleBtn.parentElement) {
+      heroCTAs.appendChild(toggleBtn);
+    }
+
+    let isOpen = false;
+    let simCleanup = null;
+
+    function open() {
+      if (isOpen) return;
+      isOpen = true;
+      panel.style.translate = '0 0';
+      panel.setAttribute('aria-hidden', 'false');
+      backdrop.style.opacity = '1';
+      backdrop.style.pointerEvents = 'auto';
+      backdrop.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('boids-open');
+      toggleBtn.style.display = 'none';
+
+      // Start the boids simulation
+      const canvas = document.getElementById('boids-canvas');
+      if (canvas && !simCleanup) {
+        simCleanup = startBoids(canvas);
+      }
+    }
+
+    function close() {
+      if (!isOpen) return;
+      isOpen = false;
+      panel.style.translate = '';
+      panel.setAttribute('aria-hidden', 'true');
+      backdrop.style.opacity = '';
+      backdrop.style.pointerEvents = '';
+      backdrop.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('boids-open');
+      toggleBtn.style.display = '';
+
+      // Stop simulation
+      if (simCleanup) {
+        simCleanup();
+        simCleanup = null;
+      }
+    }
+
+    toggleBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+
+    // Click outside the panel (on backdrop or content) closes it
+    document.addEventListener('click', (e) => {
+      if (isOpen && !panel.contains(e.target) && e.target !== toggleBtn) {
+        close();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) close();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBoids);
+  } else {
+    initBoids();
+  }
+</script>
