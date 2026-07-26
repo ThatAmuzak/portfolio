@@ -30,7 +30,6 @@ export function load<T>(file: string): T {
 export const LORD_ICON_COLORS = {
   default: 'primary:#1A1D23,secondary:#0891B2',
   onDark: 'primary:#ffffff,secondary:#ffffff',
-  accent: 'primary:#0891B2,secondary:#0891B2',
 } as const;
 
 // Lord Icon CDN URL from hash

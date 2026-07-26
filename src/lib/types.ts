@@ -176,37 +176,6 @@ export interface Contact {
   footer?: FooterData;
 }
 
-// --- projects.yaml ---
-
-export interface ProjectStatus {
-  label: string;
-  color?: string;
-}
-
-export interface ProjectLink {
-  url: string;
-  icon: string;
-  label: string;
-}
-
-export interface Project {
-  title: string;
-  subtitle: string;
-  description: string;
-  icon: string;
-  status: string;
-  featured: boolean;
-  links: ProjectLink[];
-  tech: string[];
-}
-
-export interface Projects {
-  label?: string;
-  heading?: string;
-  statuses: ProjectStatus[];
-  items: Project[];
-}
-
 // --- canvas toys (boids, particles, etc.) ---
 
 /**

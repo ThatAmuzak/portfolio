@@ -37,7 +37,7 @@ function scrollToTarget(target) {
   //────────────────────────────────────────────────────────────────────────────
   // Scroll reveal observer — runs immediately (DOM is ready when defer fires)
   //────────────────────────────────────────────────────────────────────────────
-  var revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+  var revealEls = document.querySelectorAll('.reveal');
   if (revealEls.length) {
     var revealObserver = new IntersectionObserver(
       function (entries) {
@@ -94,14 +94,6 @@ function scrollToTarget(target) {
     var colors = getIconColors();
     updateIconColors(colors);
     animateToggleIcons();
-
-    var expandBtn = document.getElementById('projects-expand-btn');
-    if (expandBtn) {
-      var btnIcons = expandBtn.querySelectorAll('lord-icon');
-      for (var i = 0; i < btnIcons.length; i++) {
-        btnIcons[i].setAttribute('colors', colors);
-      }
-    }
   }
 
   document.addEventListener('click', function (e) {
@@ -442,130 +434,6 @@ function scrollToTarget(target) {
     }
   }
 
-  /* ── Projects JS (disabled while <Projects /> is commented out in index.astro) ──
-  //────────────────────────────────────────────────────────────────────────────
-  // Projects — filtering, expand, card clicks, description toggles
-  //────────────────────────────────────────────────────────────────────────────
-  var filterBtns = document.querySelectorAll('#project-filter-tabs button');
-  if (filterBtns.length) {
-    var boundToggles = new WeakSet();
-
-    function initDescToggles() {
-      document.querySelectorAll('.project-desc').forEach(function (desc) {
-        var toggle = desc.parentElement
-          ? desc.parentElement.querySelector('.project-expand-toggle')
-          : null;
-        if (!toggle) return;
-
-        var el = desc;
-        var card = el.closest('[data-status]');
-
-        if (card && card.style.display === 'none') return;
-
-        if (el.scrollHeight > el.clientHeight + 2) {
-          toggle.classList.remove('hidden');
-        } else {
-          toggle.classList.add('hidden');
-        }
-
-        if (boundToggles.has(toggle)) return;
-        boundToggles.add(toggle);
-
-        toggle.addEventListener('click', function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          var isExpanded = el.classList.contains('expanded');
-          el.classList.toggle('expanded');
-          toggle.textContent = isExpanded ? 'Read more' : 'Show less';
-        });
-      });
-    }
-
-    var projectCards = Array.from(document.querySelectorAll('#projects-grid > div'));
-
-    projectCards.forEach(function (card) {
-      var href = card.getAttribute('data-href');
-      if (!href) return;
-      card.addEventListener('click', function (e) {
-        var target = e.target;
-        if (target.closest('a, button, .project-extra-link, .project-expand-toggle')) return;
-        window.open(href, '_blank', 'noopener');
-      });
-    });
-
-    var expandBtn = document.getElementById('projects-expand-btn');
-    var expandWrap = document.getElementById('projects-expand-wrap');
-    var expanded = false;
-    var activeFilter = 'All';
-    var MAX_VISIBLE = 4;
-
-    function applyVisibility() {
-      var matchCount = 0;
-      projectCards.forEach(function (card) {
-        var el = card;
-        var matches = activeFilter === 'All' || el.getAttribute('data-status') === activeFilter;
-        if (!matches) {
-          el.style.display = 'none';
-          return;
-        }
-        matchCount++;
-        if (!expanded && matchCount > MAX_VISIBLE) {
-          el.style.display = 'none';
-        } else {
-          el.style.display = '';
-          el.classList.remove('visible');
-          void el.offsetWidth;
-          el.classList.add('visible');
-        }
-      });
-      if (expandWrap) {
-        expandWrap.style.display = matchCount > MAX_VISIBLE ? '' : 'none';
-      }
-      if (expandBtn) {
-        // Update text only — leave the existing lord-icon DOM alone.
-        var textNode = Array.from(expandBtn.childNodes).find(function (n) {
-          return n.nodeType === Node.TEXT_NODE && n.textContent.trim();
-        });
-        if (textNode) textNode.textContent = expanded ? ' Less projects ' : ' More projects ';
-        var icon = expandBtn.querySelector('lord-icon');
-        if (icon) icon.style.transform = expanded ? 'rotate(180deg)' : '';
-      }
-
-      setTimeout(function () {
-        document.querySelectorAll('#projects-grid lord-icon').forEach(function (icon) {
-          var card = icon.closest('[data-status]');
-          if (card && card.style.display !== 'none' && icon.playerInstance) {
-            icon.playerInstance.playFromBeginning();
-          }
-        });
-        initDescToggles();
-      }, 150);
-    }
-
-    filterBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        activeFilter = btn.getAttribute('data-filter') || 'All';
-        expanded = false;
-        filterBtns.forEach(function (b) {
-          b.classList.remove('bg-accent', 'text-ink-on-dark', 'border-accent');
-          b.classList.add('bg-transparent', 'text-ink-secondary', 'border-border');
-        });
-        btn.classList.remove('bg-transparent', 'text-ink-secondary', 'border-border');
-        btn.classList.add('bg-accent', 'text-ink-on-dark', 'border-accent');
-        applyVisibility();
-      });
-    });
-
-    if (expandBtn) {
-      expandBtn.addEventListener('click', function () {
-        expanded = !expanded;
-        applyVisibility();
-      });
-    }
-
-    applyVisibility();
-  }
-  */
 
   //────────────────────────────────────────────────────────────────────────────
   // Bootstrap — run immediately (DOM is ready), icons wait for <lord-icon>

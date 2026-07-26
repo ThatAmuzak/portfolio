@@ -15,8 +15,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "format": "prettier --write .",
-    "generate-types": "wrangler types"
+    "format": "prettier --write ."
   },
   "keywords": [
     "astro",
