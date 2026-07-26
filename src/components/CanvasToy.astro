@@ -14,6 +14,7 @@
 // (rendering the default toggle button), while the <script> runs on
 // the client for rotation. Both are needed; keep them in sync.
 import { boidsToy } from '../scripts/toys/boids.ts';
+import { doublePendulumToy } from '../scripts/toys/double-pendulum.ts';
 import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
 import { tetrisSolverToy } from '../scripts/toys/tetris.ts';
 import { LORD_ICON_COLORS, liSrc } from '../lib/data';
@@ -23,7 +24,7 @@ interface Props {
   toys?: CanvasToy[];
 }
 
-const toys: CanvasToy[] = Astro.props.toys ?? [boidsToy, gameOfLifeToy, tetrisSolverToy];
+const toys: CanvasToy[] = Astro.props.toys ?? [boidsToy, doublePendulumToy, gameOfLifeToy, tetrisSolverToy];
 
 // For SSR, pick the first toy as default. The inline script handles
 // randomisation / rotation on the client.
@@ -130,12 +131,13 @@ const defaultToy = toys[0];
 <script>
   // Keep in sync with the frontmatter imports above when adding new toys.
   import { boidsToy } from '../scripts/toys/boids.ts';
+  import { doublePendulumToy } from '../scripts/toys/double-pendulum.ts';
   import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
   import { tetrisSolverToy } from '../scripts/toys/tetris.ts';
   import type { CanvasToy } from '../lib/types';
 
   /** All available toys (must match the frontmatter array above). */
-  const TOYS: CanvasToy[] = [boidsToy, gameOfLifeToy, tetrisSolverToy];
+  const TOYS: CanvasToy[] = [boidsToy, doublePendulumToy, gameOfLifeToy, tetrisSolverToy];
 
   function initCanvasToy() {
     const toggleBtn = document.getElementById('canvas-toy-toggle');
