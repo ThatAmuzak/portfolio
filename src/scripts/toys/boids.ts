@@ -1,7 +1,15 @@
 // ── Boids Toy ─────────────────────────────────────────────────────────────
-// Canvas 2D flocking simulation with trails, mouse attraction/repulsion.
+// Canvas 2D flocking simulation with mouse attraction/repulsion.
 // Conforms to the CanvasToy interface (see src/lib/types.ts).
 // Respects site accent colours and dark/light mode via CSS custom properties.
+//
+// Performance notes (diagnosed in bd portfolio-v2-3mr):
+//  • Zero per-tick allocation in the hot loop: pooled spatial grid with
+//    integer keys, steering applied in place, precomputed fill styles.
+//  • Minimal draw calls: mature boids are batched into one path + one fill.
+//  • The fixed-timestep loop drops backlog after long stalls instead of
+//    fast-forwarding, so browser-level hiccups (GC, GPU warm-up) don't get
+//    amplified into a catch-up burst.
 
 import type { CanvasToy } from '../../lib/types';
 
@@ -10,7 +18,6 @@ interface Boid {
   y: number;
   vx: number;
   vy: number;
-  history: { x: number; y: number }[];
   /** Frames since spawn — drives scale-in + fade-in animation. */
   spawnAge: number;
 }
@@ -30,7 +37,6 @@ const CFG = {
   maxForce: 0.12,
   perceptionRadius: 60,
   separationRadius: 25,
-  trailLength: 7,
   mouseRadius: 180,
   mouseForce: 0.28,
   boidSize: 12,
@@ -89,6 +95,8 @@ function start(canvas: HTMLCanvasElement): () => void {
   let lastTime = 0;
   let accumulator = 0;
   const FIXED_DT = 1 / 60;
+  /** Max update steps per frame — keeps backlog (and catch-up bursts) small. */
+  const MAX_STEPS = 2;
 
   // ── colours ──────────────────────────────────────────────────────────────
 
@@ -109,6 +117,22 @@ function start(canvas: HTMLCanvasElement): () => void {
   }
 
   let col = readColors();
+
+  /**
+   * Precomputed fill style per spawn age (0..spawnAnimFrames), so render()
+   * never builds colour strings per boid per frame. Rebuilt on theme change.
+   */
+  let boidFills: string[] = [];
+
+  function rebuildFills() {
+    const { r, g, b } = col;
+    boidFills = [];
+    for (let age = 0; age <= CFG.spawnAnimFrames; age++) {
+      const alpha = 0.3 + 0.7 * (age / CFG.spawnAnimFrames);
+      boidFills.push(`rgba(${r},${g},${b},${alpha.toFixed(3)})`);
+    }
+  }
+  rebuildFills();
 
   // ── resize ───────────────────────────────────────────────────────────────
 
@@ -145,7 +169,6 @@ function start(canvas: HTMLCanvasElement): () => void {
         y: CFG.borderMargin + Math.random() * (H - 2 * CFG.borderMargin),
         vx: Math.cos(a) * s,
         vy: Math.sin(a) * s,
-        history: [],
         spawnAge: 0,
       });
     }
@@ -153,38 +176,52 @@ function start(canvas: HTMLCanvasElement): () => void {
 
   // ── boid logic ───────────────────────────────────────────────────────────
 
-  /** Compute steering force toward a desired velocity (not a position). */
-  function steer(b: Boid, desiredVX: number, desiredVY: number, weight: number) {
+  /**
+   * Apply a steering force toward a desired velocity (not a position),
+   * clamped to maxForce * weight. Mutates the boid in place — no allocation.
+   */
+  function applySteer(b: Boid, desiredVX: number, desiredVY: number, weight: number) {
     let dx = desiredVX - b.vx;
     let dy = desiredVY - b.vy;
     const mag = Math.sqrt(dx * dx + dy * dy);
-    if (mag > CFG.maxForce * weight) {
-      dx = (dx / mag) * CFG.maxForce * weight;
-      dy = (dy / mag) * CFG.maxForce * weight;
+    const cap = CFG.maxForce * weight;
+    if (mag > cap) {
+      dx = (dx / mag) * cap;
+      dy = (dy / mag) * cap;
     }
-    return { dx, dy };
+    b.vx += dx;
+    b.vy += dy;
   }
 
-  // ── spatial grid ─────────────────────────────────────────────────
+  // ── spatial grid (pooled — no per-tick allocation) ───────────────────────
 
-  function buildGrid() {
-    const cellSize = CFG.perceptionRadius;
-    const grid = new Map<string, number[]>();
+  /** Cell coords can dip negative near edges; offset keeps keys positive. */
+  const GRID_OFFSET = 512;
+  const grid = new Map<number, number[]>();
 
+  function cellKey(cx: number, cy: number) {
+    return (cx + GRID_OFFSET) * 4096 + (cy + GRID_OFFSET);
+  }
+
+  /** Rebuild the grid in place: arrays are reused across ticks, just emptied. */
+  function rebuildGrid() {
+    for (const cell of grid.values()) cell.length = 0;
+    const cs = CFG.perceptionRadius;
     for (let i = 0; i < boids.length; i++) {
       const b = boids[i];
-      const cx = Math.floor(b.x / cellSize);
-      const cy = Math.floor(b.y / cellSize);
-      const key = cx + ',' + cy;
+      const key = cellKey(Math.floor(b.x / cs), Math.floor(b.y / cs));
       let cell = grid.get(key);
       if (!cell) { cell = []; grid.set(key, cell); }
       cell.push(i);
     }
-    return { grid, cellSize };
   }
 
   function update() {
-    col = readColors();
+    const c = readColors();
+    if (c !== col) {
+      col = c;
+      rebuildFills();
+    }
 
     // Spawn boids in batches until we reach the target count.
     if (boids.length < totalSpawnTarget) {
@@ -223,16 +260,11 @@ function start(canvas: HTMLCanvasElement): () => void {
       }
     }
 
-    const { grid, cellSize } = buildGrid();
+    rebuildGrid();
+    const cellSize = CFG.perceptionRadius;
 
     for (let i = 0; i < boids.length; i++) {
       const b = boids[i];
-
-      // Trail (only for fully spawned-in boids — looks weird during intro)
-      if (b.spawnAge >= CFG.spawnAnimFrames) {
-        b.history.push({ x: b.x, y: b.y });
-        if (b.history.length > CFG.trailLength) b.history.shift();
-      }
 
       // Accumulators
       let sepX = 0, sepY = 0, sepN = 0;
@@ -247,7 +279,7 @@ function start(canvas: HTMLCanvasElement): () => void {
       const cy = Math.floor(b.y / cellSize);
       for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
-          const cell = grid.get((cx + dx) + ',' + (cy + dy));
+          const cell = grid.get(cellKey(cx + dx, cy + dy));
           if (!cell) continue;
           for (let k = 0; k < cell.length; k++) {
             const j = cell[k];
@@ -280,9 +312,7 @@ function start(canvas: HTMLCanvasElement): () => void {
         sepX /= sepN;
         sepY /= sepN;
         const mag = Math.sqrt(sepX * sepX + sepY * sepY) || 1;
-        const s = steer(b, (sepX / mag) * CFG.maxSpeed, (sepY / mag) * CFG.maxSpeed, 1.5);
-        b.vx += s.dx;
-        b.vy += s.dy;
+        applySteer(b, (sepX / mag) * CFG.maxSpeed, (sepY / mag) * CFG.maxSpeed, 1.5);
       }
 
       // Alignment
@@ -290,9 +320,7 @@ function start(canvas: HTMLCanvasElement): () => void {
         aliX /= aliN;
         aliY /= aliN;
         const mag = Math.sqrt(aliX * aliX + aliY * aliY) || 1;
-        const s = steer(b, (aliX / mag) * CFG.maxSpeed, (aliY / mag) * CFG.maxSpeed, 1);
-        b.vx += s.dx;
-        b.vy += s.dy;
+        applySteer(b, (aliX / mag) * CFG.maxSpeed, (aliY / mag) * CFG.maxSpeed, 1);
       }
 
       // Cohesion
@@ -302,9 +330,7 @@ function start(canvas: HTMLCanvasElement): () => void {
         const dx = cohX - b.x;
         const dy = cohY - b.y;
         const mag = Math.sqrt(dx * dx + dy * dy) || 1;
-        const s = steer(b, (dx / mag) * CFG.maxSpeed, (dy / mag) * CFG.maxSpeed, 1);
-        b.vx += s.dx;
-        b.vy += s.dy;
+        applySteer(b, (dx / mag) * CFG.maxSpeed, (dy / mag) * CFG.maxSpeed, 1);
       }
 
       // Mouse interaction
@@ -315,14 +341,10 @@ function start(canvas: HTMLCanvasElement): () => void {
         if (md < CFG.mouseRadius && md > 1) {
           if (mouse.button === 1) {
             // Attract: steer toward cursor
-            const s = steer(b, (mdx / md) * CFG.maxSpeed, (mdy / md) * CFG.maxSpeed, CFG.mouseForce / CFG.maxForce);
-            b.vx += s.dx;
-            b.vy += s.dy;
+            applySteer(b, (mdx / md) * CFG.maxSpeed, (mdy / md) * CFG.maxSpeed, CFG.mouseForce / CFG.maxForce);
           } else if (mouse.button === 2) {
             // Repel: steer away from cursor
-            const s = steer(b, (-mdx / md) * CFG.maxSpeed, (-mdy / md) * CFG.maxSpeed, CFG.mouseForce / CFG.maxForce);
-            b.vx += s.dx;
-            b.vy += s.dy;
+            applySteer(b, (-mdx / md) * CFG.maxSpeed, (-mdy / md) * CFG.maxSpeed, CFG.mouseForce / CFG.maxForce);
           }
         }
       }
@@ -350,79 +372,81 @@ function start(canvas: HTMLCanvasElement): () => void {
 
   // ── rendering ────────────────────────────────────────────────────────────
 
-  function drawBoid(b: Boid) {
+  /**
+   * Append the boid's triangle (pointing along its velocity) to the current
+   * path. Vertices are computed directly — no save/translate/rotate/restore.
+   */
+  function traceTriangle(b: Boid, sz: number) {
     const angle = Math.atan2(b.vy, b.vx);
-    const sz = CFG.boidSize;
-    const { r, g: gn, b: bl } = col;
-
-    // Scale-in + fade-in animation for newly spawned boids.
-    const t = b.spawnAge < CFG.spawnAnimFrames
-      ? b.spawnAge / CFG.spawnAnimFrames
-      : 1.0;
-    const scale = 0.3 + 0.7 * t;
-    const alpha = 0.3 + 0.7 * t;
-
-    ctx.save();
-    ctx.translate(b.x, b.y);
-    ctx.rotate(angle);
-
-    // Isosceles triangle pointing right
-    ctx.beginPath();
-    ctx.moveTo(sz * scale, 0);
-    ctx.lineTo(-sz * 0.7 * scale, -sz * 0.5 * scale);
-    ctx.lineTo(-sz * 0.7 * scale, sz * 0.5 * scale);
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    // Local-space vertices: nose (sz, 0), tail corners (-0.7sz, ∓0.5sz)
+    const tx = -sz * 0.7;
+    const ty = sz * 0.5;
+    ctx.moveTo(b.x + sz * cos, b.y + sz * sin);
+    ctx.lineTo(b.x + tx * cos + ty * sin, b.y + tx * sin - ty * cos);
+    ctx.lineTo(b.x + tx * cos - ty * sin, b.y + tx * sin + ty * cos);
     ctx.closePath();
-    ctx.fillStyle = `rgba(${r},${gn},${bl},${alpha})`;
-    ctx.fill();
-
-    ctx.restore();
   }
 
   function render() {
-    const { r, g: gn, b: bl } = col;
-
     ctx.clearRect(0, 0, W, H);
 
-    // Trails
-    for (const b of boids) {
-      const h = b.history;
-      for (let i = 0; i < h.length; i++) {
-        const alpha = ((i + 1) / h.length) * 0.25;
-        ctx.beginPath();
-        ctx.arc(h[i].x, h[i].y, 1.8, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${r},${gn},${bl},${alpha})`;
-        ctx.fill();
-      }
-    }
-
     // Cursor ripples (rings behind boids)
+    const { r, g, b: bl } = col;
     for (const rip of ripples) {
       ctx.beginPath();
       ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(${r},${gn},${bl},${rip.opacity.toFixed(3)})`;
+      ctx.strokeStyle = `rgba(${r},${g},${bl},${rip.opacity.toFixed(3)})`;
       ctx.lineWidth = CFG.rippleLineWidth;
       ctx.stroke();
     }
 
-    // Boids on top
+    const sz = CFG.boidSize;
+
+    // Mature boids: batched into a single path + one fill.
+    ctx.beginPath();
+    let anyMature = false;
     for (const b of boids) {
-      drawBoid(b);
+      if (b.spawnAge < CFG.spawnAnimFrames) continue;
+      traceTriangle(b, sz);
+      anyMature = true;
+    }
+    if (anyMature) {
+      ctx.fillStyle = boidFills[CFG.spawnAnimFrames];
+      ctx.fill();
+    }
+
+    // Spawning boids: individual fills for the scale/fade-in (intro only).
+    for (const b of boids) {
+      if (b.spawnAge >= CFG.spawnAnimFrames) continue;
+      const scale = 0.3 + 0.7 * (b.spawnAge / CFG.spawnAnimFrames);
+      ctx.beginPath();
+      traceTriangle(b, sz * scale);
+      ctx.fillStyle = boidFills[b.spawnAge];
+      ctx.fill();
     }
   }
 
-  // ── loop (fixed timestep) ────────────────────────────────────────
+  // ── loop (fixed timestep) ────────────────────────────────────────────────
 
   function loop(timestamp: number) {
     if (!running) return;
 
-    // Delta time in seconds, capped to avoid spiral-of-death
-    const dt = lastTime ? Math.min((timestamp - lastTime) / 1000, 0.1) : FIXED_DT;
+    const rawDt = lastTime ? (timestamp - lastTime) / 1000 : FIXED_DT;
     lastTime = timestamp;
-    accumulator += dt;
 
-    // Run fixed-step updates (max 3 per frame)
+    // Long stall (GC, GPU warm-up, hidden tab): drop the backlog entirely
+    // instead of fast-forwarding through it. Otherwise cap accumulated time
+    // so we never burst more than MAX_STEPS catch-up steps.
+    if (rawDt > 0.25) {
+      accumulator = 0;
+    } else {
+      accumulator = Math.min(accumulator + Math.min(rawDt, 0.1), FIXED_DT * MAX_STEPS);
+    }
+
     let steps = 0;
-    while (accumulator >= FIXED_DT && steps < 3) {
+    while (accumulator >= FIXED_DT && steps < MAX_STEPS) {
       update();
       accumulator -= FIXED_DT;
       steps++;

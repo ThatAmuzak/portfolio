@@ -253,10 +253,10 @@ lord-icon.icon-animate {
   transition: translate 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Entire page shifts left when panel is open */
-body {
-  transition: padding-right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
+/* Entire page shifts left when panel is open.
+   NOTE: the padding change is intentionally NOT transitioned — animating
+   padding-right reflows the whole page every frame for 500ms while the
+   toy's animation loop is starting up (see bd portfolio-v2-3mr). */
 
 @media (min-width: 768px) {
   body.canvas-toy-open {
