@@ -189,8 +189,6 @@ export interface CanvasToy {
   id: string;
   /** Label on the toggle button, e.g. "Bored?", "Distracted?" */
   buttonLabel: string;
-  /** Lord-icon src hash for the toggle button */
-  buttonIcon: string;
   /** HTML string for the header bar (instructions, controls hint) */
   headerHtml: string;
   /** HTML string for the footer bar (title + explanation) */

@@ -61,7 +61,6 @@ const CFG = {
 export const boidsToy: CanvasToy = {
   id: 'boids',
   buttonLabel: 'Bored?',
-  buttonIcon: 'bazecvhf',
   headerHtml:
     '&#x1f5b1;&#xfe0f; left-click to attract &nbsp;&middot;&nbsp; right-click to repel',
   footerHtml:

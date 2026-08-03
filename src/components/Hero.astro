@@ -100,6 +100,23 @@ const hero = load<Hero>('hero.yaml');
           </a>
         )
       }
+      {/* Toys / "Bored?" button — rendered statically here like the other CTAs.
+          It just opens the CanvasToy panel; its click handler lives in
+          CanvasToy.astro (looked up via #canvas-toy-toggle). */}
+      <button
+        id="canvas-toy-toggle"
+        type="button"
+        aria-label="Open interactive toy"
+        class="card-glow select-none hidden md:inline-flex items-center gap-3 px-7 py-4 bg-surface-raised text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent cursor-pointer"
+      >
+        <lord-icon
+          src={liSrc('bazecvhf')}
+          trigger="morph"
+          colors={LORD_ICON_COLORS.default}
+          class="li-lg"
+        />
+        Bored?
+      </button>
     </div>
   </div>
 </section>

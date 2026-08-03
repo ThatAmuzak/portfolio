@@ -111,7 +111,6 @@ function renderHeaderControls(container: HTMLElement): () => void {
 export const gameOfLifeToy: CanvasToy = {
   id: 'game-of-life',
   buttonLabel: 'Bored?',
-  buttonIcon: 'bazecvhf',
   headerHtml:
     '&#x1f5b1;&#xfe0f; left-click to paint &nbsp;&middot;&nbsp; right-click to reset &nbsp;&middot;&nbsp; <kbd>Z</kbd> pause &nbsp;&middot;&nbsp; <kbd>C</kbd> clear',
   footerHtml:

@@ -6,18 +6,19 @@
  * On open, picks a random toy. Once open, prev/next buttons (between
  * canvas and footer) let the user cycle through available toys.
  *
- * Hidden on mobile; on desktop the toggle button is injected into the
- * hero CTA row. The panel slides in from the right taking ~50vw.
+ * Hidden on mobile; the panel slides in from the right taking ~50vw.
+ *
+ * The "Bored?" toggle button (id="canvas-toy-toggle") lives statically in
+ * Hero.astro's CTA row, like the other hero buttons, and just opens this panel.
  */
 // NOTE: Toy imports are duplicated in the <script> block below.
 // This is intentional — the frontmatter runs at build time for SSR
-// (rendering the default toggle button), while the <script> runs on
+// (rendering the default header/footer), while the <script> runs on
 // the client for rotation. Both are needed; keep them in sync.
 import { boidsToy } from '../scripts/toys/boids.ts';
 import { doublePendulumToy } from '../scripts/toys/double-pendulum.ts';
 import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
 import { tetrisSolverToy } from '../scripts/toys/tetris.ts';
-import { LORD_ICON_COLORS, liSrc } from '../lib/data';
 import type { CanvasToy } from '../lib/types';
 
 interface Props {
@@ -31,22 +32,9 @@ const toys: CanvasToy[] = Astro.props.toys ?? [boidsToy, doublePendulumToy, game
 const defaultToy = toys[0];
 ---
 
-<!-- Toggle button (injected into hero CTA row by inline script) -->
-<button
-  id="canvas-toy-toggle"
-  class="hidden md:inline-flex card-glow items-center gap-3 px-7 py-4 bg-surface-raised text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent cursor-pointer"
-  aria-label="Open interactive toy"
-  data-toy-id={defaultToy.id}
->
-  <lord-icon
-    src={liSrc(defaultToy.buttonIcon)}
-    trigger="morph"
-    colors={LORD_ICON_COLORS.default}
-    class="li-lg"
-  >
-  </lord-icon>
-  {defaultToy.buttonLabel}
-</button>
+<!-- The "Bored?" toggle button is rendered statically in Hero.astro's CTA row
+     (id="canvas-toy-toggle"), like the other hero CTA buttons. It just triggers
+     this panel. The inline script below finds it via getElementById. -->
 
 <!-- Backdrop overlay — dims the left half, click to close -->
 <div
@@ -151,15 +139,7 @@ const defaultToy = toys[0];
     const navPrev = document.getElementById('canvas-toy-nav-prev');
     const navNext = document.getElementById('canvas-toy-nav-next');
     const navIndicator = document.getElementById('canvas-toy-nav-indicator');
-    const heroCTAs = document.getElementById('hero-ctas');
-
     if (!toggleBtn || !panel || !closeBtn || !backdrop || !headerEl || !footerEl || !controlsEl) return;
-
-    // Move the toggle button into the hero CTA row so it sits beside the other buttons
-    if (heroCTAs && toggleBtn.parentElement) {
-      heroCTAs.appendChild(toggleBtn);
-    }
-
     let isOpen = false;
     let simCleanup: (() => void) | null = null;
     let headerControlsCleanup: (() => void) | null = null;
@@ -199,9 +179,7 @@ const defaultToy = toys[0];
       headerEl.innerHTML = toy.headerHtml;
       footerEl.innerHTML = toy.footerHtml;
 
-      // Update toggle button icon and label
-      const iconEl = toggleBtn?.querySelector('lord-icon');
-      if (iconEl) iconEl.setAttribute('src', `https://cdn.lordicon.com/${toy.buttonIcon}.json`);
+      // Update toggle button label
       const textNode = toggleBtn ? [...toggleBtn.childNodes].find(
         (n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim()
       ) : undefined;

@@ -559,7 +559,6 @@ function renderHeaderControls(container: HTMLElement): () => void {
 export const tetrisSolverToy: CanvasToy = {
   id: 'tetris-solver',
   buttonLabel: 'Bored?',
-  buttonIcon: 'xybojgeo',
   headerHtml:
     '&#x1f3ae; AI plays Tetris, maximizing Tetris clears &nbsp;&middot;&nbsp; speed &rarr;',
   footerHtml:
