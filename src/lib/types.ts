@@ -187,8 +187,6 @@ export interface Contact {
 export interface CanvasToy {
   /** Unique id, e.g. "boids", "particles", "life" */
   id: string;
-  /** Label on the toggle button, e.g. "Bored?", "Distracted?" */
-  buttonLabel: string;
   /** HTML string for the header bar (instructions, controls hint) */
   headerHtml: string;
   /** HTML string for the footer bar (title + explanation) */

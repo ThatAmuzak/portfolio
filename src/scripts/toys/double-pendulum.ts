@@ -259,7 +259,6 @@ function rgbaStr(c: Rgba): string {
 
 export const doublePendulumToy: CanvasToy = {
   id: 'double-pendulum',
-  buttonLabel: 'Bored?',
   headerHtml:
     '&#x1F500; click to reset &nbsp;&middot;&nbsp; watch chaos unfold',
   footerHtml:
