@@ -20,13 +20,21 @@ import { clothToy } from '../scripts/toys/cloth.ts';
 import { doublePendulumToy } from '../scripts/toys/double-pendulum.ts';
 import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
 import { tetrisSolverToy } from '../scripts/toys/tetris.ts';
+import { threeBodyToy } from '../scripts/toys/three-body.ts';
 import type { CanvasToy } from '../lib/types';
 
 interface Props {
   toys?: CanvasToy[];
 }
 
-const toys: CanvasToy[] = Astro.props.toys ?? [boidsToy, clothToy, doublePendulumToy, gameOfLifeToy, tetrisSolverToy];
+const toys: CanvasToy[] = Astro.props.toys ?? [
+  boidsToy,
+  clothToy,
+  doublePendulumToy,
+  gameOfLifeToy,
+  tetrisSolverToy,
+  threeBodyToy,
+];
 
 // For SSR, pick the first toy as default. The inline script handles
 // randomisation / rotation on the client.
@@ -35,15 +43,14 @@ const defaultToy = toys[0];
 
 <!-- The "Bored?" toggle button is rendered statically in Hero.astro's CTA row
      (id="canvas-toy-toggle"), like the other hero CTA buttons. It just triggers
-     this panel. The inline script below finds it via getElementById. -->
-
-<!-- Backdrop overlay — dims the left half, click to close -->
+     this panel. The inline script below finds it via getElementById. --><!-- Backdrop overlay — dims the left half, click to close -->
 <div
   id="canvas-toy-backdrop"
   class="fixed top-0 left-0 bottom-0 z-40 pointer-events-none opacity-0 bg-black/30 transition-opacity duration-500"
   style="right: 50vw"
   aria-hidden="true"
-></div>
+>
+</div>
 
 <!-- Simulation panel — fixed overlay on right half -->
 <div
@@ -78,10 +85,7 @@ const defaultToy = toys[0];
   <!-- Footer bar -->
   <div class="px-5 py-3 border-t border-border shrink-0 relative z-10 bg-surface">
     <!-- Prev/next navigation row (hidden when only 1 toy) -->
-    <div
-      id="canvas-toy-nav"
-      class="flex items-center justify-between mb-2 hidden"
-    >
+    <div id="canvas-toy-nav" class="flex items-center justify-between mb-2 hidden">
       <span class="text-[12px] text-ink-tertiary font-mono select-none">Try something else?</span>
       <div class="flex items-center gap-1">
         <button
@@ -89,8 +93,17 @@ const defaultToy = toys[0];
           class="inline-flex items-center justify-center w-7 h-7 rounded-[6px] text-ink-tertiary hover:text-accent hover:bg-accent-wash transition-colors cursor-pointer bg-transparent border-0"
           aria-label="Previous toy"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
         <span
@@ -102,8 +115,17 @@ const defaultToy = toys[0];
           class="inline-flex items-center justify-center w-7 h-7 rounded-[6px] text-ink-tertiary hover:text-accent hover:bg-accent-wash transition-colors cursor-pointer bg-transparent border-0"
           aria-label="Next toy"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>
       </div>
@@ -124,10 +146,18 @@ const defaultToy = toys[0];
   import { doublePendulumToy } from '../scripts/toys/double-pendulum.ts';
   import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
   import { tetrisSolverToy } from '../scripts/toys/tetris.ts';
+  import { threeBodyToy } from '../scripts/toys/three-body.ts';
   import type { CanvasToy } from '../lib/types';
 
   /** All available toys (must match the frontmatter array above). */
-  const TOYS: CanvasToy[] = [boidsToy, clothToy, doublePendulumToy, gameOfLifeToy, tetrisSolverToy];
+  const TOYS: CanvasToy[] = [
+    boidsToy,
+    clothToy,
+    doublePendulumToy,
+    gameOfLifeToy,
+    tetrisSolverToy,
+    threeBodyToy,
+  ];
 
   function initCanvasToy() {
     const toggleBtn = document.getElementById('canvas-toy-toggle');
@@ -141,7 +171,8 @@ const defaultToy = toys[0];
     const navPrev = document.getElementById('canvas-toy-nav-prev');
     const navNext = document.getElementById('canvas-toy-nav-next');
     const navIndicator = document.getElementById('canvas-toy-nav-indicator');
-    if (!toggleBtn || !panel || !closeBtn || !backdrop || !headerEl || !footerEl || !controlsEl) return;
+    if (!toggleBtn || !panel || !closeBtn || !backdrop || !headerEl || !footerEl || !controlsEl)
+      return;
     let isOpen = false;
     let simCleanup: (() => void) | null = null;
     let headerControlsCleanup: (() => void) | null = null;
@@ -203,7 +234,11 @@ const defaultToy = toys[0];
             ctx.fillStyle = 'var(--color-ink-tertiary)';
             ctx.font = '14px monospace';
             ctx.textAlign = 'center';
-            ctx.fillText('This toy failed to start — try another.', canvas.width / 2, canvas.height / 2);
+            ctx.fillText(
+              'This toy failed to start — try another.',
+              canvas.width / 2,
+              canvas.height / 2,
+            );
           }
         }
       }
