@@ -19,6 +19,7 @@ import { boidsToy } from '../scripts/toys/boids.ts';
 import { clothToy } from '../scripts/toys/cloth.ts';
 import { doublePendulumToy } from '../scripts/toys/double-pendulum.ts';
 import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
+import { newtonsCradleToy } from '../scripts/toys/newtons-cradle.ts';
 import { tetrisSolverToy } from '../scripts/toys/tetris.ts';
 import { threeBodyToy } from '../scripts/toys/three-body.ts';
 import type { CanvasToy } from '../lib/types';
@@ -32,6 +33,7 @@ const toys: CanvasToy[] = Astro.props.toys ?? [
   clothToy,
   doublePendulumToy,
   gameOfLifeToy,
+  newtonsCradleToy,
   tetrisSolverToy,
   threeBodyToy,
 ];
@@ -145,6 +147,7 @@ const defaultToy = toys[0];
   import { clothToy } from '../scripts/toys/cloth.ts';
   import { doublePendulumToy } from '../scripts/toys/double-pendulum.ts';
   import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
+  import { newtonsCradleToy } from '../scripts/toys/newtons-cradle.ts';
   import { tetrisSolverToy } from '../scripts/toys/tetris.ts';
   import { threeBodyToy } from '../scripts/toys/three-body.ts';
   import type { CanvasToy } from '../lib/types';
@@ -155,6 +158,7 @@ const defaultToy = toys[0];
     clothToy,
     doublePendulumToy,
     gameOfLifeToy,
+    newtonsCradleToy,
     tetrisSolverToy,
     threeBodyToy,
   ];
