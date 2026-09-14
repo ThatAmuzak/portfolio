@@ -60,8 +60,7 @@ const CFG = {
 
 export const boidsToy: CanvasToy = {
   id: 'boids',
-  headerHtml:
-    '&#x1f5b1;&#xfe0f; left-click to attract &nbsp;&middot;&nbsp; right-click to repel',
+  headerHtml: '&#x1f5b1;&#xfe0f; left-click to attract &nbsp;&middot;&nbsp; right-click to repel',
   footerHtml:
     '<strong class="text-ink-secondary">Boids</strong> &mdash; each triangle follows three simple rules: steer toward neighbours, match their direction, and keep their distance. Together they form lifelike flocks.',
   start,
@@ -85,7 +84,11 @@ function start(canvas: HTMLCanvasElement): () => void {
   let H = 0; // logical height
   let dpr = 1;
 
-  const mouse: { x: number | null; y: number | null; button: number } = { x: null, y: null, button: 0 };
+  const mouse: { x: number | null; y: number | null; button: number } = {
+    x: null,
+    y: null,
+    button: 0,
+  };
   let ripples: Ripple[] = [];
   let lastRippleTime = 0;
   let animId: number | null = null;
@@ -209,7 +212,10 @@ function start(canvas: HTMLCanvasElement): () => void {
       const b = boids[i];
       const key = cellKey(Math.floor(b.x / cs), Math.floor(b.y / cs));
       let cell = grid.get(key);
-      if (!cell) { cell = []; grid.set(key, cell); }
+      if (!cell) {
+        cell = [];
+        grid.set(key, cell);
+      }
       cell.push(i);
     }
   }
@@ -265,9 +271,15 @@ function start(canvas: HTMLCanvasElement): () => void {
       const b = boids[i];
 
       // Accumulators
-      let sepX = 0, sepY = 0, sepN = 0;
-      let aliX = 0, aliY = 0, aliN = 0;
-      let cohX = 0, cohY = 0, cohN = 0;
+      let sepX = 0,
+        sepY = 0,
+        sepN = 0;
+      let aliX = 0,
+        aliY = 0,
+        aliN = 0;
+      let cohX = 0,
+        cohY = 0,
+        cohN = 0;
 
       const sepR2 = CFG.separationRadius * CFG.separationRadius;
       const perR2 = CFG.perceptionRadius * CFG.perceptionRadius;
@@ -339,10 +351,20 @@ function start(canvas: HTMLCanvasElement): () => void {
         if (md < CFG.mouseRadius && md > 1) {
           if (mouse.button === 1) {
             // Attract: steer toward cursor
-            applySteer(b, (mdx / md) * CFG.maxSpeed, (mdy / md) * CFG.maxSpeed, CFG.mouseForce / CFG.maxForce);
+            applySteer(
+              b,
+              (mdx / md) * CFG.maxSpeed,
+              (mdy / md) * CFG.maxSpeed,
+              CFG.mouseForce / CFG.maxForce,
+            );
           } else if (mouse.button === 2) {
             // Repel: steer away from cursor
-            applySteer(b, (-mdx / md) * CFG.maxSpeed, (-mdy / md) * CFG.maxSpeed, CFG.mouseForce / CFG.maxForce);
+            applySteer(
+              b,
+              (-mdx / md) * CFG.maxSpeed,
+              (-mdy / md) * CFG.maxSpeed,
+              CFG.mouseForce / CFG.maxForce,
+            );
           }
         }
       }
@@ -361,10 +383,10 @@ function start(canvas: HTMLCanvasElement): () => void {
       // Border repulsion — steer away from edges when close.
       // Penetration is capped at margin width to prevent velocity spikes.
       const bm = CFG.borderMargin;
-      if (b.x < bm) b.vx += Math.min(bm - b.x, bm) / bm * CFG.borderForce;
-      if (b.x > W - bm) b.vx -= Math.min(b.x - (W - bm), bm) / bm * CFG.borderForce;
-      if (b.y < bm) b.vy += Math.min(bm - b.y, bm) / bm * CFG.borderForce;
-      if (b.y > H - bm) b.vy -= Math.min(b.y - (H - bm), bm) / bm * CFG.borderForce;
+      if (b.x < bm) b.vx += (Math.min(bm - b.x, bm) / bm) * CFG.borderForce;
+      if (b.x > W - bm) b.vx -= (Math.min(b.x - (W - bm), bm) / bm) * CFG.borderForce;
+      if (b.y < bm) b.vy += (Math.min(bm - b.y, bm) / bm) * CFG.borderForce;
+      if (b.y > H - bm) b.vy -= (Math.min(b.y - (H - bm), bm) / bm) * CFG.borderForce;
     }
   }
 

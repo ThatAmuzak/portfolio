@@ -434,7 +434,6 @@ function scrollToTarget(target) {
     }
   }
 
-
   //────────────────────────────────────────────────────────────────────────────
   // Bootstrap — run immediately (DOM is ready), icons wait for <lord-icon>
   //────────────────────────────────────────────────────────────────────────────

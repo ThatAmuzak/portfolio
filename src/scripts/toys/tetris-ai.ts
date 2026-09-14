@@ -109,13 +109,13 @@ function allPlacements(grid: number[][], type: PieceType): Placement[] {
     const shapeW = shape[0].length;
     for (let col = -2; col <= COLS - shapeW + 2; col++) {
       // Start piece in hidden rows, drop it
-      const spawnRow = -shape.findIndex(r => r.some(v => v === 1));
+      const spawnRow = -shape.findIndex((r) => r.some((v) => v === 1));
       if (collides(grid, shape, spawnRow, col)) continue;
 
       const dr = dropRow(grid, shape, spawnRow, col);
 
       // Simulate lock + clear on a copy
-      const copy = grid.map(r => [...r]);
+      const copy = grid.map((r) => [...r]);
       lock(copy, shape, dr, col);
       const lines = clearFullRows(copy);
 
@@ -134,7 +134,7 @@ function allPlacements(grid: number[][], type: PieceType): Placement[] {
 function scoredPlacements(grid: number[][], type: PieceType): Placement[] {
   const placements = allPlacements(grid, type);
   for (const p of placements) {
-    const copy = grid.map(r => [...r]);
+    const copy = grid.map((r) => [...r]);
     lock(copy, ROTATIONS[p.type][p.rotation], p.dropRow, p.col);
     clearFullRows(copy); // already counted in linesCleared; ensure clean state
     p.score = evaluateBoard(copy, p.linesCleared);
@@ -146,10 +146,10 @@ function scoredPlacements(grid: number[][], type: PieceType): Placement[] {
 // ── Best-move search with hold + 1-piece lookahead ───────────────────────
 
 export interface BestMove {
-  type: PieceType;       // which piece to place
+  type: PieceType; // which piece to place
   rotation: number;
   col: number;
-  shouldHold: boolean;   // true = hold current first, then place
+  shouldHold: boolean; // true = hold current first, then place
   score: number;
 }
 
@@ -169,7 +169,10 @@ export function findBestMove(
 ): BestMove {
   const LOOKAHEAD_DISCOUNT = 0.35;
 
-  function evalPiece(type: PieceType, followingType: PieceType): { best: Placement | null; score: number } {
+  function evalPiece(
+    type: PieceType,
+    followingType: PieceType,
+  ): { best: Placement | null; score: number } {
     const placements = scoredPlacements(grid, type);
     if (placements.length === 0) return { best: null, score: -Infinity };
 
@@ -178,7 +181,7 @@ export function findBestMove(
 
     for (const p of placements) {
       // Simulate placing this piece
-      const boardAfter = grid.map(r => [...r]);
+      const boardAfter = grid.map((r) => [...r]);
       lock(boardAfter, ROTATIONS[p.type][p.rotation], p.dropRow, p.col);
       clearFullRows(boardAfter);
 

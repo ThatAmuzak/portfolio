@@ -6,11 +6,14 @@ const hero = load<Hero>('hero.yaml');
 ---
 
 <section class="min-h-svh flex items-center px-5 md:px-6 pt-20 pb-8 md:pb-16 bg-surface">
-  <div id="hero-content" class="max-w-[780px] mx-auto md:mx-0 md:ml-[max(calc((100%-1100px)/2),2rem)]">
+  <div
+    id="hero-content"
+    class="max-w-[760px] mx-auto md:mx-0 md:ml-[max(calc((100%-960px)/2),1.5rem)]"
+  >
     {
       hero.subtitle && (
         <div class="reveal">
-          <p class="text-[13px] md:text-[15px] font-mono text-accent tracking-[0.12em] uppercase mb-4 md:mb-5">
+          <p class="text-[13px] md:text-[15px] font-mono text-rust tracking-[0.12em] uppercase mb-4 md:mb-5">
             {hero.subtitle}
           </p>
         </div>
@@ -27,7 +30,7 @@ const hero = load<Hero>('hero.yaml');
               class="li-hero hidden md:block"
             />
           )}
-          <h1 class="font-display text-[42px] sm:text-[52px] md:text-[76px] lg:text-[90px] font-bold text-ink leading-[1.05] tracking-[-0.02em] m-0 break-words">
+          <h1 class="font-display text-[38px] sm:text-[46px] md:text-[60px] lg:text-[72px] font-bold text-ink leading-[1.05] tracking-[-0.01em] m-0 break-words">
             {hero.name}
           </h1>
         </div>
@@ -45,7 +48,7 @@ const hero = load<Hero>('hero.yaml');
         hero.cta?.resume && (
           <a
             href={hero.cta.resume.href}
-            class="card-glow inline-flex items-center gap-3 px-7 py-4 bg-surface-raised text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent"
+            class="inline-flex items-center gap-3 px-7 py-4 bg-accent text-on-accent text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline hover:bg-accent-light transition-colors duration-200"
           >
             <svg
               class="w-[22px] h-[22px] shrink-0"
@@ -68,7 +71,7 @@ const hero = load<Hero>('hero.yaml');
         hero.cta?.blogs && (
           <a
             href={hero.cta.blogs.href}
-            class="card-glow inline-flex items-center gap-3 px-7 py-4 bg-surface-raised text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent"
+            class="inline-flex items-center gap-3 px-7 py-4 text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent transition-colors duration-200"
           >
             {hero.cta.blogs.icon && (
               <lord-icon
@@ -86,7 +89,7 @@ const hero = load<Hero>('hero.yaml');
         hero.cta?.connect && (
           <a
             href={hero.cta.connect.href}
-            class="card-glow inline-flex items-center gap-3 px-7 py-4 bg-surface-raised text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent"
+            class="inline-flex items-center gap-3 px-7 py-4 text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent transition-colors duration-200"
           >
             {hero.cta.connect.icon && (
               <lord-icon
@@ -100,21 +103,22 @@ const hero = load<Hero>('hero.yaml');
           </a>
         )
       }
-      {/* Toys / "Bored?" button — rendered statically here like the other CTAs.
+      {
+        /* Toys / "Bored?" button — rendered statically here like the other CTAs.
           It just opens the CanvasToy panel; its click handler lives in
-          CanvasToy.astro (looked up via #canvas-toy-toggle). */}
+          CanvasToy.astro (looked up via #canvas-toy-toggle). */
+      }
       <button
         id="canvas-toy-toggle"
         type="button"
         aria-label="Open interactive toy"
-        class="card-glow select-none hidden md:inline-flex items-center gap-3 px-7 py-4 bg-surface-raised text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent cursor-pointer"
+        class="select-none hidden md:inline-flex items-center gap-3 px-7 py-4 text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-rust hover:text-rust transition-colors duration-200 cursor-pointer"
       >
         <lord-icon
           src={liSrc('bazecvhf')}
           trigger="morph"
           colors={LORD_ICON_COLORS.default}
-          class="li-lg"
-        />
+          class="li-lg"></lord-icon>
         Bored?
       </button>
     </div>

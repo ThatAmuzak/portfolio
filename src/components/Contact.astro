@@ -10,14 +10,9 @@ const ctaItems: ContactCTA[] = contact.cta || [];
 const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
 ---
 
-<section id="contact" class="py-20 md:py-28 px-5 md:px-6 bg-surface scroll-mt-16">
-  <div class="max-w-[640px] mx-auto text-center">
-    <SectionHeader
-      label={contact.label}
-      heading={contact.heading}
-      headingMb="mb-6"
-      headingSize="text-[28px] md:text-[44px]"
-    />
+<section id="contact" class="py-24 md:py-32 px-6 bg-surface scroll-mt-16">
+  <div class="max-w-[760px] mx-auto text-center">
+    <SectionHeader label={contact.label} heading={contact.heading} headingMb="mb-6" />
 
     {
       contact.description && (
@@ -99,10 +94,15 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
               href={item.href}
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-ink-on-dark text-[15px] font-medium rounded-[6px] hover:bg-accent-light transition-all duration-200 no-underline"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-ink-secondary text-[15px] font-medium rounded-[6px] border border-border hover:border-accent hover:text-accent transition-colors duration-200 no-underline"
             >
               {item.icon && (
-                <lord-icon src={liSrc(item.icon)} trigger="morph" colors={LORD_ICON_COLORS.onDark} class="li-md" />
+                <lord-icon
+                  src={liSrc(item.icon)}
+                  trigger="morph"
+                  colors={LORD_ICON_COLORS.default}
+                  class="li-md"
+                />
               )}
               {item.label}
             </a>
@@ -123,7 +123,12 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
               aria-label={s.label}
             >
               {s.icon && (
-                <lord-icon src={liSrc(s.icon)} trigger="morph" colors={LORD_ICON_COLORS.default} class="li-base" />
+                <lord-icon
+                  src={liSrc(s.icon)}
+                  trigger="morph"
+                  colors={LORD_ICON_COLORS.default}
+                  class="li-base"
+                />
               )}
               {s.label}
             </a>

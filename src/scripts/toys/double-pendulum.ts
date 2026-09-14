@@ -82,13 +82,34 @@ function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: n
   const c = (1 - Math.abs(2 * l - 1)) * s;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = l - c / 2;
-  let r = 0, g = 0, b = 0;
-  if (h < 60)       { r = c; g = x; b = 0; }
-  else if (h < 120) { r = x; g = c; b = 0; }
-  else if (h < 180) { r = 0; g = c; b = x; }
-  else if (h < 240) { r = 0; g = x; b = c; }
-  else if (h < 300) { r = x; g = 0; b = c; }
-  else              { r = c; g = 0; b = x; }
+  let r = 0,
+    g = 0,
+    b = 0;
+  if (h < 60) {
+    r = c;
+    g = x;
+    b = 0;
+  } else if (h < 120) {
+    r = x;
+    g = c;
+    b = 0;
+  } else if (h < 180) {
+    r = 0;
+    g = c;
+    b = x;
+  } else if (h < 240) {
+    r = 0;
+    g = x;
+    b = c;
+  } else if (h < 300) {
+    r = x;
+    g = 0;
+    b = c;
+  } else {
+    r = c;
+    g = 0;
+    b = x;
+  }
   return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 };
 }
 
@@ -107,7 +128,9 @@ function readAccentRgb(): { r: number; g: number; b: number } {
  * Used to derive a base hue from the accent colour.
  */
 function rgbToHue(r: number, g: number, b: number): number {
-  const rn = r / 255, gn = g / 255, bn = b / 255;
+  const rn = r / 255,
+    gn = g / 255,
+    bn = b / 255;
   const max = Math.max(rn, gn, bn);
   const min = Math.min(rn, gn, bn);
   const delta = max - min;
@@ -171,7 +194,15 @@ function accelerations(
  * Single RK4 integration step for a double pendulum.
  * Mutates the pendulum state in place.
  */
-function rk4Step(p: Pendulum, l1: number, l2: number, m1: number, m2: number, g: number, dt: number) {
+function rk4Step(
+  p: Pendulum,
+  l1: number,
+  l2: number,
+  m1: number,
+  m2: number,
+  g: number,
+  dt: number,
+) {
   // State vector: [theta1, theta2, omega1, omega2]
   const s0 = [p.theta1, p.theta2, p.omega1, p.omega2];
 
@@ -184,11 +215,21 @@ function rk4Step(p: Pendulum, l1: number, l2: number, m1: number, m2: number, g:
   const [k1t1, k1t2, k1o1, k1o2] = deriv(s0[0], s0[1], s0[2], s0[3]);
 
   // k2
-  const s1 = [s0[0] + 0.5 * dt * k1t1, s0[1] + 0.5 * dt * k1t2, s0[2] + 0.5 * dt * k1o1, s0[3] + 0.5 * dt * k1o2];
+  const s1 = [
+    s0[0] + 0.5 * dt * k1t1,
+    s0[1] + 0.5 * dt * k1t2,
+    s0[2] + 0.5 * dt * k1o1,
+    s0[3] + 0.5 * dt * k1o2,
+  ];
   const [k2t1, k2t2, k2o1, k2o2] = deriv(s1[0], s1[1], s1[2], s1[3]);
 
   // k3
-  const s2 = [s0[0] + 0.5 * dt * k2t1, s0[1] + 0.5 * dt * k2t2, s0[2] + 0.5 * dt * k2o1, s0[3] + 0.5 * dt * k2o2];
+  const s2 = [
+    s0[0] + 0.5 * dt * k2t1,
+    s0[1] + 0.5 * dt * k2t2,
+    s0[2] + 0.5 * dt * k2o1,
+    s0[3] + 0.5 * dt * k2o2,
+  ];
   const [k3t1, k3t2, k3o1, k3o2] = deriv(s2[0], s2[1], s2[2], s2[3]);
 
   // k4
@@ -259,8 +300,7 @@ function rgbaStr(c: Rgba): string {
 
 export const doublePendulumToy: CanvasToy = {
   id: 'double-pendulum',
-  headerHtml:
-    '&#x1F500; click to reset &nbsp;&middot;&nbsp; watch chaos unfold',
+  headerHtml: '&#x1F500; click to reset &nbsp;&middot;&nbsp; watch chaos unfold',
   footerHtml:
     '<strong class="text-ink-secondary">Double Pendulum Chaos</strong> &mdash; 10 pendulums launched with a 10<sup>&minus;4</sup>&nbsp;rad offset. Deterministic physics, unpredictable divergence.',
   start,
@@ -275,14 +315,14 @@ function start(canvas: HTMLCanvasElement): () => void {
   // ── mutable state ─────────────────────────────────────────────────────────
 
   let pendulums: Pendulum[] = [];
-  let W = 0;    // logical width
-  let H = 0;    // logical height
+  let W = 0; // logical width
+  let H = 0; // logical height
   let dpr = 1;
-  let l1 = 0;   // rod 1 length in logical pixels
-  let l2 = 0;   // rod 2 length in logical pixels
+  let l1 = 0; // rod 1 length in logical pixels
+  let l2 = 0; // rod 2 length in logical pixels
   let gravity = 0; // g = l1 * gravityScale (px/s²)
-  let px = 0;   // pivot x
-  let py = 0;   // pivot y
+  let px = 0; // pivot x
+  let py = 0; // pivot y
 
   let running = true;
 
@@ -436,9 +476,7 @@ function start(canvas: HTMLCanvasElement): () => void {
   function loop(timestamp: number) {
     if (!running) return;
 
-    const dt = lastTime
-      ? Math.min((timestamp - lastTime) / 1000, 0.1)
-      : FIXED_DT;
+    const dt = lastTime ? Math.min((timestamp - lastTime) / 1000, 0.1) : FIXED_DT;
     lastTime = timestamp;
     accumulator += dt;
 

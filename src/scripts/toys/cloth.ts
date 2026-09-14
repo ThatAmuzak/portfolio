@@ -79,9 +79,12 @@ function readAccentRgb(): { r: number; g: number; b: number } {
 
 /** Distance from point p to segment ab. */
 function distToSegment(
-  px: number, py: number,
-  ax: number, ay: number,
-  bx: number, by: number,
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
 ): number {
   const dx = bx - ax;
   const dy = by - ay;
@@ -194,8 +197,10 @@ function start(canvas: HTMLCanvasElement): () => void {
         const px = pinned && c === cols - 1 ? pinRightX : x;
         const py = pinned && r === 0 ? topY : y;
         points.push({
-          x: px, y: py,
-          px: px, py: py,
+          x: px,
+          y: py,
+          px: px,
+          py: py,
           pinned,
         });
       }
@@ -206,14 +211,16 @@ function start(canvas: HTMLCanvasElement): () => void {
         const idx = r * cols + c;
         if (c < cols - 1) {
           constraints.push({
-            a: idx, b: idx + 1,
+            a: idx,
+            b: idx + 1,
             rest: CFG.restLength * scale,
             active: true,
           });
         }
         if (r < rows - 1) {
           constraints.push({
-            a: idx, b: idx + cols,
+            a: idx,
+            b: idx + cols,
             rest: CFG.restLength * scale,
             active: true,
           });
@@ -256,8 +263,10 @@ function start(canvas: HTMLCanvasElement): () => void {
     if (grabIndex >= 0) {
       const gp = points[grabIndex];
       if (gp) {
-        gp.px = grabX; gp.py = grabY;
-        gp.x = grabX;  gp.y = grabY;
+        gp.px = grabX;
+        gp.py = grabY;
+        gp.x = grabX;
+        gp.y = grabY;
       }
     }
 
@@ -285,8 +294,14 @@ function start(canvas: HTMLCanvasElement): () => void {
         const diff = (dist - c.rest) / dist;
         const ox = dx * diff * 0.5;
         const oy = dy * diff * 0.5;
-        if (!pa.pinned) { pa.x += ox; pa.y += oy; }
-        if (!pb.pinned) { pb.x -= ox; pb.y -= oy; }
+        if (!pa.pinned) {
+          pa.x += ox;
+          pa.y += oy;
+        }
+        if (!pb.pinned) {
+          pb.x -= ox;
+          pb.y -= oy;
+        }
       }
     }
   }
@@ -381,9 +396,7 @@ function start(canvas: HTMLCanvasElement): () => void {
   function loop(timestamp: number) {
     if (!running) return;
 
-    const dt = lastTime
-      ? Math.min((timestamp - lastTime) / 1000, 0.1)
-      : FIXED_DT;
+    const dt = lastTime ? Math.min((timestamp - lastTime) / 1000, 0.1) : FIXED_DT;
     lastTime = timestamp;
     accumulator += dt;
 

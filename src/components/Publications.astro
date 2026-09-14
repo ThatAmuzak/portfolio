@@ -5,48 +5,76 @@ import SectionHeader from './SectionHeader.astro';
 
 const pubs = load<Publications>('publications.yaml');
 const papers: Paper[] = pubs.papers || [];
+
+/**
+ * Venue typing for dot color-coding:
+ *  - conference → teal dot
+ *  - journal    → rust dot
+ *  - preprint   → no dot, muted text
+ * Hue is always paired with the text label (WCAG 1.4.1).
+ */
+function venueKind(paper: Paper): 'conference' | 'journal' | 'preprint' {
+  const url = (paper.url || '').toLowerCase();
+  if (url.includes('researchsquare') || url.includes('arxiv') || url.includes('osf.io')) {
+    return 'preprint';
+  }
+  if (/journal|transactions|letters/i.test(paper.venue || '')) return 'journal';
+  return 'conference';
+}
 ---
 
-<section id="publications" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
+<section id="publications" class="py-24 md:py-32 px-6 bg-surface-sunken scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
     <SectionHeader label={pubs.label} heading={pubs.heading} />
 
     {
       papers.length > 0 && (
         <div class="space-y-5">
-          {papers.map((paper: Paper, i: number) => (
-            <div
-              class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-6 md:p-7`}
-            >
-              <a href={paper.url} target="_blank" rel="noopener" class="no-underline group">
-                <h3 class="font-display text-[18px] md:text-[20px] font-bold text-ink group-hover:text-accent transition-colors m-0 mb-2 leading-[1.35]">
-                  {paper.title}
-                </h3>
-              </a>
-              <p class="text-[15px] text-ink-secondary leading-[1.6] m-0 mb-3">
-                {paper.authors?.map((author: Author, j: number) => (
-                  <span>
-                    {j > 0 && ', '}
-                    {author.bold ? (
-                      <strong class="text-ink font-semibold">{author.name}</strong>
-                    ) : (
-                      <span>{author.name}</span>
-                    )}
-                  </span>
-                ))}
-              </p>
-              <div class="flex items-center gap-3 flex-wrap">
-                {paper.venue && (
-                  <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent bg-accent-wash px-2.5 py-1 rounded-[4px] font-mono">
-                    {paper.venue}
-                  </span>
-                )}
-                {paper.year && (
-                  <span class="text-[13px] font-mono text-ink-tertiary">{paper.year}</span>
-                )}
-              </div>
-            </div>
-          ))}
+          {papers.map((paper: Paper) => {
+            const kind = venueKind(paper);
+            return (
+              <article class="reveal card-glow bg-surface-raised rounded-[8px] p-6 md:p-7">
+                <a href={paper.url} target="_blank" rel="noopener" class="no-underline group">
+                  <h3 class="font-display text-[18px] md:text-[20px] font-bold text-ink group-hover:text-accent transition-colors duration-200 m-0 mb-2 leading-[1.35]">
+                    {paper.title}
+                  </h3>
+                </a>
+                <p class="text-[15px] text-ink-secondary leading-[1.6] m-0 mb-3">
+                  {paper.authors?.map((author: Author, j: number) => (
+                    <span>
+                      {j > 0 && ', '}
+                      {author.bold ? (
+                        <strong class="text-ink font-semibold">{author.name}</strong>
+                      ) : (
+                        <span>{author.name}</span>
+                      )}
+                    </span>
+                  ))}
+                </p>
+                <div class="flex items-center gap-2.5">
+                  {paper.venue && kind !== 'preprint' && (
+                    <span
+                      class={`w-[7px] h-[7px] rounded-full shrink-0 ${kind === 'journal' ? 'bg-rust' : 'bg-accent'}`}
+                      aria-hidden="true"
+                    />
+                  )}
+                  {paper.venue && (
+                    <span
+                      class={`text-[13px] font-mono ${kind === 'preprint' ? 'text-ink-tertiary' : 'text-ink-secondary'}`}
+                    >
+                      {paper.venue}
+                      {kind === 'preprint' && ' (preprint)'}
+                    </span>
+                  )}
+                  {paper.year && (
+                    <span class="ml-auto text-[13px] font-mono text-ink-tertiary">
+                      {paper.year}
+                    </span>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       )
     }

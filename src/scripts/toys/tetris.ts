@@ -80,8 +80,11 @@ function buildRotations(shape: number[][]): number[][][] {
   for (let i = 1; i < 4; i++) {
     cur = rotateCW(cur);
     // O-piece has only 1 unique rotation
-    if (cur.length === shape.length && cur[0].length === shape[0].length &&
-        cur.every((row, r) => row.every((v, c) => v === shape[r][c]))) {
+    if (
+      cur.length === shape.length &&
+      cur[0].length === shape[0].length &&
+      cur.every((row, r) => row.every((v, c) => v === shape[r][c]))
+    ) {
       break;
     }
     rots.push(cur);
@@ -166,11 +169,11 @@ export function clearFullRows(grid: number[][]): number {
 // ── Animation state machine ──────────────────────────────────────────────
 
 type AnimPhase =
-  | 'deciding'    // AI computing best move
-  | 'moving'      // sliding piece toward target column
-  | 'dropping'    // piece dropping down
-  | 'clearing'    // flashing cleared rows
-  | 'pausing';    // brief pause between pieces
+  | 'deciding' // AI computing best move
+  | 'moving' // sliding piece toward target column
+  | 'dropping' // piece dropping down
+  | 'clearing' // flashing cleared rows
+  | 'pausing'; // brief pause between pieces
 
 interface GameState {
   grid: number[][];
@@ -258,8 +261,12 @@ function readColors(): Colors {
 
 function drawBlock(
   ctx: CanvasRenderingContext2D,
-  x: number, y: number, size: number,
-  col: Colors, alpha: number, inset: number,
+  x: number,
+  y: number,
+  size: number,
+  col: Colors,
+  alpha: number,
+  inset: number,
 ) {
   const { r, g, b } = col;
   ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
@@ -273,8 +280,11 @@ function drawBlock(
 
 function drawGhostBlock(
   ctx: CanvasRenderingContext2D,
-  x: number, y: number, size: number,
-  col: Colors, inset: number,
+  x: number,
+  y: number,
+  size: number,
+  col: Colors,
+  inset: number,
 ) {
   const { r, g, b } = col;
   ctx.strokeStyle = `rgba(${r},${g},${b},0.25)`;
@@ -295,7 +305,12 @@ function render(
   const { r, g, b } = col;
 
   // ── Clear ──
-  ctx.clearRect(0, 0, ctx.canvas.width / (window.devicePixelRatio || 1), ctx.canvas.height / (window.devicePixelRatio || 1));
+  ctx.clearRect(
+    0,
+    0,
+    ctx.canvas.width / (window.devicePixelRatio || 1),
+    ctx.canvas.height / (window.devicePixelRatio || 1),
+  );
 
   // ── Board background ──
   ctx.fillStyle = `rgba(${r},${g},${b},0.03)`;
@@ -367,7 +382,11 @@ function render(
     // Score
     ctx.font = `${cs * 0.45}px "JetBrains Mono", monospace`;
     ctx.fillStyle = `rgba(${r},${g},${b},0.5)`;
-    ctx.fillText(`${state.lines} lines · ${state.score} pts`, ox + (COLS * cs) / 2, oy + (ROWS * cs) / 2 + cs * 1.2);
+    ctx.fillText(
+      `${state.lines} lines · ${state.score} pts`,
+      ox + (COLS * cs) / 2,
+      oy + (ROWS * cs) / 2 + cs * 1.2,
+    );
     ctx.fillText('restarting…', ox + (COLS * cs) / 2, oy + (ROWS * cs) / 2 + cs * 1.9);
   }
 
@@ -417,7 +436,8 @@ function render(
 function drawPreviewPiece(
   ctx: CanvasRenderingContext2D,
   type: PieceType,
-  px: number, py: number,
+  px: number,
+  py: number,
   cellSize: number,
   col: Colors,
 ) {
@@ -578,9 +598,12 @@ function start(canvas: HTMLCanvasElement): () => void {
   let lastTime = 0;
   let accumulator = 0;
 
-  let W = 0, H = 0, dpr = 1;
+  let W = 0,
+    H = 0,
+    dpr = 1;
   let cellSize = 20;
-  let ox = 0, oy = 0;
+  let ox = 0,
+    oy = 0;
 
   let col = readColors();
 
@@ -606,10 +629,7 @@ function start(canvas: HTMLCanvasElement): () => void {
     const BOTTOM_PAD = 48;
     const previewWidth = W * 0.2;
     const boardAreaW = W - previewWidth;
-    cellSize = Math.min(
-      boardAreaW / (COLS + 1),
-      (H - BOTTOM_PAD) / ROWS,
-    );
+    cellSize = Math.min(boardAreaW / (COLS + 1), (H - BOTTOM_PAD) / ROWS);
     cellSize = Math.max(12, Math.floor(cellSize));
 
     // Center the board, with extra space at bottom for the nav bar
@@ -720,7 +740,7 @@ function start(canvas: HTMLCanvasElement): () => void {
         }
         state.clearingRows = [];
         for (const r of toCheck) {
-          if (r >= 0 && r < TOTAL_ROWS && state.grid[r].every(c => c === 1)) {
+          if (r >= 0 && r < TOTAL_ROWS && state.grid[r].every((c) => c === 1)) {
             state.clearingRows.push(r);
           }
         }
@@ -771,7 +791,7 @@ function start(canvas: HTMLCanvasElement): () => void {
 
     const shape = ROTATIONS[state.currentType][0];
     const spawnCol = Math.floor((COLS - shape[0].length) / 2);
-    const spawnRow = -shape.findIndex(r => r.some(v => v === 1));
+    const spawnRow = -shape.findIndex((r) => r.some((v) => v === 1));
 
     if (collides(state.grid, shape, spawnRow, spawnCol)) {
       state.gameOver = true;
@@ -814,7 +834,7 @@ function start(canvas: HTMLCanvasElement): () => void {
         state = initState();
         // Re-init spawn
         const shape = ROTATIONS[state.currentType][0];
-        state.pieceRow = -shape.findIndex(r => r.some(v => v === 1));
+        state.pieceRow = -shape.findIndex((r) => r.some((v) => v === 1));
         state.pieceCol = Math.floor((COLS - shape[0].length) / 2);
         state.phase = 'pausing';
         state.phaseTimer = 0;
@@ -853,7 +873,7 @@ function start(canvas: HTMLCanvasElement): () => void {
 
   // Initial spawn
   const initShape = ROTATIONS[state.currentType][0];
-  state.pieceRow = -initShape.findIndex(r => r.some(v => v === 1));
+  state.pieceRow = -initShape.findIndex((r) => r.some((v) => v === 1));
   state.pieceCol = Math.floor((COLS - initShape[0].length) / 2);
   state.phase = 'deciding';
 

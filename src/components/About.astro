@@ -1,5 +1,5 @@
 ---
-import { load, LORD_ICON_COLORS, liSrc } from '../lib/data';
+import { load } from '../lib/data';
 import type { About, AboutParagraph, AboutSegment, AboutStat } from '../lib/types';
 import SectionHeader from './SectionHeader.astro';
 
@@ -8,7 +8,7 @@ const paragraphs = about.paragraphs || [];
 const stats: AboutStat[] = about.stats || [];
 ---
 
-<section id="about" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
+<section id="about" class="py-24 md:py-32 px-6 bg-surface-sunken scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
     <SectionHeader label={about.label} heading={about.heading} />
 
@@ -44,25 +44,17 @@ const stats: AboutStat[] = about.stats || [];
 
       {
         stats.length > 0 && (
-          <div class="reveal delay-2 space-y-4">
+          <div class="reveal delay-2">
             {stats.map((stat: AboutStat) => (
-              <div class="bg-surface-raised rounded-[8px] p-5 card-glow">
-                <div class="flex items-center gap-3 mb-1.5">
-                  {stat.icon && (
-                    <lord-icon
-                      src={liSrc(stat.icon)}
-                      trigger="morph"
-                      colors={LORD_ICON_COLORS.default}
-                      class="li-xl"
-                    />
-                  )}
-                  {stat.value && (
-                    <p class="text-[30px] font-display font-bold text-accent m-0 leading-none">
-                      {stat.value}
-                    </p>
-                  )}
-                </div>
-                {stat.label && <p class="text-[15px] text-ink-tertiary m-0">{stat.label}</p>}
+              <div class="flex items-center gap-4 py-4 border-b border-border last:border-0">
+                {stat.value && (
+                  <p class="text-[24px] font-mono font-bold text-accent m-0 leading-none min-w-[4rem] text-right shrink-0">
+                    {stat.value}
+                  </p>
+                )}
+                {stat.label && (
+                  <p class="text-[15px] text-ink-secondary m-0 leading-tight">{stat.label}</p>
+                )}
               </div>
             ))}
           </div>

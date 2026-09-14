@@ -174,7 +174,6 @@ function renderHeaderControls(container: HTMLElement): () => void {
   };
 }
 
-
 // ── toy definition ──────────────────────────────────────────────────────────
 
 export const newtonsCradleToy: CanvasToy = {
@@ -192,7 +191,6 @@ export const newtonsCradleToy: CanvasToy = {
 function start(canvas: HTMLCanvasElement): () => void {
   const ctx = canvas.getContext('2d')!;
   if (!ctx) throw new Error('Canvas 2D context unavailable');
-
 
   // ── mutable state ─────────────────────────────────────────────────────────
 

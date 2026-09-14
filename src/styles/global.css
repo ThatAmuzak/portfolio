@@ -15,26 +15,38 @@
   --color-surface-sunken: #f3f4f6;
   --color-surface-alt: #f0f2f5;
 
-  --color-accent: #0891b2;
-  --color-accent-light: #06b6d4;
-  --color-accent-dark: #0e7490;
-  --color-accent-wash: #ecfeff;
+  /* Primary accent: deep teal (light step — AA 5.5:1 on surface) */
+  --color-accent: #00736f;
+  --color-accent-light: #00877f;
+  --color-accent-dark: #005350;
+  --color-accent-wash: rgba(0, 115, 111, 0.08);
+
+  /* Secondary accent: rust — reserved for emphasis moments */
+  --color-rust: #b74b21;
+  --color-rust-light: #cc5a2b;
+  --color-rust-wash: rgba(183, 75, 33, 0.08);
+
+  /* Text color used on solid accent backgrounds (buttons) */
+  --color-on-accent: #ffffff;
 
   --color-border: #e2e5eb;
   --color-border-strong: #c8cdd6;
 
-  --color-accent-green: #2d8a56;
-  --color-accent-amber: #c4820e;
-
   /* Accent RGB channels for semi-transparent glow effects */
-  --color-accent-r: 8;
-  --color-accent-g: 145;
-  --color-accent-b: 178;
+  --color-accent-r: 0;
+  --color-accent-g: 115;
+  --color-accent-b: 111;
+  --color-rust-r: 183;
+  --color-rust-g: 75;
+  --color-rust-b: 33;
 
-  /* Fonts */
-  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  /* Fonts
+     - sans:  body copy, multi-word text
+     - mono:  main headings (h1), labels, dates, chips, code
+     - display (Tektur): subheadings (h2-h4) — the character voice */
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
   --font-sans: 'IBM Plex Sans', 'Source Sans 3', system-ui, sans-serif;
-  --font-display: 'Space Grotesk', 'JetBrains Mono', system-ui, sans-serif;
+  --font-display: 'Tektur', 'IBM Plex Mono', system-ui, sans-serif;
 }
 
 /* Dark mode overrides */
@@ -50,20 +62,28 @@
   --color-surface-sunken: #0c0e13;
   --color-surface-alt: #14171f;
 
-  --color-accent: #22d3ee;
-  --color-accent-light: #67e8f9;
-  --color-accent-dark: #06b6d4;
-  --color-accent-wash: rgba(34, 211, 238, 0.1);
+  /* Primary accent: teal (dark step — 8.1:1 on surface) */
+  --color-accent: #5cbab4;
+  --color-accent-light: #7ed2cc;
+  --color-accent-dark: #3e9c95;
+  --color-accent-wash: rgba(92, 186, 180, 0.1);
+
+  --color-rust: #e98759;
+  --color-rust-light: #f0a37e;
+  --color-rust-wash: rgba(233, 135, 89, 0.1);
+
+  /* Light teal surface needs dark text (8.1:1) not white (2.2:1) */
+  --color-on-accent: #0c0e13;
 
   --color-border: #242836;
   --color-border-strong: #343848;
 
-  --color-accent-green: #5ec992;
-  --color-accent-amber: #e8a838;
-
-  --color-accent-r: 34;
-  --color-accent-g: 211;
-  --color-accent-b: 238;
+  --color-accent-r: 92;
+  --color-accent-g: 186;
+  --color-accent-b: 180;
+  --color-rust-r: 233;
+  --color-rust-g: 135;
+  --color-rust-b: 89;
 }
 
 @layer base {
@@ -86,6 +106,11 @@
     line-height: 1.2;
   }
 
+  /* Main headings are mono; Tektur carries subheadings */
+  h1 {
+    font-family: var(--font-mono);
+  }
+
   a {
     color: var(--color-accent);
     text-decoration: none;
@@ -98,7 +123,7 @@
 
   ::selection {
     background: var(--color-accent);
-    color: var(--color-ink-on-dark);
+    color: var(--color-on-accent);
   }
 }
 
@@ -135,7 +160,8 @@
   }
 }
 
-/* Card hover + tilt (transform fully JS-driven via rAF lerp) */
+/* Card hover + tilt (transform fully JS-driven via rAF lerp).
+   Scoped to content cards only — buttons use plain hover states. */
 .card-glow {
   position: relative;
   transition: box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);

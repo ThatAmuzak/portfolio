@@ -17,7 +17,7 @@ function navHref(item: NavItem) {
   <div class="max-w-[1200px] mx-auto px-6 h-[64px] flex items-center justify-between">
     <a
       href={base}
-      class="font-display text-[18px] font-bold text-ink no-underline hover:text-accent transition-colors tracking-[-0.01em]"
+      class="font-display text-[18px] font-bold text-ink no-underline hover:text-accent transition-colors"
     >
       {site.name || ''}
     </a>
@@ -27,7 +27,11 @@ function navHref(item: NavItem) {
       href="/blogs"
       class="hidden md:inline-flex items-center gap-1.5 text-[15px] text-ink-secondary hover:text-accent transition-colors no-underline font-medium ml-4"
     >
-      <lord-icon src={liSrc('hmpomorl')} trigger="morph" colors={LORD_ICON_COLORS.default} class="li-sm"></lord-icon>
+      <lord-icon
+        src={liSrc('hmpomorl')}
+        trigger="morph"
+        colors={LORD_ICON_COLORS.default}
+        class="li-sm"></lord-icon>
       Blogs
     </a>
 
@@ -41,7 +45,12 @@ function navHref(item: NavItem) {
               class="nav-link inline-flex items-center gap-1.5 text-[15px] text-ink-secondary hover:text-accent transition-colors no-underline font-medium"
             >
               {item.icon && (
-                <lord-icon src={liSrc(item.icon)} trigger="morph" colors={LORD_ICON_COLORS.default} class="li-sm" />
+                <lord-icon
+                  src={liSrc(item.icon)}
+                  trigger="morph"
+                  colors={LORD_ICON_COLORS.default}
+                  class="li-sm"
+                />
               )}
               {item.label}
             </a>
@@ -100,7 +109,12 @@ function navHref(item: NavItem) {
               href="/blogs"
               class="flex items-center gap-2.5 px-6 py-3 text-[17px] text-ink-secondary hover:text-accent transition-colors no-underline"
             >
-              <lord-icon src={liSrc('hmpomorl')} trigger="morph" colors={LORD_ICON_COLORS.default} class="li-md" />
+              <lord-icon
+                src={liSrc('hmpomorl')}
+                trigger="morph"
+                colors={LORD_ICON_COLORS.default}
+                class="li-md"
+              />
               Blogs
             </a>
           </li>

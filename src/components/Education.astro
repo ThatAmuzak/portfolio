@@ -7,30 +7,30 @@ const education = load<Education>('education.yaml');
 const degrees: Degree[] = education.degrees || [];
 ---
 
-<section id="education" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
+<section id="education" class="py-24 md:py-32 px-6 bg-surface-sunken scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
     <SectionHeader label={education.label} heading={education.heading} />
 
     {
       degrees.length > 0 && (
-        <div class="space-y-6">
-          {degrees.map((deg: Degree, i: number) => (
-            <div
-              class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-7 md:p-9`}
-            >
-              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-5">
+        <div>
+          {degrees.map((deg: Degree) => (
+            <div class="reveal py-7 border-b border-border first:pt-0 last:pb-0 last:border-0">
+              <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-4">
                 <div>
                   {deg.degree && (
-                    <h3 class="font-display text-[22px] font-bold text-ink m-0">{deg.degree}</h3>
+                    <h3 class="font-display text-[21px] md:text-[23px] font-bold text-ink m-0">
+                      {deg.degree}
+                    </h3>
                   )}
                   {deg.institution && (
-                    <p class="text-[17px] text-ink-secondary m-0 mt-1">
+                    <p class="text-[16px] text-ink-secondary m-0 mt-1">
                       {deg.url ? (
                         <a
                           href={deg.url}
                           target="_blank"
                           rel="noopener"
-                          class="text-ink-secondary hover:text-accent transition-colors no-underline"
+                          class="text-ink-secondary hover:text-accent transition-colors duration-200 no-underline"
                         >
                           {deg.institution}
                         </a>
@@ -40,7 +40,7 @@ const degrees: Degree[] = education.degrees || [];
                     </p>
                   )}
                 </div>
-                <div class="text-right shrink-0">
+                <div class="sm:text-right shrink-0">
                   {deg.dateRange && (
                     <span class="text-[14px] text-ink-tertiary font-mono block">
                       {deg.dateRange}
@@ -55,20 +55,22 @@ const degrees: Degree[] = education.degrees || [];
               </div>
 
               {deg.highlights && deg.highlights.length > 0 && (
-                <div class="grid sm:grid-cols-2 gap-3">
+                <div class="flex flex-wrap gap-2">
                   {deg.highlights.map((h: DegreeHighlight) => (
                     <div
-                      class={`flex items-center gap-3 p-3.5 rounded-[6px] ${h.featured ? 'bg-accent-wash' : 'bg-surface-sunken'}`}
+                      class={`flex items-center gap-2 px-3 py-1.5 rounded-[6px] ${h.featured ? 'bg-rust-wash' : 'bg-surface-sunken'}`}
                     >
                       {h.icon && (
                         <lord-icon
                           src={liSrc(h.icon)}
                           trigger="morph"
                           colors={LORD_ICON_COLORS.default}
-                          class="li-lg"
+                          class="li-md"
                         />
                       )}
-                      {h.text && <span class="text-[15px] text-ink font-medium">{h.text}</span>}
+                      {h.text && (
+                        <span class="text-[14px] text-ink-secondary font-medium">{h.text}</span>
+                      )}
                     </div>
                   ))}
                 </div>
