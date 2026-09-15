@@ -18,7 +18,7 @@ const site = load<Site>('site.yaml');
 
 <BaseLayout title={site.title || 'Portfolio'} description={site.description || ''}>
   <Navbar />
-  <main>
+  <main id="main">
     <Hero />
     <CanvasToy />
     <About />

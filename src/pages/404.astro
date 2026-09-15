@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Page not found — Rishav Banerjee';
+const description = 'This page could not be found.';
+---
+
+<BaseLayout {title} {description}>
+  <Navbar />
+
+  <main id="main" class="pt-[64px]">
+    <section class="min-h-[calc(100svh-64px)] flex items-center px-6 relative">
+      <div class="hero-ambient" aria-hidden="true"></div>
+      <div class="max-w-[760px] mx-auto text-center relative">
+        <p class="text-[14px] font-mono text-rust tracking-[0.12em] uppercase mb-4">
+          404 // Not found
+        </p>
+        <h1
+          class="font-mono text-[clamp(40px,8vw,64px)] font-bold text-ink tracking-[-0.02em] leading-[1.1] mb-5"
+        >
+          No signal here.
+        </h1>
+        <p class="text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] max-w-[520px] mx-auto mb-10">
+          The page you're looking for doesn't exist — it may have been moved or never built.
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="/"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-accent text-on-accent text-[16px] font-semibold rounded-[8px] no-underline hover:bg-accent-light active:scale-[0.98] transition-[background-color,transform] duration-200"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back home
+          </a>
+          <a
+            href="/blogs"
+            class="inline-flex items-center gap-2 px-6 py-3 text-ink-secondary text-[16px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent active:scale-[0.98] transition-[border-color,color,transform] duration-200"
+          >
+            Read blogs
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

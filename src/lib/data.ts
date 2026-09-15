@@ -28,7 +28,7 @@ export function load<T>(file: string): T {
 
 // Lord Icon color themes
 export const LORD_ICON_COLORS = {
-  default: 'primary:#1A1D23,secondary:#0891B2',
+  default: 'primary:#1A1D23,secondary:#00736f',
   onDark: 'primary:#ffffff,secondary:#ffffff',
 } as const;
 

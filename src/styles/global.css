@@ -121,6 +121,25 @@
     color: var(--color-accent-light);
   }
 
+  /* Keyboard focus ring — accent-tinted, offset so it clears rounded corners */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Headlines never orphan; body copy avoids lone last-word lines */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
   ::selection {
     background: var(--color-accent);
     color: var(--color-on-accent);
@@ -271,6 +290,75 @@ lord-icon.icon-animate {
 
 .copy-bounce {
   animation: copy-bounce 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Surface texture & ambient depth ───────────────────────── */
+
+/* Fixed grain overlay — breaks the digital flatness of pure flat fills.
+   pointer-events-none + fixed so it never affects interaction or layout. */
+.grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hero ambient wash — two tinted radial glows (teal top-left, rust
+   bottom-right) to give the open hero some light and depth. */
+.hero-ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-ambient::before,
+.hero-ambient::after {
+  content: '';
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+}
+
+.hero-ambient::before {
+  top: -30%;
+  left: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: rgb(var(--color-accent-r) var(--color-accent-g) var(--color-accent-b) / 0.1);
+}
+
+.hero-ambient::after {
+  bottom: -40%;
+  right: -15%;
+  width: 45vw;
+  height: 45vw;
+  background: rgb(var(--color-rust-r) var(--color-rust-g) var(--color-rust-b) / 0.07);
+}
+
+/* Skip-to-content — hidden until keyboard-focused */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
 }
 
 /* ── Canvas toy panel ────────────────────────────────────────── */
