@@ -279,9 +279,7 @@ const defaultToy = toys[0];
       backdrop!.style.pointerEvents = 'auto';
       backdrop!.setAttribute('aria-hidden', 'false');
       document.body.classList.add('canvas-toy-open');
-      document.dispatchEvent(
-        new CustomEvent('canvas-toy-panel', { detail: { isOpen: true } }),
-      );
+      document.dispatchEvent(new CustomEvent('canvas-toy-panel', { detail: { isOpen: true } }));
 
       switchToToy(idx);
     }
@@ -295,9 +293,7 @@ const defaultToy = toys[0];
       backdrop!.style.pointerEvents = '';
       backdrop!.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('canvas-toy-open');
-      document.dispatchEvent(
-        new CustomEvent('canvas-toy-panel', { detail: { isOpen: false } }),
-      );
+      document.dispatchEvent(new CustomEvent('canvas-toy-panel', { detail: { isOpen: false } }));
 
       // Stop simulation and header controls
       if (simCleanup) {

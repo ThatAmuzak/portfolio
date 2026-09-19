@@ -182,7 +182,8 @@ function start(canvas: HTMLCanvasElement): () => void {
   // Wind direction state: eases between −1 (leftward) and +1 (rightward).
   let windDir = 1; // eased direction
   let windDirTarget = 1;
-  let nextFlipAt = CFG.flipIntervalMin + Math.random() * (CFG.flipIntervalMax - CFG.flipIntervalMin);
+  let nextFlipAt =
+    CFG.flipIntervalMin + Math.random() * (CFG.flipIntervalMax - CFG.flipIntervalMin);
 
   // Mouse interaction state.
   let leftDown = false;
@@ -288,9 +289,7 @@ function start(canvas: HTMLCanvasElement): () => void {
     if (simTime >= nextFlipAt) {
       windDirTarget = -windDirTarget;
       nextFlipAt =
-        simTime +
-        CFG.flipIntervalMin +
-        Math.random() * (CFG.flipIntervalMax - CFG.flipIntervalMin);
+        simTime + CFG.flipIntervalMin + Math.random() * (CFG.flipIntervalMax - CFG.flipIntervalMin);
     }
     windDir += (windDirTarget - windDir) * Math.min(1, dt * CFG.flipEaseRate);
     const wind =

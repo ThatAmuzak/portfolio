@@ -87,43 +87,57 @@ const hero = load<Hero>('hero.yaml');
       </div>
     </div>
 
-    <!-- Right: the exhibit case — cycles the full collection -->
+    <!-- Right: the exhibit — glazed vitrine, placard label -->
     <div class="case w-full max-w-[480px] justify-self-center lg:justify-self-end">
-      <div class="case-header">
-        <span id="case-title">Exhibit // 001 · Double Pendulum Chaos</span>
-        <span class="ml-auto inline-flex items-center gap-2 text-rust">
-          <span class="live-dot" aria-hidden="true"></span>
-          Live
-        </span>
+      <!-- Vitrine: framed case with a placard-white mat and hairline inner edge -->
+      <div class="case-vitrine">
+        <div class="case-screen aspect-[4/3]">
+          <canvas
+            id="hero-toy-canvas"
+            class="absolute inset-0 w-full h-full"
+            aria-label="Live exhibit case — simulations run automatically"
+            role="img"></canvas>
+          {
+            /* Glass pane: slightly translucent sheet over the case.
+              Slides out halfway when the Interact button is hovered —
+              a vitrine door left ajar, inviting the visitor in. */
+          }
+          <div id="case-glass" class="case-glass" aria-hidden="true"></div>
+          {
+            /* Tap layer: covers the canvas so the toys' own click handlers
+              (pendulum reset, etc.) never fire — a tap always advances to
+              the next exhibit, on desktop and mobile alike. */
+          }
+          <button
+            id="case-tap"
+            type="button"
+            aria-label="Show the next exhibit"
+            class="absolute inset-0 w-full h-full cursor-pointer bg-transparent border-0 p-0 select-none"
+          ></button>
+        </div>
       </div>
-      <div class="case-screen aspect-[4/3]">
-        <canvas
-          id="hero-toy-canvas"
-          class="absolute inset-0 w-full h-full"
-          aria-label="Live exhibit case — simulations run automatically"
-          role="img"
-        ></canvas>
-        {
-          /* Tap layer: covers the canvas so the toys' own click handlers
-            (pendulum reset, etc.) never fire — a tap always advances to
-            the next exhibit, on desktop and mobile alike. */
-        }
-        <button
-          id="case-tap"
-          type="button"
-          aria-label="Show the next exhibit"
-          class="absolute inset-0 w-full h-full cursor-pointer bg-transparent border-0 p-0 select-none"
-        ></button>
-      </div>
-      <div class="case-footer">
+
+      <!-- Placard: detached label card standing in front of the vitrine -->
+      <div class="case-placard">
+        <div class="flex items-start gap-2 mb-2">
+          <span id="case-number" class="exhibit-num select-none">№01</span>
+          <h2
+            id="case-title"
+            class="m-0 font-display text-[19px] font-bold text-ink tracking-[-0.01em] leading-[1.2]"
+          >
+            Boids
+          </h2>
+          <span class="stamp stamp-rust ml-auto self-center select-none" aria-hidden="true"
+            >Touch</span
+          >
+        </div>
         <p
           id="case-caption"
-          class="text-[13px] text-ink-tertiary font-mono leading-relaxed m-0 mb-3 select-none"
+          class="text-[13px] text-ink-tertiary font-mono leading-relaxed m-0 mb-4 select-none"
         >
-          Ten pendulums launched 10<sup>&minus;4</sup> rad apart. Deterministic physics, chaotic
-          divergence.
+          Flocking birds. Three Rules, Emergent Order.
         </p>
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="pt-3 border-t border-border flex flex-wrap items-center gap-3">
           <button
             id="canvas-toy-toggle"
             type="button"
@@ -141,13 +155,10 @@ const hero = load<Hero>('hero.yaml');
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </button>
-          <span class="text-[12px] font-mono text-ink-tertiary select-none">
-            Auto-advances every 15s · tap the case for the next exhibit
-          </span>
         </div>
       </div>
     </div>
@@ -177,26 +188,50 @@ const hero = load<Hero>('hero.yaml');
 
   const AUTO_ADVANCE_MS = 15000;
 
+  /** Proper display names for toys whose ids don't capitalize well. */
+  const NAME_OVERRIDES: Record<string, string> = {
+    'newtons-cradle': "Newton's Cradle",
+    tetris: 'Tetris Solver',
+    'game-of-life': 'Game of Life',
+  };
+
   function startCaseCycler() {
     const canvas = document.getElementById('hero-toy-canvas') as HTMLCanvasElement | null;
+    const numberEl = document.getElementById('case-number');
     const titleEl = document.getElementById('case-title');
     const captionEl = document.getElementById('case-caption');
     const toggleBtn = document.getElementById('canvas-toy-toggle');
     const tapLayer = document.getElementById('case-tap');
     if (!canvas || !titleEl || !captionEl) return;
 
+    // Vitrine door: hovering/focusing the Interact button slides the glass
+    // pane halfway out, inviting the visitor in. Mobile has no button, so
+    // the glass stays closed there (the panel is still reachable). No-op
+    // when the elements are missing or the button is display:none.
+    const vitrine = document.querySelector('.case-vitrine');
+    const glass = document.getElementById('case-glass');
+    if (toggleBtn && vitrine && glass) {
+      const doorOpen = () => vitrine.classList.add('glass-open');
+      const doorClose = () => vitrine.classList.remove('glass-open');
+      toggleBtn.addEventListener('mouseenter', doorOpen);
+      toggleBtn.addEventListener('mouseleave', doorClose);
+      toggleBtn.addEventListener('focus', doorOpen);
+      toggleBtn.addEventListener('blur', doorClose);
+    }
+
     let current = Math.floor(Math.random() * TOYS.length);
     let simCleanup: (() => void) | null = null;
     let timer: ReturnType<typeof setInterval> | null = null;
     let panelOpen = false;
 
-    /** "double-pendulum" → "Double Pendulum" for the placard header. */
+    /** Placard title: overridden name or id words capitalized. */
     function titleFor(i: number): string {
-      const name = TOYS[i].id
+      const toy = TOYS[i];
+      if (NAME_OVERRIDES[toy.id]) return NAME_OVERRIDES[toy.id];
+      return toy.id
         .split('-')
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
-      return `Exhibit // ${String(i + 1).padStart(2, '0')} · ${name}`;
     }
 
     /** One-line preview caption; falls back to tag-stripped footer copy. */
@@ -214,6 +249,7 @@ const hero = load<Hero>('hero.yaml');
         simCleanup = null;
       }
       current = i;
+      if (numberEl) numberEl.textContent = `№${String(i + 1).padStart(2, '0')}`;
       titleEl!.textContent = titleFor(i);
       captionEl!.textContent = captionFor(i);
       if (toggleBtn) toggleBtn.dataset.toyId = TOYS[i].id;

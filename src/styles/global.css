@@ -201,47 +201,85 @@
   border-color: var(--color-rust);
 }
 
-/* Live indicator dot — the one honest pulse on the page */
-.live-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background: var(--color-rust);
-  animation: live-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes live-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.25;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .live-dot {
-    animation: none;
-  }
-}
-
-/* Glass case — framed vitrine for a live exhibit. The interior is the
-   case ground (--color-case-bg) in both modes; code draws only chrome. */
+/* Glass exhibit — wall numbering, glazed vitrine, detached placard.
+   Depth comes from frames and rules, never shadows. The interior is
+   the case ground (--color-case-bg) in both modes; code draws chrome. */
 .case {
   display: flex;
   flex-direction: column;
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 2px;
-  overflow: hidden;
+  gap: 10px;
   /* Concrete ceiling so the open-state collapse can animate. */
   max-height: 200vh;
+  overflow: hidden;
   /* Ease the fade + collapse when the interactive panel takes over. */
   transition:
     opacity 0.45s ease,
     max-width 0.55s ease,
     max-height 0.55s ease;
+}
+
+/* Vitrine frame — placard-white mat around the case ground.
+   The mat is the frame's bevel; the hairline inside .case-screen is
+   the glass edge. Both follow the room (theme) in step. */
+.case-vitrine {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  /* The mat: a quiet gap between frame and glass. */
+  padding: 10px;
+}
+
+/* Glass pane — a slightly translucent sheet over the case interior.
+   Mostly see-through: a faint wash plus one diagonal glare streak so
+   the pane reads as glass without hiding the exhibit. Slides out
+   halfway (door ajar) when the Interact button is hovered. */
+.case-glass {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      112deg,
+      rgba(255, 255, 255, 0.38) 0%,
+      rgba(255, 255, 255, 0.1) 26%,
+      rgba(255, 255, 255, 0.02) 45%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.07) 100%
+    ),
+    rgba(255, 255, 255, 0.06);
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.65s cubic-bezier(0.32, 0.72, 0.25, 1);
+}
+
+/* After-hours: the same sheet, dimmed glass */
+.dark .case-glass {
+  background:
+    linear-gradient(
+      112deg,
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.03) 26%,
+      rgba(255, 255, 255, 0) 45%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.02) 100%
+    ),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.12);
+}
+
+.case-vitrine.glass-open .case-glass {
+  /* Door ajar — the pane slides out of the opening, half still in view,
+     clipped by the case screen so it reads as sliding behind the frame. */
+  transform: translateX(-56%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case-glass {
+    transition: none;
+  }
+  .case-vitrine.glass-open .case-glass {
+    transform: none;
+  }
 }
 
 .case-screen {
@@ -285,22 +323,26 @@
   }
 }
 
-.case-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--color-border);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-ink-secondary);
+/* Placard — detached label card standing in front of the vitrine.
+   Same species as .placard, without the hover rule: labels don't react. */
+.case-placard {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  padding: 14px 16px;
 }
 
-.case-footer {
-  padding: 12px 16px;
-  border-top: 1px solid var(--color-border);
+/* Placard exhibit number — scoped tightening: no spread, hugs the title,
+   top-aligned to its first line (the row uses items-start). */
+#case-number {
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+/* Status stamp on the placard — rust wayfinding chip. */
+.stamp-rust {
+  color: var(--color-rust);
+  border-color: var(--color-rust);
 }
 
 /* Primary CTA — rust, rectangular */
