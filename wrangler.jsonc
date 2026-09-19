@@ -4,5 +4,7 @@
   "name": "portfolio",
   "assets": {
     "directory": "./dist",
+    // Serve dist/404.html (with 404 status) for any path that has no asset.
+    "not_found_handling": "404-page",
   },
 }
