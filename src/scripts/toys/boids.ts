@@ -60,6 +60,7 @@ const CFG = {
 
 export const boidsToy: CanvasToy = {
   id: 'boids',
+  previewText: 'Flocking birds.  Three Rules, Emergent Order.',
   headerHtml: '&#x1f5b1;&#xfe0f; left-click to attract &nbsp;&middot;&nbsp; right-click to repel',
   footerHtml:
     '<strong class="text-ink-secondary">Boids</strong> &mdash; each triangle follows three simple rules: steer toward neighbours, match their direction, and keep their distance. Together they form lifelike flocks.',
@@ -144,8 +145,8 @@ function start(canvas: HTMLCanvasElement): () => void {
     H = rect.height;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
+    // Display size stays CSS-driven (inset-0 w-full h-full) so the canvas
+    // always fits its container; only the bitmap is sized here.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     // Re-spawn boids if dimensions are sensible

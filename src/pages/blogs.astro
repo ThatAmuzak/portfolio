@@ -12,11 +12,9 @@ const posts = allPosts.sort(
 
 interface PostWithMeta {
   post: CollectionEntry<'blogs'>;
-  delay: number;
 }
-const postsWithMeta: PostWithMeta[] = posts.map((post: CollectionEntry<'blogs'>, i: number) => ({
+const postsWithMeta: PostWithMeta[] = posts.map((post: CollectionEntry<'blogs'>) => ({
   post,
-  delay: (i % 3) + 1,
 }));
 
 const title = 'Blogs — Rishav Banerjee';
@@ -30,12 +28,15 @@ const description = 'Articles on HCI, VR, robotics, and software development by 
     <section class="py-24 md:py-32 px-6">
       <div class="max-w-[760px] mx-auto">
         <!-- Header -->
-        <div class="reveal mb-16">
-          <p class="text-[14px] font-mono text-rust tracking-[0.12em] uppercase mb-3">
-            // Articles
-          </p>
+        <div class="mb-16">
+          <div class="flex items-center gap-4 mb-3">
+            <p class="text-[13px] font-mono text-rust tracking-[0.18em] uppercase m-0 shrink-0">
+              // Articles
+            </p>
+            <span class="flex-1 h-px bg-border" aria-hidden="true"></span>
+          </div>
           <h1
-            class="font-mono text-[30px] md:text-[40px] font-bold text-ink tracking-[-0.02em] leading-[1.15]"
+            class="font-display text-[30px] md:text-[40px] font-bold text-ink tracking-[-0.01em] leading-[1.15]"
           >
             Blogs
           </h1>
@@ -47,16 +48,23 @@ const description = 'Articles on HCI, VR, robotics, and software development by 
         <!-- Post list -->
         {
           posts.length === 0 ? (
-            <div class="reveal delay-1 text-center py-16">
-              <p class="text-ink-tertiary text-[17px]">No posts yet. Check back soon!</p>
+            <div class="text-center py-16">
+              <div class="inline-block placard px-8 py-8 max-w-[420px]">
+                <p class="text-[13px] font-mono text-rust tracking-[0.18em] uppercase m-0 mb-3">
+                  Gallery being hung
+                </p>
+                <p class="text-[17px] text-ink-secondary m-0 leading-[1.7]">
+                  No posts on this wall yet. The first exhibit goes up soon — check back.
+                </p>
+              </div>
             </div>
           ) : (
             <div class="space-y-8">
               {postsWithMeta.map((item) => (
-                <article class={`reveal delay-${item.delay}`}>
+                <article>
                   <a
                     href={`/blogs/${item.post.id}`}
-                    class="block group p-6 -mx-6 rounded-xl hover:bg-surface-raised transition-colors duration-200 no-underline"
+                    class="block group p-6 -mx-6 hover:bg-surface-raised transition-colors duration-200 no-underline"
                   >
                     <div class="flex items-center gap-3 mb-2">
                       <time
@@ -72,7 +80,7 @@ const description = 'Articles on HCI, VR, robotics, and software development by 
                       {item.post.data.tags && item.post.data.tags.length > 0 && (
                         <span class="flex items-center gap-1.5">
                           {item.post.data.tags.slice(0, 3).map((tag: string) => (
-                            <span class="text-[12px] font-mono px-2 py-0.5 rounded-full bg-surface-sunken text-ink-tertiary border border-border">
+                            <span class="text-[12px] font-mono px-2 py-0.5 rounded-[2px] bg-surface-sunken text-ink-tertiary border border-border">
                               {tag}
                             </span>
                           ))}

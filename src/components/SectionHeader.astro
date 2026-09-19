@@ -16,13 +16,16 @@ const {
 
 {
   (label || heading) && (
-    <div class="reveal">
+    <div class={headingMb}>
       {label && (
-        <p class="text-[14px] font-mono text-rust tracking-[0.12em] uppercase mb-3">{label}</p>
+        <div class="flex items-center gap-4 mb-3">
+          <p class="text-[13px] font-mono text-rust tracking-[0.18em] uppercase m-0 shrink-0">
+            {label}
+          </p>
+          <span class="flex-1 h-px bg-border" aria-hidden="true"></span>
+        </div>
       )}
-      {heading && (
-        <h2 class={`font-display ${headingSize} font-bold text-ink ${headingMb}`}>{heading}</h2>
-      )}
+      {heading && <h2 class={`font-display ${headingSize} font-bold text-ink m-0`}>{heading}</h2>}
     </div>
   )
 }

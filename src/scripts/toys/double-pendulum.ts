@@ -40,9 +40,11 @@ const CFG = {
   count: 10,
   /** Offset in θ₁ between consecutive pendulums (radians). */
   angleOffset: 1e-4,
-  /** Base initial θ₁ for the first pendulum (radians).
-   *  Picked randomly between angleMin and angleMax on each reset. */
-  angleMin: 0.8,
+  /** Base initial θ₁/θ₂ for the first pendulum (radians).
+   *  Picked randomly between angleMin and angleMax on each reset.
+   *  angleMin is ≥ π/2 so every launch starts past horizontal,
+   *  guaranteeing high-energy (chaotic) motion from the first swing. */
+  angleMin: 1.6,
   angleMax: 2.6,
   /** Rod 1 length as fraction of the smaller canvas dimension. */
   len1Frac: 0.25,
@@ -300,6 +302,7 @@ function rgbaStr(c: Rgba): string {
 
 export const doublePendulumToy: CanvasToy = {
   id: 'double-pendulum',
+  previewText: 'Ten Pendulums, Sub Millimeter Apart.',
   headerHtml: '&#x1F500; click to reset &nbsp;&middot;&nbsp; watch chaos unfold',
   footerHtml:
     '<strong class="text-ink-secondary">Double Pendulum Chaos</strong> &mdash; 10 pendulums launched with a 10<sup>&minus;4</sup>&nbsp;rad offset. Deterministic physics, unpredictable divergence.',
@@ -327,7 +330,7 @@ function start(canvas: HTMLCanvasElement): () => void {
   let running = true;
 
   // Surface background RGB (for trail-fade rect).
-  let surfBg: { r: number; g: number; b: number } = { r: 16, g: 18, b: 24 };
+  let surfBg: { r: number; g: number; b: number } = { r: 22, g: 25, b: 35 };
 
   // Pre-computed colour palette (rebuilt on theme change / resize).
   let palette: Rgba[] = [];
@@ -341,8 +344,23 @@ function start(canvas: HTMLCanvasElement): () => void {
   // ── theme-aware background colour ─────────────────────────────────────────
 
   function readSurfBg() {
-    const isDark = document.documentElement.classList.contains('dark');
-    surfBg = isDark ? { r: 16, g: 18, b: 24 } : { r: 250, g: 251, b: 252 };
+    // The exhibit glass case (--color-case-bg) is the canvas ground in both
+    // themes, so read it from the stylesheet instead of hard-coding a theme
+    // branch. Falls back to the old surface colors when the var is absent.
+    const raw = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-case-bg')
+      .trim();
+    const m = /^#([0-9a-f]{6})$/i.exec(raw);
+    if (m) {
+      surfBg = {
+        r: parseInt(m[1].slice(0, 2), 16),
+        g: parseInt(m[1].slice(2, 4), 16),
+        b: parseInt(m[1].slice(4, 6), 16),
+      };
+    } else {
+      const isDark = document.documentElement.classList.contains('dark');
+      surfBg = isDark ? { r: 16, g: 18, b: 24 } : { r: 250, g: 251, b: 252 };
+    }
   }
 
   // ── palette ───────────────────────────────────────────────────────────────
@@ -380,8 +398,8 @@ function start(canvas: HTMLCanvasElement): () => void {
     H = rect.height;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
+    // Display size stays CSS-driven (inset-0 w-full h-full) so the canvas
+    // always fits its container; only the bitmap is sized here.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     // Rod lengths scale with the smaller dimension.
@@ -401,6 +419,18 @@ function start(canvas: HTMLCanvasElement): () => void {
 
     if (pendulums.length === 0) resetPendulums();
   }
+
+  // Re-read case/palette colours when the theme flips (class on <html>).
+  const themeObserver = new MutationObserver(() => {
+    readSurfBg();
+    rebuildPalette();
+    // Clear so trails painted with the other theme's ground don't linger.
+    ctx.clearRect(0, 0, W, H);
+  });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
 
   // ── physics update ────────────────────────────────────────────────────────
 
@@ -430,8 +460,9 @@ function start(canvas: HTMLCanvasElement): () => void {
     ctx.fillStyle = `rgba(${surfBg.r},${surfBg.g},${surfBg.b},${CFG.trailAlpha})`;
     ctx.fillRect(0, 0, W, H);
 
-    // 2. Draw pivot.
-    ctx.fillStyle = 'var(--color-ink-tertiary)';
+    // 2. Draw pivot — visible against either case ground.
+    const isDarkCase = document.documentElement.classList.contains('dark');
+    ctx.fillStyle = isDarkCase ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)';
     ctx.beginPath();
     ctx.arc(px, py, CFG.pivotRadius, 0, Math.PI * 2);
     ctx.fill();
@@ -522,5 +553,6 @@ function start(canvas: HTMLCanvasElement): () => void {
     canvas.removeEventListener('click', onClick);
     canvas.removeEventListener('contextmenu', (_e) => {});
     window.removeEventListener('resize', onResize);
+    themeObserver.disconnect();
   };
 }

@@ -26,6 +26,9 @@ const CFG = {
   gravityScale: 16,
   /** Max lift angle when dragging (rad). ~75°. */
   maxLift: (75 * Math.PI) / 180,
+  /** Start angle for the leftmost ball (rad, ~60°) — the sim always begins
+   *  with this ball raised, so the impulse chain is already under way. */
+  startLift: (60 * Math.PI) / 180,
   /** Middle-ball mass when the heavy toggle is on (× normal). */
   heavyMass: 6,
   /** Substeps per fixed frame — prevents fast balls tunnelling. */
@@ -178,6 +181,7 @@ function renderHeaderControls(container: HTMLElement): () => void {
 
 export const newtonsCradleToy: CanvasToy = {
   id: 'newtons-cradle',
+  previewText: 'Momentum Conserved, Click by Click.',
   headerHtml:
     '&#x1F18A; drag the end ball &nbsp;&middot;&nbsp; release to swing &nbsp;&middot;&nbsp; <kbd>R</kbd> reset &nbsp;&middot;&nbsp; <kbd>Space</kbd> pause',
   footerHtml:
@@ -240,8 +244,10 @@ function start(canvas: HTMLCanvasElement): () => void {
   function reset() {
     balls = [];
     for (let i = 0; i < CFG.count; i++) {
+      // Leftmost ball starts raised at CFG.startLift (negative θ = lifted to
+      // the left) so the simulation is active from the first frame.
       balls.push({
-        theta: 0,
+        theta: i === 0 ? -CFG.startLift : 0,
         omega: 0,
         mass: i === Math.floor(CFG.count / 2) && ncHeavyOn ? CFG.heavyMass : 1,
       });
@@ -269,8 +275,8 @@ function start(canvas: HTMLCanvasElement): () => void {
     H = rect.height;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
+    // Display size stays CSS-driven (inset-0 w-full h-full) so the canvas
+    // always fits its container; only the bitmap is sized here.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const dim = Math.min(W, H);
@@ -432,7 +438,9 @@ function start(canvas: HTMLCanvasElement): () => void {
   function grabIndex(x: number, y: number): number {
     const grabR = r * CFG.grabRadiusMul;
     const grabR2 = grabR * grabR;
-    for (let i = 0; i < CFG.count; i++) {
+    // Only the two outer balls are grabbable.
+    const grabbable = [0, CFG.count - 1];
+    for (const i of grabbable) {
       const dx = x - posX(i);
       const dy = y - posY(i);
       if (dx * dx + dy * dy <= grabR2) return i;

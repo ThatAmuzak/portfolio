@@ -1,8 +1,10 @@
 /**
  * Portfolio v2 — Client-side runtime
  *
- * Handles: scroll reveals, dark mode toggle, Lord Icon system, card tilt,
- * smooth scrolling.
+ * Handles: dark mode toggle, smooth scrolling, navbar behavior.
+ * Deliberately NOT handled here (design decisions): scroll reveals
+ * (content is visible by default), card tilt (removed with card glow),
+ * Lord icon pulse animations (icons render static).
  * Loaded via <script defer> from BaseLayout — DOM is already parsed by the
  * time this runs, so we can kick off immediately.
  */
@@ -34,25 +36,6 @@ function scrollToTarget(target) {
 }
 
 (function () {
-  //────────────────────────────────────────────────────────────────────────────
-  // Scroll reveal observer — runs immediately (DOM is ready when defer fires)
-  //────────────────────────────────────────────────────────────────────────────
-  var revealEls = document.querySelectorAll('.reveal');
-  if (revealEls.length) {
-    var revealObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) entry.target.classList.add('visible');
-        });
-      },
-      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' },
-    );
-
-    for (var r = 0; r < revealEls.length; r++) {
-      revealObserver.observe(revealEls[r]);
-    }
-  }
-
   //────────────────────────────────────────────────────────────────────────────
   // Dark mode helpers
   //────────────────────────────────────────────────────────────────────────────
@@ -106,170 +89,31 @@ function scrollToTarget(target) {
   });
 
   //────────────────────────────────────────────────────────────────────────────
-  // Lord Icon animation system
+  // Lord Icon theme colors — icons ship SSR'd with light-theme colors;
+  // re-tint once on load so dark mode doesn't render them faded, and
+  // again on every theme change (setTheme above).
   //────────────────────────────────────────────────────────────────────────────
-  function playIcon(icon) {
-    if (icon.playerInstance) {
-      icon.playerInstance.playFromBeginning();
-      icon.classList.remove('icon-animate');
-      void icon.offsetWidth;
-      icon.classList.add('icon-animate');
-    }
+  function applyIconColorsWhenReady() {
+    updateIconColors(getIconColors());
   }
 
-  var readyIcons = new Set();
-
-  function onIconReady(icon, callback) {
-    if (icon.playerInstance) {
-      readyIcons.add(icon);
-      callback();
-    } else {
-      icon.addEventListener('ready', function () {
-        readyIcons.add(icon);
-        callback();
-      });
-    }
+  var colorsApplied = false;
+  function applyIconColorsOnce() {
+    if (colorsApplied) return;
+    colorsApplied = true;
+    applyIconColorsWhenReady();
   }
 
-  var INTERACTIVE_PARENTS =
-    'a, button, .card-glow, .bg-surface-raised, .bg-surface-sunken, .bg-accent-wash, #email-row, [class*="rounded-[6px]"]';
-
-  function setupIcons() {
-    var allIcons = document.querySelectorAll('lord-icon');
-
-    updateIconColors();
-
-    for (var i = 0; i < allIcons.length; i++) {
-      (function (icon) {
-        onIconReady(icon, function () {
-          var parent = icon.closest(INTERACTIVE_PARENTS);
-          if (parent && ['SECTION', 'NAV', 'FOOTER'].indexOf(parent.tagName) === -1) {
-            parent.addEventListener('mouseenter', function () {
-              playIcon(icon);
-            });
-          }
-        });
-      })(allIcons[i]);
+  if (window.customElements) {
+    try {
+      customElements.whenDefined('lord-icon').then(applyIconColorsOnce);
+    } catch (_) {
+      applyIconColorsOnce();
     }
-
-    var iconRevealObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            var icon = entry.target;
-            if (readyIcons.has(icon)) {
-              playIcon(icon);
-            } else {
-              onIconReady(icon, function () {
-                playIcon(icon);
-              });
-            }
-          }
-        });
-      },
-      { threshold: 0.3 },
-    );
-
-    for (var j = 0; j < allIcons.length; j++) {
-      iconRevealObserver.observe(allIcons[j]);
-    }
-  }
-
-  //────────────────────────────────────────────────────────────────────────────
-  // Card tilt effect (Balatro-style) — smooth lerp via rAF loop
-  //────────────────────────────────────────────────────────────────────────────
-  function initCardTilt() {
-    var cards = document.querySelectorAll('.card-glow:not([data-tilt-bound])');
-    var MAX_TILT = 8;
-    var LERP = 0.16;
-    var BUFFER = 10; // px beyond card edge before tilt resets
-
-    for (var c = 0; c < cards.length; c++) {
-      (function (card) {
-        var el = card;
-        el.setAttribute('data-tilt-bound', '');
-
-        var targetX = 0,
-          targetY = 0;
-        var currentX = 0,
-          currentY = 0;
-        var active = false;
-        var rafId = null;
-        var docMoveBound = null;
-
-        function loop() {
-          currentX += (targetX - currentX) * LERP;
-          currentY += (targetY - currentY) * LERP;
-
-          if (active || Math.abs(currentX) > 0.03 || Math.abs(currentY) > 0.03) {
-            var lift = active ? 'translateY(-4px) ' : '';
-            el.style.transform =
-              'perspective(800px) ' +
-              lift +
-              'rotateX(' +
-              currentX +
-              'deg) rotateY(' +
-              currentY +
-              'deg)';
-            rafId = requestAnimationFrame(loop);
-          } else {
-            el.style.transform = '';
-            rafId = null;
-          }
-        }
-
-        function deactivate() {
-          active = false;
-          targetX = 0;
-          targetY = 0;
-          if (docMoveBound) {
-            document.removeEventListener('mousemove', docMoveBound);
-            docMoveBound = null;
-          }
-        }
-
-        function isInsideBuffer(e) {
-          var rect = el.getBoundingClientRect();
-          return (
-            e.clientX >= rect.left - BUFFER &&
-            e.clientX <= rect.right + BUFFER &&
-            e.clientY >= rect.top - BUFFER &&
-            e.clientY <= rect.bottom + BUFFER
-          );
-        }
-
-        function setTarget(e) {
-          var rect = el.getBoundingClientRect();
-          targetX = ((rect.height / 2 - (e.clientY - rect.top)) / (rect.height / 2)) * MAX_TILT;
-          targetY = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * MAX_TILT;
-        }
-
-        el.addEventListener('mouseenter', function (e) {
-          active = true;
-          setTarget(e);
-          if (!rafId) rafId = requestAnimationFrame(loop);
-
-          // Track mouse globally so we can detect when it leaves the buffer zone
-          if (!docMoveBound) {
-            docMoveBound = function (e) {
-              if (!isInsideBuffer(e)) {
-                deactivate();
-              }
-            };
-            document.addEventListener('mousemove', docMoveBound);
-          }
-        });
-
-        el.addEventListener('mousemove', setTarget);
-
-        // Fallback: if the card is removed from DOM or scrolled away,
-        // the document listener will still catch the exit
-        el.addEventListener('mouseleave', function () {
-          // Don't reset immediately — let the buffer check handle it.
-          // If the mouse truly left the area, docMoveBound will deactivate.
-        });
-      })(cards[c]);
-    }
+    // Safety net if the CDN is blocked or whenDefined stalls
+    setTimeout(applyIconColorsOnce, 3000);
+  } else {
+    applyIconColorsOnce();
   }
 
   //────────────────────────────────────────────────────────────────────────────
@@ -435,34 +279,6 @@ function scrollToTarget(target) {
   }
 
   //────────────────────────────────────────────────────────────────────────────
-  // Bootstrap — run immediately (DOM is ready), icons wait for <lord-icon>
+  // Bootstrap
   //────────────────────────────────────────────────────────────────────────────
-  initCardTilt();
-
-  // Wait for Lord Icon custom element to be defined, with a generous fallback.
-  // customElements.whenDefined is more reliable than a magic setTimeout.
-  if (window.customElements) {
-    var FALLBACK_MS = 3000;
-    var started = false;
-
-    function trySetupIcons() {
-      if (started) return;
-      started = true;
-      setupIcons();
-    }
-
-    try {
-      customElements.whenDefined('lord-icon').then(trySetupIcons);
-    } catch (_) {
-      trySetupIcons();
-    }
-
-    // Safety net: if whenDefined never resolves (e.g. CDN blocked), fire anyway
-    setTimeout(function () {
-      trySetupIcons();
-    }, FALLBACK_MS);
-  } else {
-    // No customElements support — fire immediately, onIconReady handles the rest
-    setupIcons();
-  }
 })();

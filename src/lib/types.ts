@@ -192,6 +192,12 @@ export interface CanvasToy {
   /** HTML string for the footer bar (title + explanation) */
   footerHtml: string;
   /**
+   * Optional one-line preview caption for the hero exhibit case.
+   * Short by design — the case is a preview, not the full explanation.
+   * Falls back to the toy's footerHtml (tag-stripped) when absent.
+   */
+  previewText?: string;
+  /**
    * Attach the simulation to a <canvas> element.
    * Returns a cleanup function (call to stop & detach).
    */

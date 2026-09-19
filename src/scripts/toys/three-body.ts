@@ -20,10 +20,12 @@ const CFG = {
   /** Newton's gravitational constant (unitless figure-8 units, G = 1). */
   G: 1,
   /** Simulated world-time (in figure-8 units) advanced per real second.
-   *  The figure-8 period is ≈6.33 units, so one orbit ≈ 10.5 s. */
-  timeScale: 0.6,
+   *  The figure-8 period is ≈6.33 units; timeScale 0.9 → one orbit ≈ 7 s.
+   *  Speeding up via timeScale doesn't break the choreography — it only
+   *  increases RK4 step size, covered by the extra substep. */
+  timeScale: 0.9,
   /** RK4 substeps per 60-fps frame. dt = (timeScale/60)/substeps. */
-  substeps: 2,
+  substeps: 3,
   /** Alpha of the per-frame background fill — lower = longer trails. */
   trailAlpha: 0.025,
   /** World-size of the initial figure-8 bounded to the smaller canvas dim. */
@@ -244,8 +246,9 @@ function buildHeaderControls(container: HTMLElement): () => void {
 
 export const threeBodyToy: CanvasToy = {
   id: 'three-body',
+  previewText: 'Orbits of Bodies in Harmony.',
   headerHtml:
-    '&#x1f319;&#xfe0f; drop in planets &nbsp;&middot;&nbsp; <kbd>A</kbd> add &nbsp;&middot;&nbsp; <kbd>Space</kbd> pause &nbsp;&middot;&nbsp; <kbd>R</kbd> reset',
+    '&#x1f319;&#xfe0f; click to drop a planet &nbsp;&middot;&nbsp; <kbd>A</kbd> add &nbsp;&middot;&nbsp; <kbd>Space</kbd> pause &nbsp;&middot;&nbsp; <kbd>R</kbd> reset',
   footerHtml:
     '<strong class="text-ink-secondary">Three-Body Problem</strong> &mdash; three equal masses obediently trace the famous figure-8. Drop a planet in &mdash; it arrives on a circular orbit around the system&rsquo;s combined mass, until mutual gravity scrambles it. There is no closed-form solution, only the dance of mutual gravity.',
   start,
@@ -271,6 +274,8 @@ function start(canvas: HTMLCanvasElement): () => void {
 
   let surfBg: { r: number; g: number; b: number } = { r: 16, g: 18, b: 24 };
   let palette: Rgba[] = [];
+  /** Concrete ink-tertiary colour (canvas can't parse CSS var() strings). */
+  let inkTertiary = '#7c8492';
 
   let animId: number | null = null;
   let lastTime = 0;
@@ -280,8 +285,33 @@ function start(canvas: HTMLCanvasElement): () => void {
   // ── theme-aware background ────────────────────────────────────────────────
 
   function readSurfBg() {
-    const isDark = document.documentElement.classList.contains('dark');
-    surfBg = isDark ? { r: 16, g: 18, b: 24 } : { r: 250, g: 251, b: 252 };
+    // The exhibit glass case (--color-case-bg) is the canvas ground; it is
+    // theme-aware, so read it from the stylesheet. Falls back per theme.
+    const raw = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-case-bg')
+      .trim();
+    const m = /^#([0-9a-f]{6})$/i.exec(raw);
+    if (m) {
+      surfBg = {
+        r: parseInt(m[1].slice(0, 2), 16),
+        g: parseInt(m[1].slice(2, 4), 16),
+        b: parseInt(m[1].slice(4, 6), 16),
+      };
+    } else {
+      const isDark = document.documentElement.classList.contains('dark');
+      surfBg = isDark ? { r: 22, g: 25, b: 35 } : { r: 232, g: 236, b: 241 };
+    }
+    const inkRaw = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-ink-tertiary')
+      .trim();
+    if (/^#[0-9a-f]{6}$/i.test(inkRaw)) inkTertiary = inkRaw;
+  }
+
+  /** Paint the ground fully opaque — the canvas never bleeds the CSS case
+   *  background through, so trails always sit on a stable base colour. */
+  function fillGround() {
+    ctx.fillStyle = `rgb(${surfBg.r},${surfBg.g},${surfBg.b})`;
+    ctx.fillRect(0, 0, W, H);
   }
 
   // ── palette ───────────────────────────────────────────────────────────────
@@ -366,8 +396,8 @@ function start(canvas: HTMLCanvasElement): () => void {
     H = rect.height;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
+    // Display size stays CSS-driven (inset-0 w-full h-full) so the canvas
+    // always fits its container; only the bitmap is sized here.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     cx = W / 2;
@@ -378,7 +408,22 @@ function start(canvas: HTMLCanvasElement): () => void {
     rebuildPalette();
 
     if (bodies.length === 0) resetBodies();
+
+    // Assigning canvas.width above wiped the bitmap — repaint the ground.
+    fillGround();
   }
+
+  // Re-read case/palette colours when the theme flips (class on <html>).
+  const themeObserver = new MutationObserver(() => {
+    readSurfBg();
+    rebuildPalette();
+    // Repaint the ground so trails from the other theme don't linger.
+    fillGround();
+  });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
 
   // ── physics (RK4) ─────────────────────────────────────────────────────────
 
@@ -465,7 +510,7 @@ function start(canvas: HTMLCanvasElement): () => void {
     if (threeResetRequested) {
       threeResetRequested = false;
       resetBodies();
-      ctx.clearRect(0, 0, W, H);
+      fillGround();
     }
     if (threeAddRequested) {
       threeAddRequested = false;
@@ -508,7 +553,7 @@ function start(canvas: HTMLCanvasElement): () => void {
     const comPy = cy - com.y * scale;
 
     // Centre-of-mass marker (a tiny educational dot).
-    ctx.fillStyle = 'var(--color-ink-tertiary)';
+    ctx.fillStyle = inkTertiary;
     ctx.beginPath();
     ctx.arc(comPx, comPy, 2, 0, Math.PI * 2);
     ctx.fill();
@@ -525,7 +570,8 @@ function start(canvas: HTMLCanvasElement): () => void {
       ctx.arc(px, py, radius, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      const isDarkCase = document.documentElement.classList.contains('dark');
+      ctx.strokeStyle = isDarkCase ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.18)';
       ctx.lineWidth = 1;
       ctx.stroke();
     }
@@ -570,15 +616,22 @@ function start(canvas: HTMLCanvasElement): () => void {
     resize();
   }
 
+  function onClick(e: MouseEvent) {
+    e.preventDefault();
+    // Any click on the canvas drops a planet (same as the + button / A key).
+    if (e.button === 0) threeAddRequested = true;
+  }
+
   // ── attach ───────────────────────────────────────────────────────────────
 
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  canvas.addEventListener('click', onClick);
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('resize', onResize);
 
   resize();
   resetBodies();
-  ctx.clearRect(0, 0, W, H);
+  fillGround();
   animId = requestAnimationFrame(loop);
 
   // ── cleanup ──────────────────────────────────────────────────────────────
@@ -587,8 +640,10 @@ function start(canvas: HTMLCanvasElement): () => void {
     running = false;
     if (animId) cancelAnimationFrame(animId);
     canvas.removeEventListener('contextmenu', (_e) => {});
+    canvas.removeEventListener('click', onClick);
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('resize', onResize);
+    themeObserver.disconnect();
     // Reset module flags so a fresh session starts clean.
     threeResetRequested = false;
     threeAddRequested = false;

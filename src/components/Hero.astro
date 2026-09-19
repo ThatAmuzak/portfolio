@@ -1,58 +1,139 @@
 ---
-import { load, LORD_ICON_COLORS, liSrc } from '../lib/data';
+/**
+ * Hero.astro — the exhibit entrance.
+ *
+ * Left: curatorial line, wall title, caption, CTA hierarchy
+ * (primary rust = resume). Right: a glass case that cycles the
+ * full toy collection — a random exhibit on load, auto-advance
+ * every 15s, tap the case for the next exhibit (desktop + mobile).
+ * "Interact with this exhibit" (desktop) opens the full CanvasToy
+ * panel pre-loaded with the toy the case is currently showing.
+ *
+ * NOTE: the toy list here is duplicated in CanvasToy.astro's script
+ * (SSR there, client here). Keep both in sync when adding toys.
+ */
+import { load } from '../lib/data';
 import type { Hero } from '../lib/types';
 
 const hero = load<Hero>('hero.yaml');
 ---
 
-<section class="relative min-h-svh flex items-center px-5 md:px-6 pt-20 pb-8 md:pb-16 bg-surface">
-  <div class="hero-ambient" aria-hidden="true"></div>
+<section class="relative min-h-svh flex items-center px-5 md:px-6 pt-24 pb-10 md:pb-16 bg-surface">
   <div
     id="hero-content"
-    class="max-w-[760px] mx-auto md:mx-0 md:ml-[max(calc((100%-960px)/2),1.5rem)]"
+    class="max-w-[1100px] mx-auto w-full grid items-center gap-10 lg:gap-14 lg:grid-cols-[1.05fr_0.95fr]"
   >
-    {
-      hero.subtitle && (
-        <div class="reveal">
-          <p class="text-[13px] md:text-[15px] font-mono text-rust tracking-[0.12em] uppercase mb-4 md:mb-5">
+    <!-- Left: wall text -->
+    <div>
+      {
+        hero.subtitle && (
+          <p class="text-[13px] md:text-[14px] font-mono text-rust tracking-[0.18em] uppercase mb-4 md:mb-5">
             {hero.subtitle}
           </p>
-        </div>
-      )
-    }
-    {
-      hero.name && (
-        <div class="reveal delay-1 flex items-center gap-4 mb-5 md:mb-7">
-          {hero.icon && (
-            <lord-icon
-              src={liSrc(hero.icon)}
-              trigger="morph"
-              colors={LORD_ICON_COLORS.default}
-              class="li-hero hidden md:block"
-            />
-          )}
-          <h1 class="font-display text-[38px] sm:text-[46px] md:text-[60px] lg:text-[72px] font-bold text-ink leading-[1.05] tracking-[-0.01em] m-0 break-words">
+        )
+      }
+      {
+        hero.name && (
+          <h1 class="font-display text-[42px] sm:text-[52px] md:text-[64px] xl:text-[72px] font-bold text-ink leading-[1.05] tracking-[-0.01em] m-0 mb-5 md:mb-6 break-words">
             {hero.name}
           </h1>
-        </div>
-      )
-    }
-    {
-      hero.description && (
-        <p class="reveal delay-2 text-[17px] md:text-[20px] text-ink-secondary leading-[1.7] mb-8 md:mb-10 max-w-[580px]">
-          {hero.description}
-        </p>
-      )
-    }
-    <div id="hero-ctas" class="reveal delay-3 flex flex-wrap items-center gap-4">
+        )
+      }
       {
-        hero.cta?.resume && (
-          <a
-            href={hero.cta.resume.href}
-            class="inline-flex items-center gap-3 px-7 py-4 bg-accent text-on-accent text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline hover:bg-accent-light active:scale-[0.98] transition-[background-color,transform] duration-200"
+        hero.description && (
+          <p class="text-[17px] md:text-[19px] text-ink-secondary leading-[1.7] mb-8 md:mb-10 max-w-[540px]">
+            {hero.description}
+          </p>
+        )
+      }
+      <div id="hero-ctas" class="flex flex-wrap items-center gap-4">
+        {
+          hero.cta?.resume && (
+            <a href={hero.cta.resume.href} class="btn-primary no-underline">
+              <svg
+                class="w-[20px] h-[20px] shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              {hero.cta.resume.label}
+            </a>
+          )
+        }
+        {
+          hero.cta?.blogs && (
+            <a href={hero.cta.blogs.href} class="btn-outline no-underline">
+              {hero.cta.blogs.label}
+            </a>
+          )
+        }
+        {
+          hero.cta?.connect && (
+            <a
+              href={hero.cta.connect.href}
+              class="text-[16px] font-medium text-ink-secondary hover:text-accent transition-colors no-underline underline-offset-4 hover:underline"
+            >
+              {hero.cta.connect.label}
+            </a>
+          )
+        }
+      </div>
+    </div>
+
+    <!-- Right: the exhibit case — cycles the full collection -->
+    <div class="case w-full max-w-[480px] justify-self-center lg:justify-self-end">
+      <div class="case-header">
+        <span id="case-title">Exhibit // 001 · Double Pendulum Chaos</span>
+        <span class="ml-auto inline-flex items-center gap-2 text-rust">
+          <span class="live-dot" aria-hidden="true"></span>
+          Live
+        </span>
+      </div>
+      <div class="case-screen aspect-[4/3]">
+        <canvas
+          id="hero-toy-canvas"
+          class="absolute inset-0 w-full h-full"
+          aria-label="Live exhibit case — simulations run automatically"
+          role="img"
+        ></canvas>
+        {
+          /* Tap layer: covers the canvas so the toys' own click handlers
+            (pendulum reset, etc.) never fire — a tap always advances to
+            the next exhibit, on desktop and mobile alike. */
+        }
+        <button
+          id="case-tap"
+          type="button"
+          aria-label="Show the next exhibit"
+          class="absolute inset-0 w-full h-full cursor-pointer bg-transparent border-0 p-0 select-none"
+        ></button>
+      </div>
+      <div class="case-footer">
+        <p
+          id="case-caption"
+          class="text-[13px] text-ink-tertiary font-mono leading-relaxed m-0 mb-3 select-none"
+        >
+          Ten pendulums launched 10<sup>&minus;4</sup> rad apart. Deterministic physics, chaotic
+          divergence.
+        </p>
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            id="canvas-toy-toggle"
+            type="button"
+            aria-label="Open the interactive exhibits panel"
+            class="hidden md:inline-flex items-center gap-2 px-4 py-2.5 text-[14px] font-mono font-medium text-rust hover:text-ink transition-colors cursor-pointer bg-surface-sunken hover:bg-rust-wash border border-border hover:border-rust rounded-[2px]"
           >
+            Interact with this exhibit
             <svg
-              class="w-[22px] h-[22px] shrink-0"
+              width="14"
+              height="14"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -60,74 +141,134 @@ const hero = load<Hero>('hero.yaml');
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
             </svg>
-            {hero.cta.resume.label}
-          </a>
-        )
-      }
-      {
-        hero.cta?.blogs && (
-          <a
-            href={hero.cta.blogs.href}
-            class="inline-flex items-center gap-3 px-7 py-4 text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent active:scale-[0.98] transition-[border-color,color,transform] duration-200"
-          >
-            {hero.cta.blogs.icon && (
-              <lord-icon
-                src={liSrc(hero.cta.blogs.icon)}
-                trigger="morph"
-                colors={LORD_ICON_COLORS.default}
-                class="li-lg"
-              />
-            )}
-            {hero.cta.blogs.label}
-          </a>
-        )
-      }
-      {
-        hero.cta?.connect && (
-          <a
-            href={hero.cta.connect.href}
-            class="inline-flex items-center gap-3 px-7 py-4 text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-accent hover:text-accent active:scale-[0.98] transition-[border-color,color,transform] duration-200"
-          >
-            {hero.cta.connect.icon && (
-              <lord-icon
-                src={liSrc(hero.cta.connect.icon)}
-                trigger="morph"
-                colors={LORD_ICON_COLORS.default}
-                class="li-lg"
-              />
-            )}
-            {hero.cta.connect.label}
-          </a>
-        )
-      }
-      {
-        /* Toys / "Bored?" button — rendered statically here like the other CTAs.
-          It just opens the CanvasToy panel; its click handler lives in
-          CanvasToy.astro (looked up via #canvas-toy-toggle). */
-      }
-      <button
-        id="canvas-toy-toggle"
-        type="button"
-        aria-label="Open interactive toy"
-        class="select-none hidden md:inline-flex items-center gap-3 px-7 py-4 text-ink-secondary text-[17px] sm:text-[18px] font-semibold rounded-[8px] no-underline border border-border hover:border-rust hover:text-rust active:scale-[0.98] transition-[border-color,color,transform] duration-200 cursor-pointer"
-      >
-        <lord-icon
-          src={liSrc('bazecvhf')}
-          trigger="morph"
-          colors={LORD_ICON_COLORS.default}
-          class="li-lg"></lord-icon>
-        Bored?
-      </button>
+          </button>
+          <span class="text-[12px] font-mono text-ink-tertiary select-none">
+            Auto-advances every 15s · tap the case for the next exhibit
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <script>
-  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  // Keep in sync with CanvasToy.astro's toy list when adding toys.
+  import { boidsToy } from '../scripts/toys/boids.ts';
+  import { clothToy } from '../scripts/toys/cloth.ts';
+  import { doublePendulumToy } from '../scripts/toys/double-pendulum.ts';
+  import { gameOfLifeToy } from '../scripts/toys/game-of-life.ts';
+  import { newtonsCradleToy } from '../scripts/toys/newtons-cradle.ts';
+  import { tetrisSolverToy } from '../scripts/toys/tetris.ts';
+  import { threeBodyToy } from '../scripts/toys/three-body.ts';
+  import type { CanvasToy } from '../lib/types';
+
+  const TOYS: CanvasToy[] = [
+    boidsToy,
+    clothToy,
+    doublePendulumToy,
+    gameOfLifeToy,
+    newtonsCradleToy,
+    tetrisSolverToy,
+    threeBodyToy,
+  ];
+
+  const AUTO_ADVANCE_MS = 15000;
+
+  function startCaseCycler() {
+    const canvas = document.getElementById('hero-toy-canvas') as HTMLCanvasElement | null;
+    const titleEl = document.getElementById('case-title');
+    const captionEl = document.getElementById('case-caption');
+    const toggleBtn = document.getElementById('canvas-toy-toggle');
+    const tapLayer = document.getElementById('case-tap');
+    if (!canvas || !titleEl || !captionEl) return;
+
+    let current = Math.floor(Math.random() * TOYS.length);
+    let simCleanup: (() => void) | null = null;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    let panelOpen = false;
+
+    /** "double-pendulum" → "Double Pendulum" for the placard header. */
+    function titleFor(i: number): string {
+      const name = TOYS[i].id
+        .split('-')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+      return `Exhibit // ${String(i + 1).padStart(2, '0')} · ${name}`;
+    }
+
+    /** One-line preview caption; falls back to tag-stripped footer copy. */
+    function captionFor(i: number): string {
+      const toy = TOYS[i];
+      if (toy.previewText) return toy.previewText;
+      const div = document.createElement('div');
+      div.innerHTML = toy.footerHtml;
+      return div.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+    }
+
+    function show(i: number) {
+      if (simCleanup) {
+        simCleanup();
+        simCleanup = null;
+      }
+      current = i;
+      titleEl!.textContent = titleFor(i);
+      captionEl!.textContent = captionFor(i);
+      if (toggleBtn) toggleBtn.dataset.toyId = TOYS[i].id;
+      try {
+        simCleanup = TOYS[i].start(canvas!);
+      } catch (err) {
+        console.error('[Hero] Exhibit failed to start:', err);
+      }
+    }
+
+    function next() {
+      show((current + 1) % TOYS.length);
+    }
+
+    function restartTimer() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        if (!panelOpen) next();
+      }, AUTO_ADVANCE_MS);
+    }
+
+    // Panel continuity: the full panel opens with the toy the case is
+    // currently showing (id carried on the toggle button). The panel
+    // announces open/close so the case pauses instead of double-running.
+    document.addEventListener('canvas-toy-panel', ((e: CustomEvent<{ isOpen: boolean }>) => {
+      panelOpen = e.detail.isOpen;
+      if (panelOpen) {
+        // Free the case's sim while the panel runs the exhibit full-size.
+        if (simCleanup) {
+          simCleanup();
+          simCleanup = null;
+        }
+      } else {
+        show(current);
+      }
+    }) as EventListener);
+
+    tapLayer?.addEventListener('click', () => {
+      if (panelOpen) return;
+      next();
+      restartTimer();
+    });
+
+    show(current);
+    restartTimer();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startCaseCycler);
+  } else {
+    startCaseCycler();
+  }
+
+  // Smooth-scroll for the in-page CTA (same behavior as main.js nav links).
+  document.querySelectorAll('#hero-ctas a[href^="#"]').forEach((link) => {
     link.addEventListener('click', function (this: HTMLAnchorElement, e) {
       e.preventDefault();
       const target = document.querySelector(this.getAttribute('href')!);

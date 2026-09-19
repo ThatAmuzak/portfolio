@@ -8,8 +8,10 @@
  *
  * Hidden on mobile; the panel slides in from the right taking ~50vw.
  *
- * The "Bored?" toggle button (id="canvas-toy-toggle") lives statically in
- * Hero.astro's CTA row, like the other hero buttons, and just opens this panel.
+ * The "Interact with this exhibit" toggle button (id="canvas-toy-toggle")
+ * lives statically in Hero.astro's case footer. Its data-toy-id attribute
+ * carries the toy the case is currently showing, so the panel opens with
+ * the same exhibit (continuity) instead of a random pick.
  */
 // NOTE: Toy imports are duplicated in the <script> block below.
 // This is intentional — the frontmatter runs at build time for SSR
@@ -80,7 +82,7 @@ const defaultToy = toys[0];
   </div>
 
   <!-- Canvas fills remaining space -->
-  <div id="canvas-toy-wrapper" class="flex-1 relative min-h-0">
+  <div id="canvas-toy-wrapper" class="flex-1 relative min-h-0 overflow-hidden">
     <canvas id="canvas-toy-canvas" class="absolute inset-0 w-full h-full"></canvas>
   </div>
 
@@ -254,11 +256,12 @@ const defaultToy = toys[0];
       if (isOpen) return;
       isOpen = true;
 
-      // Pick a random toy (avoid repeating if >1)
-      let idx: number;
-      if (TOYS.length <= 1) {
-        idx = 0;
-      } else {
+      // Prefer the toy the hero case is currently showing (data-toy-id);
+      // fall back to a random pick that avoids repeating the last toy.
+      let idx = -1;
+      const preferred = toggleBtn!.dataset.toyId;
+      if (preferred) idx = TOYS.findIndex((t) => t.id === preferred);
+      if (idx < 0) {
         const candidates = TOYS.reduce<number[]>((acc, t, i) => {
           if (t.id !== lastToyId) acc.push(i);
           return acc;
@@ -272,6 +275,9 @@ const defaultToy = toys[0];
       backdrop!.style.pointerEvents = 'auto';
       backdrop!.setAttribute('aria-hidden', 'false');
       document.body.classList.add('canvas-toy-open');
+      document.dispatchEvent(
+        new CustomEvent('canvas-toy-panel', { detail: { isOpen: true } }),
+      );
 
       switchToToy(idx);
     }
@@ -285,6 +291,9 @@ const defaultToy = toys[0];
       backdrop!.style.pointerEvents = '';
       backdrop!.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('canvas-toy-open');
+      document.dispatchEvent(
+        new CustomEvent('canvas-toy-panel', { detail: { isOpen: false } }),
+      );
 
       // Stop simulation and header controls
       if (simCleanup) {

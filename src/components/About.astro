@@ -1,65 +1,46 @@
 ---
 import { load } from '../lib/data';
-import type { About, AboutParagraph, AboutSegment, AboutStat } from '../lib/types';
+import type { About, AboutParagraph, AboutSegment } from '../lib/types';
 import SectionHeader from './SectionHeader.astro';
 
 const about = load<About>('about.yaml');
 const paragraphs = about.paragraphs || [];
-const stats: AboutStat[] = about.stats || [];
+// NOTE: about.stats are intentionally not rendered — the audit (bd
+// portfolio-v2 redesign) retired the stat readout row; the same facts
+// live in experience and publications. The YAML keeps them for reuse.
 ---
 
 <section id="about" class="py-24 md:py-32 px-6 bg-surface-sunken scroll-mt-16">
-  <div class="max-w-[960px] mx-auto">
+  <div class="max-w-[820px] mx-auto">
     <SectionHeader label={about.label} heading={about.heading} />
 
-    <div class={`grid ${stats.length ? 'md:grid-cols-[2fr_1fr]' : ''} gap-10 items-start`}>
-      {
-        paragraphs.length > 0 && (
-          <div>
-            {paragraphs.map((para: AboutParagraph, i: number) => (
-              <p
-                class={`reveal ${i > 0 ? `delay-${i}` : ''} text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] ${i < paragraphs.length - 1 ? 'mb-5' : ''}`}
-              >
-                {para.segments.map((seg: AboutSegment, _j: number) =>
-                  seg.href ? (
-                    <a
-                      href={seg.href}
-                      target="_blank"
-                      rel="noopener"
-                      class="text-accent hover:text-accent-light transition-colors underline-offset-2 hover:underline"
-                    >
-                      {seg.text}
-                    </a>
-                  ) : seg.bold ? (
-                    <strong class="text-ink font-semibold">{seg.text}</strong>
-                  ) : (
-                    <>{seg.text}</>
-                  ),
-                )}
-              </p>
-            ))}
-          </div>
-        )
-      }
-
-      {
-        stats.length > 0 && (
-          <div class="reveal delay-2">
-            {stats.map((stat: AboutStat) => (
-              <div class="flex items-center gap-4 py-4 border-b border-border last:border-0">
-                {stat.value && (
-                  <p class="text-[24px] font-mono font-bold text-accent m-0 leading-none min-w-[4rem] text-right shrink-0">
-                    {stat.value}
-                  </p>
-                )}
-                {stat.label && (
-                  <p class="text-[15px] text-ink-secondary m-0 leading-tight">{stat.label}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        )
-      }
-    </div>
+    {
+      paragraphs.length > 0 && (
+        <div>
+          {paragraphs.map((para: AboutParagraph, i: number) => (
+            <p
+              class={`text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] ${i < paragraphs.length - 1 ? 'mb-5' : ''}`}
+            >
+              {para.segments.map((seg: AboutSegment, _j: number) =>
+                seg.href ? (
+                  <a
+                    href={seg.href}
+                    target="_blank"
+                    rel="noopener"
+                    class="text-accent hover:text-accent-light transition-colors underline-offset-2 hover:underline"
+                  >
+                    {seg.text}
+                  </a>
+                ) : seg.bold ? (
+                  <strong class="text-ink font-semibold">{seg.text}</strong>
+                ) : (
+                  <>{seg.text}</>
+                ),
+              )}
+            </p>
+          ))}
+        </div>
+      )
+    }
   </div>
 </section>

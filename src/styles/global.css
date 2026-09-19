@@ -3,36 +3,44 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Colors - light palette (default) */
-  --color-ink: #1a1d23;
-  --color-ink-secondary: #4a5060;
-  --color-ink-tertiary: #8890a0;
+  /* Colors — gallery daytime (neutral white, per user-pinned palette amendment) */
+  --color-ink: #1b1e24;
+  --color-ink-secondary: #49505e;
+  --color-ink-tertiary: #7c8492;
   --color-ink-on-dark: #ffffff;
   --color-ink-on-dark-secondary: rgba(255, 255, 255, 0.75);
 
-  --color-surface: #fafbfc;
+  --color-surface: #f5f6f8;
   --color-surface-raised: #ffffff;
-  --color-surface-sunken: #f3f4f6;
-  --color-surface-alt: #f0f2f5;
+  --color-surface-sunken: #eceef1;
+  --color-surface-alt: #f0f2f4;
 
-  /* Primary accent: deep teal (light step — AA 5.5:1 on surface) */
+  /* Primary accent: deep teal (light step — AA on surface) */
   --color-accent: #00736f;
   --color-accent-light: #00877f;
   --color-accent-dark: #005350;
   --color-accent-wash: rgba(0, 115, 111, 0.08);
 
-  /* Secondary accent: rust — reserved for emphasis moments */
+  /* Secondary accent: rust — wayfinding and exhibit numbering */
   --color-rust: #b74b21;
   --color-rust-light: #cc5a2b;
   --color-rust-wash: rgba(183, 75, 33, 0.08);
 
-  /* Text color used on solid accent backgrounds (buttons) */
+  /* Primary CTA (rust) — white text passes AA on this step */
+  --color-cta: #b7471f;
+  --color-cta-light: #cb5829;
+
+  /* Text color used on solid accent backgrounds */
   --color-on-accent: #ffffff;
 
-  --color-border: #e2e5eb;
-  --color-border-strong: #c8cdd6;
+  --color-border: #dfe2e7;
+  --color-border-strong: #c6cbd3;
 
-  /* Accent RGB channels for semi-transparent glow effects */
+  /* Exhibit glass-case interior — daytime vitrine in light mode,
+     after-hours gallery in dark mode (overridden in .dark below). */
+  --color-case-bg: #e8ecf1;
+
+  /* Accent RGB channels for toys (live-trace readouts) */
   --color-accent-r: 0;
   --color-accent-g: 115;
   --color-accent-b: 111;
@@ -41,15 +49,16 @@
   --color-rust-b: 33;
 
   /* Fonts
-     - sans:  body copy, multi-word text
-     - mono:  main headings (h1), labels, dates, chips, code
-     - display (Tektur): subheadings (h2-h4) — the character voice */
+     - sans:     body copy
+     - mono:     labels, placard captions, stamps, readouts, code
+     - display:  Chakra Petch — all headings; the techy voice, re-cast
+                 from Tektur (user-pinned: keep the character, swap the face) */
   --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
   --font-sans: 'IBM Plex Sans', 'Source Sans 3', system-ui, sans-serif;
-  --font-display: 'Tektur', 'IBM Plex Mono', system-ui, sans-serif;
+  --font-display: 'Chakra Petch', 'IBM Plex Mono', system-ui, sans-serif;
 }
 
-/* Dark mode overrides */
+/* Dark mode — after-hours gallery */
 .dark {
   --color-ink: #d8dbe5;
   --color-ink-secondary: #939bb0;
@@ -62,7 +71,7 @@
   --color-surface-sunken: #0c0e13;
   --color-surface-alt: #14171f;
 
-  /* Primary accent: teal (dark step — 8.1:1 on surface) */
+  /* Primary accent: teal (dark step — high contrast on surface) */
   --color-accent: #5cbab4;
   --color-accent-light: #7ed2cc;
   --color-accent-dark: #3e9c95;
@@ -72,7 +81,10 @@
   --color-rust-light: #f0a37e;
   --color-rust-wash: rgba(233, 135, 89, 0.1);
 
-  /* Light teal surface needs dark text (8.1:1) not white (2.2:1) */
+  --color-cta: #d06a3c;
+  --color-cta-light: #dd7c4e;
+
+  /* Light teal surface needs dark text, not white */
   --color-on-accent: #0c0e13;
 
   --color-border: #242836;
@@ -84,6 +96,9 @@
   --color-rust-r: 233;
   --color-rust-g: 135;
   --color-rust-b: 89;
+
+  /* Exhibit glass-case interior — the after-hours gallery. */
+  --color-case-bg: #161923;
 }
 
 @layer base {
@@ -106,11 +121,6 @@
     line-height: 1.2;
   }
 
-  /* Main headings are mono; Tektur carries subheadings */
-  h1 {
-    font-family: var(--font-mono);
-  }
-
   a {
     color: var(--color-accent);
     text-decoration: none;
@@ -125,7 +135,7 @@
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 3px;
-    border-radius: 4px;
+    border-radius: 2px;
   }
 
   /* Headlines never orphan; body copy avoids lone last-word lines */
@@ -146,63 +156,219 @@
   }
 }
 
-/* Scroll-triggered reveal animations */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+/* ── Museum grammar ─────────────────────────────────────────────── */
+
+/* Placard — the only card species. Sharp 2px corners, 1px rule,
+   no glow, no tilt, no lift. Hover deepens the rule only. */
+.placard {
+  position: relative;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  transition: border-color 0.2s ease;
 }
 
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+.placard:hover {
+  border-color: var(--color-border-strong);
 }
 
-/* Stagger delays */
-.delay-1 {
-  transition-delay: 120ms;
-}
-.delay-2 {
-  transition-delay: 240ms;
-}
-.delay-3 {
-  transition-delay: 360ms;
+/* Exhibit serial number — mono caption, rust */
+.exhibit-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--color-rust);
+  text-transform: uppercase;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
+/* Status stamp — mono chip, square corners */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  color: var(--color-ink-secondary);
+}
+
+.stamp-live {
+  color: var(--color-rust);
+  border-color: var(--color-rust);
+}
+
+/* Live indicator dot — the one honest pulse on the page */
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-rust);
+  animation: live-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
     opacity: 1;
-    transform: none;
-    transition: none;
+  }
+  50% {
+    opacity: 0.25;
   }
 }
 
-/* Card hover + tilt (transform fully JS-driven via rAF lerp).
-   Scoped to content cards only — buttons use plain hover states. */
-.card-glow {
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
+}
+
+/* Glass case — framed vitrine for a live exhibit. The interior is the
+   case ground (--color-case-bg) in both modes; code draws only chrome. */
+.case {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  overflow: hidden;
+  /* Concrete ceiling so the open-state collapse can animate. */
+  max-height: 200vh;
+  /* Ease the fade + collapse when the interactive panel takes over. */
+  transition:
+    opacity 0.45s ease,
+    max-width 0.55s ease,
+    max-height 0.55s ease;
+}
+
+.case-screen {
   position: relative;
-  transition: box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-style: preserve-3d;
+  overflow: hidden;
+  background: var(--color-case-bg);
+  /* hairline inner frame, like a vitrine's inner edge — dark on the
+     light daytime glass, light on the dark after-hours glass */
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
-/* Invisible hover buffer above the card — extends the hit area upward
-   so the translateY(-4px) lift can't move the card out from under the cursor */
-.card-glow::before {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 0;
-  right: 0;
-  height: 8px;
+.dark .case-screen {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
-.card-glow:hover {
-  box-shadow:
-    inset 0 0 0 1px var(--color-accent),
-    0 0 18px rgb(var(--color-accent-r) var(--color-accent-g) var(--color-accent-b) / 0.12),
-    0 12px 40px rgb(var(--color-accent-r) var(--color-accent-g) var(--color-accent-b) / 0.08);
+/* When the interactive exhibits panel is open, the vitrine steps aside:
+   it fades out AND collapses its layout space, so the hero text expands
+   into the reclaimed floor. Desktop only (md+), where the panel runs.
+   Closing the panel (body class removed) fades it back in. */
+@media (min-width: 768px) {
+  body.canvas-toy-open .case {
+    opacity: 0;
+    pointer-events: none;
+    max-width: 0;
+    max-height: 0;
+  }
+}
+
+/* At lg the case sits in the hero's second grid column — also collapse
+   that column (fr→0fr interpolates) so no dead floor remains. */
+@media (min-width: 1024px) {
+  #hero-content {
+    transition:
+      grid-template-columns 0.55s ease,
+      column-gap 0.55s ease;
+  }
+
+  body.canvas-toy-open #hero-content {
+    grid-template-columns: 1fr 0fr;
+    column-gap: 0;
+  }
+}
+
+.case-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-secondary);
+}
+
+.case-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Primary CTA — rust, rectangular */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 26px;
+  background: var(--color-cta);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 600;
+  border-radius: 2px;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--color-cta-light);
+  color: #ffffff;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Secondary CTA — outlined, rectangular */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 26px;
+  color: var(--color-ink-secondary);
+  font-size: 17px;
+  font-weight: 600;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.btn-outline:active {
+  transform: scale(0.98);
+}
+
+/* Scroll reveals — neutralized by design decision (content visible
+   by default; the live case is the only moving element in the hero).
+   Classes may remain in markup; they render nothing. */
+.reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.delay-1,
+.delay-2,
+.delay-3 {
+  transition: none;
 }
 
 /* Lord Icon sizing classes */
@@ -234,26 +400,6 @@ lord-icon.li-hero {
   width: 80px;
   height: 80px;
   min-width: 80px;
-}
-
-/* Lord Icon fade-in pulse when played via JS */
-@keyframes icon-pulse {
-  0% {
-    opacity: 0.5;
-    transform: scale(0.85);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.08);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-lord-icon.icon-animate {
-  animation: icon-pulse 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Theme toggle animation */
@@ -292,53 +438,6 @@ lord-icon.icon-animate {
   animation: copy-bounce 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── Surface texture & ambient depth ───────────────────────── */
-
-/* Fixed grain overlay — breaks the digital flatness of pure flat fills.
-   pointer-events-none + fixed so it never affects interaction or layout. */
-.grain::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Hero ambient wash — two tinted radial glows (teal top-left, rust
-   bottom-right) to give the open hero some light and depth. */
-.hero-ambient {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.hero-ambient::before,
-.hero-ambient::after {
-  content: '';
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(90px);
-}
-
-.hero-ambient::before {
-  top: -30%;
-  left: -10%;
-  width: 60vw;
-  height: 60vw;
-  background: rgb(var(--color-accent-r) var(--color-accent-g) var(--color-accent-b) / 0.1);
-}
-
-.hero-ambient::after {
-  bottom: -40%;
-  right: -15%;
-  width: 45vw;
-  height: 45vw;
-  background: rgb(var(--color-rust-r) var(--color-rust-g) var(--color-rust-b) / 0.07);
-}
-
 /* Skip-to-content — hidden until keyboard-focused */
 .skip-link {
   position: fixed;
@@ -349,7 +448,7 @@ lord-icon.icon-animate {
   background: var(--color-surface-raised);
   color: var(--color-ink);
   border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
+  border-radius: 2px;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -370,7 +469,7 @@ lord-icon.icon-animate {
 /* Entire page shifts left when panel is open.
    NOTE: the padding change is intentionally NOT transitioned — animating
    padding-right reflows the whole page every frame for 500ms while the
-   toy's animation loop is starting up (see bd portfolio-v2-3mr). */
+   toy's animation loop is starting up. */
 
 @media (min-width: 768px) {
   body.canvas-toy-open {

@@ -15,7 +15,7 @@ const categories: SkillCategory[] = skills.categories || [];
       categories.length > 0 && (
         <div>
           {categories.map((cat: SkillCategory) => (
-            <div class="reveal flex flex-col md:flex-row md:items-baseline gap-2 md:gap-8 py-5 border-b border-border first:pt-0 last:border-0">
+            <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-8 py-5 border-b border-border first:pt-0 last:border-0">
               <div class="flex items-center gap-2.5 md:w-52 shrink-0">
                 {cat.icon && (
                   <lord-icon

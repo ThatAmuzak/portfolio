@@ -7,11 +7,10 @@ const pubs = load<Publications>('publications.yaml');
 const papers: Paper[] = pubs.papers || [];
 
 /**
- * Venue typing for dot color-coding:
- *  - conference → teal dot
- *  - journal    → rust dot
- *  - preprint   → no dot, muted text
- * Hue is always paired with the text label (WCAG 1.4.1).
+ * Venue kind for the placard stamp:
+ *  - conference → CONFERENCE
+ *  - journal    → JOURNAL
+ *  - preprint   → PREPRINT (muted)
  */
 function venueKind(paper: Paper): 'conference' | 'journal' | 'preprint' {
   const url = (paper.url || '').toLowerCase();
@@ -29,11 +28,27 @@ function venueKind(paper: Paper): 'conference' | 'journal' | 'preprint' {
 
     {
       papers.length > 0 && (
-        <div class="space-y-5">
-          {papers.map((paper: Paper) => {
+        <div class="space-y-4">
+          {papers.map((paper: Paper, i: number) => {
             const kind = venueKind(paper);
+            const serial = String(i + 1).padStart(2, '0');
             return (
-              <article class="reveal card-glow bg-surface-raised rounded-[8px] p-6 md:p-7">
+              <article class="placard p-6 md:p-7">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3">
+                  <span class="exhibit-num">N°{serial}</span>
+                  {paper.venue && (
+                    <span
+                      class={`stamp ${kind === 'preprint' ? 'text-ink-tertiary border-border' : kind === 'journal' ? 'border-rust text-rust' : ''}`}
+                    >
+                      {kind}
+                    </span>
+                  )}
+                  {paper.year && (
+                    <span class="ml-auto text-[13px] font-mono text-ink-tertiary">
+                      {paper.year}
+                    </span>
+                  )}
+                </div>
                 <a href={paper.url} target="_blank" rel="noopener" class="no-underline group">
                   <h3 class="font-display text-[18px] md:text-[20px] font-bold text-ink group-hover:text-accent transition-colors duration-200 m-0 mb-2 leading-[1.35]">
                     {paper.title}
@@ -52,12 +67,6 @@ function venueKind(paper: Paper): 'conference' | 'journal' | 'preprint' {
                   ))}
                 </p>
                 <div class="flex items-center gap-2.5">
-                  {paper.venue && kind !== 'preprint' && (
-                    <span
-                      class={`w-[7px] h-[7px] rounded-full shrink-0 ${kind === 'journal' ? 'bg-rust' : 'bg-accent'}`}
-                      aria-hidden="true"
-                    />
-                  )}
                   {paper.venue && (
                     <span
                       class={`text-[13px] font-mono ${kind === 'preprint' ? 'text-ink-tertiary' : 'text-ink-secondary'}`}
@@ -66,10 +75,15 @@ function venueKind(paper: Paper): 'conference' | 'journal' | 'preprint' {
                       {kind === 'preprint' && ' (preprint)'}
                     </span>
                   )}
-                  {paper.year && (
-                    <span class="ml-auto text-[13px] font-mono text-ink-tertiary">
-                      {paper.year}
-                    </span>
+                  {paper.url && (
+                    <a
+                      href={paper.url}
+                      target="_blank"
+                      rel="noopener"
+                      class="text-[13px] font-mono text-accent hover:text-accent-light ml-auto shrink-0"
+                    >
+                      Publisher ↗
+                    </a>
                   )}
                 </div>
               </article>

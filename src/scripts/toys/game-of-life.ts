@@ -110,6 +110,7 @@ function renderHeaderControls(container: HTMLElement): () => void {
 
 export const gameOfLifeToy: CanvasToy = {
   id: 'game-of-life',
+  previewText: 'Four Rules, Infinite Patterns.',
   headerHtml:
     '&#x1f5b1;&#xfe0f; left-click to paint &nbsp;&middot;&nbsp; right-click to reset &nbsp;&middot;&nbsp; <kbd>Z</kbd> pause &nbsp;&middot;&nbsp; <kbd>C</kbd> clear',
   footerHtml:
@@ -173,8 +174,8 @@ function start(canvas: HTMLCanvasElement): () => void {
     H = rect.height;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
+    // Display size stays CSS-driven (inset-0 w-full h-full) so the canvas
+    // always fits its container; only the bitmap is sized here.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     if (W > 0 && H > 0) {

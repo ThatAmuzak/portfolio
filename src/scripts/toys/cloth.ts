@@ -28,6 +28,21 @@ const CFG = {
   constraintIterations: 3,
   /** Gravity acceleration in px/s². */
   gravity: 2200,
+  /** Steady wind acceleration magnitude in px/s².
+   *  Direction flips at random intervals (see flipInterval) — the cloth
+   *  gets pushed right for a while, then left, etc. */
+  wind: 350,
+  /** Gentle gusting on top of the steady wind: wind varies by ±gustAmp
+   *  fraction, cycling at gustFreq Hz. */
+  gustAmp: 0.3,
+  gustFreq: 0.25,
+  /** Wind direction flips at a random interval between these bounds
+   *  (seconds). */
+  flipIntervalMin: 5,
+  flipIntervalMax: 12,
+  /** How quickly the direction eases from −1 to +1 on a flip (lerp rate,
+   *  per second). Higher = snappier reversal. */
+  flipEaseRate: 1.5,
   /** Velocity damping applied each timestep (1 = none). */
   damping: 0.985,
   /** Nearest-point grab radius, in units. */
@@ -130,10 +145,11 @@ function buildHeaderControls(container: HTMLElement): () => void {
 
 export const clothToy: CanvasToy = {
   id: 'cloth',
+  previewText: 'Verlet Cloth with Springs, Pins, and Wind.',
   headerHtml:
     '&#x2702;&#xfe0f; left-drag a point &nbsp;&middot;&nbsp; right-drag to cut threads &nbsp;&middot;&nbsp; <kbd>R</kbd> reset',
   footerHtml:
-    '<strong class="text-ink-secondary">Verlet Cloth</strong> &mdash; a 10&times;10 sheet of points sewn together with stiff threads. Slack between the two pinned corners tucks into a gentle drape. Cut the threads and watch it unravel.',
+    '<strong class="text-ink-secondary">Verlet Cloth</strong> &mdash; a 10&times;10 sheet of points sewn together with stiff threads. Slack between the two pinned corners tucks into a gentle drape, and a breeze blows in from alternating sides. Cut the threads and watch it unravel.',
   start,
   renderHeaderControls: buildHeaderControls,
 };
@@ -159,6 +175,14 @@ function start(canvas: HTMLCanvasElement): () => void {
 
   let running = true;
   let animId: number | null = null;
+
+  // Elapsed simulation time, used to phase the wind gusts.
+  let simTime = 0;
+
+  // Wind direction state: eases between −1 (leftward) and +1 (rightward).
+  let windDir = 1; // eased direction
+  let windDirTarget = 1;
+  let nextFlipAt = CFG.flipIntervalMin + Math.random() * (CFG.flipIntervalMax - CFG.flipIntervalMin);
 
   // Mouse interaction state.
   let leftDown = false;
@@ -243,8 +267,8 @@ function start(canvas: HTMLCanvasElement): () => void {
     H = rect.height;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
+    // Display size stays CSS-driven (inset-0 w-full h-full) so the canvas
+    // always fits its container; only the bitmap is sized here.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     if (W > 0 && H > 0) {
@@ -258,6 +282,20 @@ function start(canvas: HTMLCanvasElement): () => void {
   function physicsStep(dt: number) {
     const dt2 = dt * dt;
 
+    // Wind: direction flips left/right at random intervals, easing smoothly
+    // through zero on each reversal, with a gentle gust cycle on top.
+    simTime += dt;
+    if (simTime >= nextFlipAt) {
+      windDirTarget = -windDirTarget;
+      nextFlipAt =
+        simTime +
+        CFG.flipIntervalMin +
+        Math.random() * (CFG.flipIntervalMax - CFG.flipIntervalMin);
+    }
+    windDir += (windDirTarget - windDir) * Math.min(1, dt * CFG.flipEaseRate);
+    const wind =
+      CFG.wind * windDir * (1 + CFG.gustAmp * Math.sin(2 * Math.PI * CFG.gustFreq * simTime));
+
     // If we grabbed a point, pin it to the cursor (zero velocity each step so
     // it won't snap violently; gravity takes over cleanly once released).
     if (grabIndex >= 0) {
@@ -270,14 +308,14 @@ function start(canvas: HTMLCanvasElement): () => void {
       }
     }
 
-    // Verlet integration (gravity only affects y).
+    // Verlet integration (gravity on y, wind on x).
     for (const p of points) {
       if (p.pinned) continue;
       const vx = (p.x - p.px) * CFG.damping;
       const vy = (p.y - p.py) * CFG.damping;
       p.px = p.x;
       p.py = p.y;
-      p.x += vx;
+      p.x += vx + wind * dt2;
       p.y += vy + CFG.gravity * dt2;
     }
 

@@ -578,6 +578,7 @@ function renderHeaderControls(container: HTMLElement): () => void {
 
 export const tetrisSolverToy: CanvasToy = {
   id: 'tetris-solver',
+  previewText: 'Heuristics based AI Tetris solver. Fast and Precise.',
   headerHtml:
     '&#x1f3ae; AI plays Tetris, maximizing Tetris clears &nbsp;&middot;&nbsp; speed &rarr;',
   footerHtml:
@@ -620,8 +621,8 @@ function start(canvas: HTMLCanvasElement): () => void {
     H = rect.height;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
+    // Display size stays CSS-driven (inset-0 w-full h-full) so the canvas
+    // always fits its container; only the bitmap is sized here.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     // Compute cell size: board should fit with room for preview on the right

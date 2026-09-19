@@ -16,7 +16,7 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
 
     {
       contact.description && (
-        <p class="reveal delay-1 text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] mb-8 md:mb-10">
+        <p class="text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] mb-8 md:mb-10">
           {contact.description}
         </p>
       )
@@ -25,7 +25,7 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
     {
       site.email && (
         <div
-          class="reveal delay-2 mb-8 md:mb-10 flex flex-wrap items-center justify-center gap-2 max-w-full"
+          class="mb-8 md:mb-10 flex flex-wrap items-center justify-center gap-2 max-w-full"
           id="email-row"
         >
           <a
@@ -88,13 +88,13 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
 
     {
       ctaItems.length > 0 && (
-        <div class="reveal delay-2 mb-8 md:mb-10 flex flex-wrap items-center justify-center gap-3">
+        <div class="mb-8 md:mb-10 flex flex-wrap items-center justify-center gap-3">
           {ctaItems.map((item: ContactCTA) => (
             <a
               href={item.href}
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 px-5 py-2.5 text-ink-secondary text-[15px] font-medium rounded-[6px] border border-border hover:border-accent hover:text-accent active:scale-[0.98] transition-[border-color,color,transform] duration-200 no-underline"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-ink-secondary text-[15px] font-medium rounded-[2px] border border-border hover:border-accent hover:text-accent active:scale-[0.98] transition-[border-color,color,transform] duration-200 no-underline"
             >
               {item.icon && (
                 <lord-icon
@@ -113,7 +113,7 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
 
     {
       social.length > 0 && (
-        <div class="reveal delay-3 flex flex-wrap items-center justify-center gap-5">
+        <div class="flex flex-wrap items-center justify-center gap-5">
           {social.map((s: SocialLink) => (
             <a
               href={s.url}
@@ -138,10 +138,10 @@ const emailObfuscated = site.email ? obfuscateEmail(site.email) : '';
     }
 
     <!-- Back to top -->
-    <div class="reveal delay-3 mt-14">
+    <div class="mt-14">
       <button
         id="back-to-top"
-        class="inline-flex items-center gap-2 px-5 py-2.5 text-[15px] font-medium text-ink-tertiary hover:text-accent active:scale-[0.98] transition-[color,transform,border-color] duration-200 cursor-pointer bg-transparent border border-border rounded-full hover:border-accent"
+        class="inline-flex items-center gap-2 px-5 py-2.5 text-[15px] font-medium text-ink-tertiary hover:text-accent active:scale-[0.98] transition-[color,transform,border-color] duration-200 cursor-pointer bg-transparent border border-border rounded-[2px] hover:border-accent"
         aria-label="Back to top"
       >
         <svg
