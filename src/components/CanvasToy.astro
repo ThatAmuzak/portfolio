@@ -214,6 +214,10 @@ const defaultToy = toys[0];
       toyIndex = index;
       lastToyId = toy.id;
 
+      // Keep the hero toggle's continuity pointer in sync so the exhibit
+      // case re-initializes with this toy when the panel closes.
+      if (toggleBtn) toggleBtn.dataset.toyId = toy.id;
+
       // Update header and footer
       headerEl.innerHTML = toy.headerHtml;
       footerEl.innerHTML = toy.footerHtml;

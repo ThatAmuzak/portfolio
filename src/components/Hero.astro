@@ -235,19 +235,86 @@ const hero = load<Hero>('hero.yaml');
       }, AUTO_ADVANCE_MS);
     }
 
+    let resumeRaf = 0;
+    let resumeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    /** Blank the exhibit: stop the sim and clear the canvas. The canvas
+     *  is transparent over .case-screen's --color-case-bg, so a cleared
+     *  canvas reads as an empty vitrine that respects the current theme. */
+    function blankCase() {
+      if (simCleanup) {
+        simCleanup();
+        simCleanup = null;
+      }
+      const ctx = canvas!.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, canvas!.width, canvas!.height);
+    }
+
+    /** Re-initialize the exhibit once the case has expanded back into
+     *  view. Toys measure the canvas in start() and only re-measure on
+     *  window resize, so starting while the un-collapse transition
+     *  (0.55s max-width/max-height) is still running would freeze them
+     *  at a tiny/wrong size. The exhibit starts once the case rect has
+     *  stopped changing for a few frames; a timeout safety net covers
+     *  any case where no transition runs. */
+    function resumeCase(idx: number) {
+      cancelAnimationFrame(resumeRaf);
+      if (resumeTimeout) clearTimeout(resumeTimeout);
+      const caseEl = canvas!.closest('.case') as HTMLElement | null;
+      if (!caseEl) {
+        show(idx);
+        restartTimer();
+        return;
+      }
+
+      const settle = () => {
+        resumeRaf = 0;
+        if (resumeTimeout) {
+          clearTimeout(resumeTimeout);
+          resumeTimeout = null;
+        }
+        if (panelOpen) return; // reopened mid-resume; panel owns the toy
+        show(idx);
+        restartTimer();
+      };
+
+      resumeTimeout = setTimeout(settle, 900);
+      let lastW = -1;
+      let stableFrames = 0;
+      const step = () => {
+        const w = caseEl.getBoundingClientRect().width;
+        stableFrames = w > 0 && Math.abs(w - lastW) < 0.5 ? stableFrames + 1 : 0;
+        lastW = w;
+        if (stableFrames >= 4) {
+          settle();
+          return;
+        }
+        resumeRaf = requestAnimationFrame(step);
+      };
+      resumeRaf = requestAnimationFrame(step);
+    }
+
     // Panel continuity: the full panel opens with the toy the case is
     // currently showing (id carried on the toggle button). The panel
     // announces open/close so the case pauses instead of double-running.
     document.addEventListener('canvas-toy-panel', ((e: CustomEvent<{ isOpen: boolean }>) => {
       panelOpen = e.detail.isOpen;
       if (panelOpen) {
-        // Free the case's sim while the panel runs the exhibit full-size.
-        if (simCleanup) {
-          simCleanup();
-          simCleanup = null;
+        // Free the case's sim while the panel runs the exhibit full-size,
+        // and drop any pending resume so it can't fire behind the panel.
+        cancelAnimationFrame(resumeRaf);
+        if (resumeTimeout) {
+          clearTimeout(resumeTimeout);
+          resumeTimeout = null;
         }
+        blankCase();
       } else {
-        show(current);
+        // Blank immediately so the fading-back case shows clean vitrine
+        // glass (not a stale frozen frame) while it expands into view.
+        blankCase();
+        const exitedId = toggleBtn?.dataset.toyId;
+        const exitedIdx = exitedId ? TOYS.findIndex((t) => t.id === exitedId) : -1;
+        resumeCase(exitedIdx >= 0 ? exitedIdx : current);
       }
     }) as EventListener);
 
