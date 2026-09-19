@@ -12,6 +12,8 @@ export interface SocialLink {
 
 export interface NavItem {
   label: string;
+  /** Full name used in the mobile menu (desktop bar shows the acronym). */
+  fullName?: string;
   href: string;
   icon?: string;
 }

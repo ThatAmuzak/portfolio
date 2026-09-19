@@ -22,10 +22,11 @@ function navHref(item: NavItem) {
       {site.name || ''}
     </a>
 
-    <!-- Blogs link — sits next to the brand name -->
+    <!-- Blogs link — sits next to the brand name. Fades out with the nav
+         links when the interactive exhibit panel is open (desktop). -->
     <a
       href="/blogs"
-      class="hidden md:inline-flex items-center gap-1.5 text-[15px] text-ink-secondary hover:text-accent transition-colors no-underline font-medium ml-4"
+      class="nav-fade hidden md:inline-flex items-center gap-1.5 text-[15px] text-ink-secondary hover:text-accent transition-colors no-underline font-medium ml-4"
     >
       <lord-icon
         src={liSrc('hmpomorl')}
@@ -35,7 +36,10 @@ function navHref(item: NavItem) {
       Blogs
     </a>
 
-    <ul id="nav-links" class="hidden md:flex items-center gap-3 list-none m-0 p-0 ml-auto relative">
+    <ul
+      id="nav-links"
+      class="nav-fade hidden md:flex items-center gap-3 list-none m-0 p-0 ml-auto relative"
+    >
       {
         navItems.map((item: NavItem) => (
           <li>
@@ -132,7 +136,7 @@ function navHref(item: NavItem) {
                     class="li-md"
                   />
                 )}
-                {item.label}
+                {item.fullName || item.label}
               </a>
             </li>
           ))}

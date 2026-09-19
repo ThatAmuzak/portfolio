@@ -308,6 +308,32 @@
   }
 }
 
+/* When the exhibit panel is open, desktop nav items (blogs link, section
+   links, theme toggle) fade away AND collapse their width, and the flex
+   row re-centers, so the brand name takes the middle of the remaining
+   (left-half) viewport instead of hugging the left edge. */
+.nav-fade {
+  transition:
+    opacity 0.3s ease,
+    max-width 0.4s ease,
+    margin 0.4s ease;
+  max-width: 800px;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  body.canvas-toy-open .nav-fade {
+    opacity: 0;
+    pointer-events: none;
+    max-width: 0;
+    margin: 0;
+  }
+
+  body.canvas-toy-open #navbar > div {
+    justify-content: center;
+  }
+}
+
 /* At lg the case sits in the hero's second grid column — also collapse
    that column (fr→0fr interpolates) so no dead floor remains. */
 @media (min-width: 1024px) {
