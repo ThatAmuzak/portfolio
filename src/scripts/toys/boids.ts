@@ -505,6 +505,11 @@ function start(canvas: HTMLCanvasElement): () => void {
   }
 
   function onResize() {
+    // Ignore resizes that don't change the canvas rect — e.g. the mobile
+    // URL bar showing/hiding on scroll direction change alters viewport
+    // height but not this canvas (aspect-ratio keeps size width-driven).
+    const rect = canvas.getBoundingClientRect();
+    if (Math.abs(rect.width - W) < 0.5 && Math.abs(rect.height - H) < 0.5) return;
     resize();
   }
 
