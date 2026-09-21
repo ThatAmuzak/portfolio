@@ -5,7 +5,10 @@ import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blogs', ({ data }: CollectionEntry<'blogs'>) => !data.draft);
+  // Drafts visible in dev (`npm run dev`), excluded from production builds
+  const posts = await getCollection('blogs', ({ data }: CollectionEntry<'blogs'>) =>
+    import.meta.env.PROD ? !data.draft : true,
+  );
   return posts.map((post: CollectionEntry<'blogs'>) => ({
     params: { slug: post.id },
     props: { post },
@@ -283,6 +286,22 @@ const description = post.data.description || post.data.title;
   }
 
   /* Images */
+  .prose :global(figure) {
+    margin: 1.5em 0;
+  }
+
+  .prose :global(figure img) {
+    margin: 0;
+  }
+
+  .prose :global(figcaption) {
+    text-align: center;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    color: var(--color-ink-tertiary);
+    margin-top: 0.75em;
+  }
+
   .prose :global(img) {
     max-width: 100%;
     height: auto;
