@@ -5,7 +5,7 @@
  * Left: curatorial line, wall title, caption, CTA hierarchy
  * (primary rust = resume). Right: a glass case that cycles the
  * full toy collection — a random exhibit on load, auto-advance
- * every 15s, tap the case for the next exhibit (desktop + mobile).
+ * every 7s, tap the case for the next exhibit (desktop + mobile).
  * "Interact with this exhibit" (desktop) opens the full CanvasToy
  * panel pre-loaded with the toy the case is currently showing.
  *
@@ -186,7 +186,7 @@ const hero = load<Hero>('hero.yaml');
     threeBodyToy,
   ];
 
-  const AUTO_ADVANCE_MS = 15000;
+  const AUTO_ADVANCE_MS = 7000;
 
   /** Proper display names for toys whose ids don't capitalize well. */
   const NAME_OVERRIDES: Record<string, string> = {
