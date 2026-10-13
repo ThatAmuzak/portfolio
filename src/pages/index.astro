@@ -12,12 +12,14 @@ import Skills from '../components/Skills.astro';
 import Education from '../components/Education.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
+import SectionRail from '../components/SectionRail.astro';
 
 const site = load<Site>('site.yaml');
 ---
 
 <BaseLayout title={site.title || 'Portfolio'} description={site.description || ''}>
   <Navbar />
+  <SectionRail />
   <main id="main">
     <Hero />
     <CanvasToy />

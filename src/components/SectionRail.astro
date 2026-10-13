@@ -1,0 +1,145 @@
+---
+import { load } from '../lib/data';
+import type { NavItem } from '../lib/types';
+
+const site = load<import('../lib/types').Site>('site.yaml');
+const navItems: NavItem[] = site.nav || [];
+
+// Hash links need the leading '/' so they work from sub-pages like /blogs
+function railHref(item: NavItem) {
+  return item.href.startsWith('#') ? `/${item.href}` : item.href;
+}
+---
+
+{
+  navItems.length > 0 && (
+    <nav
+      id="section-rail"
+      class="hidden lg:flex fixed left-5 top-1/2 -translate-y-1/2 z-40 flex-col gap-4 items-start"
+      aria-label="Section navigation"
+    >
+      {navItems.map((item: NavItem, i: number) => (
+        <a
+          href={railHref(item)}
+          data-section={item.href.replace('#', '')}
+          data-rail
+          class="rail-link nav-link group inline-flex items-center gap-3 no-underline"
+        >
+          <span class="relative flex items-center justify-start w-6 h-[14px]">
+            <span class="rail-tick" aria-hidden="true" />
+          </span>
+          <span class="rail-label">{item.fullName || item.label}</span>
+        </a>
+      ))}
+    </nav>
+  )
+}
+
+<style>
+  .rail-link {
+    cursor: pointer;
+  }
+  .rail-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-tertiary);
+    opacity: 0;
+    transform: translateX(6px);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      color 0.2s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .rail-tick {
+    display: block;
+    width: 14px;
+    height: 2px;
+    background: var(--color-border-strong);
+    transition:
+      width 0.2s ease,
+      background-color 0.2s ease;
+  }
+  .rail-link:hover .rail-label,
+  .rail-link:focus-visible .rail-label {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--color-rust);
+  }
+  .rail-link:hover .rail-tick {
+    background: var(--color-rust);
+    width: 22px;
+  }
+  .rail-link.rail-active .rail-tick {
+    background: var(--color-accent);
+    width: 22px;
+  }
+  .rail-link.rail-active .rail-label {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--color-accent);
+  }
+  /* Fade the rail with the rest of the nav when the exhibit panel is open */
+  #section-rail.nav-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #section-rail {
+    transition: opacity 0.25s ease;
+  }
+</style>
+
+<script>
+  // Scroll-spy for the side rail: highlight the tick of the section
+  // currently in view. Mirrors the navbar's IntersectionObserver ratios
+  // approach (main.js) but drives class toggles instead of an underline.
+  function startRailSpy() {
+    const rail = document.getElementById('section-rail');
+    if (!rail) return;
+    const links = rail.querySelectorAll<HTMLAnchorElement>('.rail-link[data-section]');
+    if (links.length === 0) return;
+
+    const sectionIds = Array.from(links).map((l) => l.dataset.section!);
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => !!el);
+    if (sections.length === 0) return;
+
+    const ratios = new Map<string, number>();
+    let activeId: string | null = null;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => ratios.set(entry.target.id, entry.intersectionRatio));
+        let best: string | null = null;
+        let bestRatio = 0;
+        ratios.forEach((ratio, id) => {
+          if (ratio > bestRatio) {
+            best = id;
+            bestRatio = ratio;
+          }
+        });
+        activeId = bestRatio === 0 ? null : best;
+        links.forEach((link) => {
+          link.classList.toggle('rail-active', link.dataset.section === activeId);
+        });
+      },
+      { rootMargin: '-80px 0px -70% 0px', threshold: [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1] },
+    );
+    sections.forEach((section) => observer.observe(section));
+
+    // Fade the rail alongside the navbar links when the exhibits panel opens
+    document.addEventListener('canvas-toy-panel', ((e: CustomEvent<{ isOpen: boolean }>) => {
+      rail.classList.toggle('nav-hidden', e.detail.isOpen);
+    }) as EventListener);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startRailSpy);
+  } else {
+    startRailSpy();
+  }
+</script>
