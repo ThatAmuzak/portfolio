@@ -1,5 +1,4 @@
-label: '03 // PUBLICATIONS'
-heading: 'Peer-Reviewed Work'
+label: '03 // Publications'
 
 papers:
   - title: 'ThumbSwype: Thumb-to-Finger Gesture Based Text-Entry for Head Mounted Displays'

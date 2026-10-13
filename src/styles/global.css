@@ -5,8 +5,8 @@
 @theme {
   /* Colors — gallery daytime (neutral white, per user-pinned palette amendment) */
   --color-ink: #1b1e24;
-  --color-ink-secondary: #49505e;
-  --color-ink-tertiary: #7c8492;
+  --color-ink-secondary: #3d434e; /* unified grey */
+  --color-ink-tertiary: #3d434e;
   --color-ink-on-dark: #ffffff;
   --color-ink-on-dark-secondary: rgba(255, 255, 255, 0.75);
 
@@ -61,8 +61,8 @@
 /* Dark mode — after-hours gallery */
 .dark {
   --color-ink: #d8dbe5;
-  --color-ink-secondary: #939bb0;
-  --color-ink-tertiary: #5c6478;
+  --color-ink-secondary: #a8b0c4; /* unified grey */
+  --color-ink-tertiary: #a8b0c4;
   --color-ink-on-dark: #ffffff;
   --color-ink-on-dark-secondary: rgba(255, 255, 255, 0.75);
 

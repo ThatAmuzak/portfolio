@@ -1,31 +1,34 @@
 ---
 interface Props {
   label?: string;
-  heading?: string;
   headingMb?: string;
   headingSize?: string;
 }
 
 const {
   label,
-  heading,
   headingMb = 'mb-10',
-  headingSize = 'text-[30px] md:text-[40px]',
+  headingSize = 'text-[22px] md:text-[30px]',
 } = Astro.props;
+
+// Split "01 // About" into the number ("01") and the section name; the
+// separator is rendered in light grey.
+const match = label?.match(/^(\d+)\s*\/\/\s*(.*)$/);
+const number = match?.[1] ?? '';
+const name = match?.[2] ?? label ?? '';
 ---
 
 {
-  (label || heading) && (
+  label && (
     <div class={headingMb}>
-      {label && (
-        <div class="flex items-center gap-4 mb-3">
-          <p class="text-[13px] font-mono text-rust tracking-[0.18em] uppercase m-0 shrink-0">
-            {label}
-          </p>
-          <span class="flex-1 h-px bg-border" aria-hidden="true" />
-        </div>
-      )}
-      {heading && <h2 class={`font-display ${headingSize} font-bold text-ink m-0`}>{heading}</h2>}
+      <div class="flex items-center gap-4">
+        <h2 class={`font-display ${headingSize} font-bold text-ink m-0`}>
+          {number && <span class="text-rust">{number}</span>}
+          <span class="text-ink-tertiary"> //</span>
+          {name && ` ${name}`}
+        </h2>
+        <span class="flex-1 h-px bg-border" aria-hidden="true" />
+      </div>
     </div>
   )
 }

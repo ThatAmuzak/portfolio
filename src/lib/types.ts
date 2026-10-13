@@ -70,7 +70,6 @@ export interface AboutStat {
 
 export interface About {
   label?: string;
-  heading?: string;
   paragraphs: AboutParagraph[];
   stats?: AboutStat[];
 }
@@ -90,7 +89,6 @@ export interface Job {
 
 export interface Experience {
   label?: string;
-  heading?: string;
   jobs: Job[];
 }
 
@@ -111,7 +109,6 @@ export interface Paper {
 
 export interface Publications {
   label?: string;
-  heading?: string;
   papers: Paper[];
 }
 
@@ -125,7 +122,6 @@ export interface SkillCategory {
 
 export interface Skills {
   label?: string;
-  heading?: string;
   categories: SkillCategory[];
 }
 
@@ -148,7 +144,6 @@ export interface Degree {
 
 export interface Education {
   label?: string;
-  heading?: string;
   degrees: Degree[];
 }
 
@@ -171,7 +166,6 @@ export interface FooterData {
 
 export interface Contact {
   label?: string;
-  heading?: string;
   description?: string;
   emailIcon?: string;
   cta?: ContactCTA[];
